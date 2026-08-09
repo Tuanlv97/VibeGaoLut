@@ -306,17 +306,17 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 
 ---
 
-### PHASE 7 — NESTJS BACKEND CLEAN ARCHITECTURE DEVELOPMENT ⚪ [TODO]
+### PHASE 7 — NESTJS BACKEND CLEAN ARCHITECTURE DEVELOPMENT 🟢 [COMPLETED]
 
 #### TASK-P07-01
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Backend Setup
 * **Feature**: NestJS Clean Architecture Project Initialization
 * **Task**: Khởi tạo Backend NestJS & cấu hình Clean Architecture layers
 * **Sub-tasks**:
-  - [ ] 1. Khởi tạo dự án NestJS tại `api/` với TypeScript strict checks.
-  - [ ] 2. Tạo cấu trúc thư mục phân tầng Clean Architecture: `domain/`, `application/`, `infrastructure/`, `presentation/`.
-  - [ ] 3. Setup Global Pipes (`ValidationPipe` với class-validator), Global Exception Filters, Swagger OpenAPI Docs.
+  - [x] 1. Khởi tạo dự án NestJS tại `api/` với TypeScript strict checks.
+  - [x] 2. Tạo cấu trúc thư mục phân tầng Clean Architecture: `domain/`, `application/`, `infrastructure/`, `presentation/`.
+  - [x] 3. Setup Global Pipes (`ValidationPipe` với class-validator), Global Exception Filters, Swagger OpenAPI Docs.
 * **Description**: Dựng bộ khung NestJS tuân thủ nguyên lý Dependency Inversion.
 * **Dependency**: TASK-P01-02
 * **Priority**: HIGH
@@ -324,15 +324,15 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 * **Acceptance Criteria**: Clean Architecture phân tầng đúng, Domain Layer 100% độc lập với NestJS/TypeORM.
 
 #### TASK-P07-02
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Backend Domain Logic
 * **Feature**: Catalog Domain & Application Use Cases
 * **Task**: Phát triển Use Cases & Services cho Catalog Domain (Products & Categories)
 * **Sub-tasks**:
-  - [ ] 1. Định nghĩa Domain Entities: `Product`, `Category`.
-  - [ ] 2. Định nghĩa Repository Interfaces: `IProductRepository`, `ICategoryRepository`.
-  - [ ] 3. Implement Application Use Cases: `GetProductsUseCase`, `GetProductDetailUseCase`, `GetNewProductsUseCase` (Hybrid Domain Rule: `released_at <= 30 days OR is_featured_new = true`), `GetCategoriesUseCase`.
-  - [ ] 4. Viết Unit Tests cho các Business Use Cases.
+  - [x] 1. Định nghĩa Domain Entities: `Product`, `Category`.
+  - [x] 2. Định nghĩa Repository Interfaces: `IProductRepository`, `ICategoryRepository`.
+  - [x] 3. Implement Application Use Cases: `GetProductsUseCase`, `GetProductDetailUseCase`, `GetNewProductsUseCase` (Hybrid Domain Rule: `released_at <= 30 days OR is_featured_new = true`), `GetCategoriesUseCase`.
+  - [x] 4. Viết Unit Tests cho các Business Use Cases.
 * **Description**: Hiện thực hóa toàn bộ logic nghiệp vụ danh mục sản phẩm và sản phẩm mới.
 * **Dependency**: TASK-P07-01
 * **Priority**: HIGH
@@ -340,15 +340,15 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 * **Acceptance Criteria**: Unit Tests đạt coverage > 85%, logic Hybrid New Product chạy chính xác.
 
 #### TASK-P07-03
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Backend Domain Logic
 * **Feature**: Commerce Domain & Order Calculation Use Cases
 * **Task**: Phát triển Use Cases cho Đơn hàng, Checkout & Đánh giá xác thực (Verified Review)
 * **Sub-tasks**:
-  - [ ] 1. Định nghĩa Domain Entities: `Order`, `OrderItem`, `Review`.
-  - [ ] 2. Implement `CreateOrderUseCase`: Validate sản phẩm, kiểm tra tồn kho (stock), tính toán lại tổng tiền từ Backend, sinh Mã đơn hàng ngẫu nhiên duy nhất (vd: `GP-883920`).
-  - [ ] 3. Implement `TrackOrderUseCase`: Tìm đơn hàng bằng Mã đơn + Số điện thoại.
-  - [ ] 4. Implement `CreateReviewUseCase` (Guest Verified Review): Bắt buộc xác minh đơn hàng tương ứng đã `DELIVERED` trước khi gán trạng thái `PENDING`.
+  - [x] 1. Định nghĩa Domain Entities: `Order`, `OrderItem`, `Review`.
+  - [x] 2. Implement `CreateOrderUseCase`: Validate sản phẩm, kiểm tra tồn kho (stock), tính toán lại tổng tiền từ Backend, sinh Mã đơn hàng ngẫu nhiên duy nhất (vd: `GP-883920`).
+  - [x] 3. Implement `TrackOrderUseCase`: Tìm đơn hàng bằng Mã đơn + Số điện thoại.
+  - [x] 4. Implement `CreateReviewUseCase` (Guest Verified Review): Bắt buộc xác minh đơn hàng tương ứng đã `DELIVERED` trước khi gán trạng thái `PENDING`.
 * **Description**: Code nghiệp vụ lõi về bán hàng, tính tiền, kiểm kho và chống spam review.
 * **Dependency**: TASK-P07-02
 * **Priority**: HIGH
@@ -356,14 +356,14 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 * **Acceptance Criteria**: Giá tiền đơn hàng lấy từ DB Backend 100%, Guest chưa mua hàng không thể gửi Review.
 
 #### TASK-P07-04
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Backend Domain Logic
 * **Feature**: Content & Community Domain Use Cases
 * **Task**: Phát triển Use Cases cho Blog & Hỏi đáp Q&A
 * **Sub-tasks**:
-  - [ ] 1. Định nghĩa Domain Entities: `BlogPost`, `BlogCategory`, `Question`, `QuestionAnswer`.
-  - [ ] 2. Implement Use Cases Blog: `GetBlogPostsUseCase`, `GetBlogPostDetailUseCase` (trả về danh sách `relatedProducts`).
-  - [ ] 3. Implement Use Cases Q&A: `GetQuestionsUseCase` (chỉ trả về `APPROVED`), `CreateQuestionUseCase` (tự động gắn cờ `PENDING` chờ kiểm duyệt).
+  - [x] 1. Định nghĩa Domain Entities: `BlogPost`, `BlogCategory`, `Question`, `QuestionAnswer`.
+  - [x] 2. Implement Use Cases Blog: `GetBlogPostsUseCase`, `GetBlogPostDetailUseCase` (trả về danh sách `relatedProducts`).
+  - [x] 3. Implement Use Cases Q&A: `GetQuestionsUseCase` (chỉ trả về `APPROVED`), `CreateQuestionUseCase` (tự động gắn cờ `PENDING` chờ kiểm duyệt).
 * **Description**: Code nghiệp vụ cho Content Commerce và Cộng đồng Hỏi đáp.
 * **Dependency**: TASK-P07-03
 * **Priority**: HIGH
