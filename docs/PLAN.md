@@ -6,7 +6,7 @@
 - **Dự án**: GreenPantry Platform
 - **Tác giả**: Senior Solution Architect & Senior Product Manager
 - **Phiên bản**: 2.3.0 (Detailed Task Breakdown & 18-Screen Stitch Specifications)
-- **Trạng thái**: Phase 1, 2 & 3 Completed 🟢 -> Phase 4 In Progress 🟡
+- **Trạng thái**: Phase 1, 2, 3 & 4 Completed 🟢 -> Phase 5 Pending ⚪
 
 ---
 
@@ -22,7 +22,7 @@ PHASE 2: UX / UI Specification & Design Tokens           [COMPLETED] 🟢
 PHASE 3: Google Stitch UI/UX Design Generation (18 Screens) [COMPLETED] 🟢
    │
    ▼
-PHASE 4: Design Review & Accessibility Audit            [IN_PROGRESS] 🟡
+PHASE 4: Design Review & Accessibility Audit            [COMPLETED] 🟢
    │
    ▼
 PHASE 5: Stitch Design → Next.js Component Mapping            [TODO] ⚪
@@ -190,24 +190,24 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 
 ---
 
-### PHASE 4 — DESIGN REVIEW & ACCESSIBILITY AUDIT 🟡 [IN_PROGRESS]
+### PHASE 4 — DESIGN REVIEW & ACCESSIBILITY AUDIT 🟢 [COMPLETED]
 
 #### TASK-P04-01
-* **Status**: `IN_PROGRESS` 🟡
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Quality Assurance
 * **Feature**: Visual & UX Review Checklist
 * **Task**: Thực hiện kiểm duyệt toàn bộ 18 bản vẽ thiết kế Google Stitch trong `.stitch/`
 * **Sub-tasks**:
-  - [ ] 1. Kiểm tra UX Flow: Kiểm tra tính thông suốt từ Blog → Product Detail → Cart → Checkout → Track Order.
-  - [ ] 2. Kiểm tra Mobile & Tablet Responsive Layout: Đảm bảo giao diện hiển thị mượt mà trên nhiều kích thước màn hình.
-  - [ ] 3. Kiểm tra Empty States (Giỏ hàng trống, không có kết quả tìm kiếm, không có Todo hôm nay).
-  - [ ] 4. Kiểm tra Loading & Out-of-stock States.
-  - [ ] 5. Kiểm tra tính đồng bộ của Design System (Color, Font, Buttons, Cards).
-* **Description**: Thực hiện audit toàn diện thiết kế UI/UX trên Stitch và ghi nhận phản hồi sửa đổi (nếu có).
+  - [x] 1. Kiểm tra UX Flow: Kiểm tra tính thông suốt từ Blog → Product Detail → Cart → Checkout → Track Order.
+  - [x] 2. Kiểm tra Mobile & Tablet Responsive Layout: Đảm bảo giao diện hiển thị mượt mà trên nhiều kích thước màn hình.
+  - [x] 3. Kiểm tra Empty States (Giỏ hàng trống, không có kết quả tìm kiếm, không có Todo hôm nay).
+  - [x] 4. Kiểm tra Loading & Out-of-stock States.
+  - [x] 5. Kiểm tra tính đồng bộ của Design System (Color, Font, Buttons, Cards).
+* **Description**: Đã thực hiện audit toàn diện thiết kế UI/UX trên 18 màn hình Stitch và cấp chứng nhận Approve tại tài liệu `docs/DESIGN_REVIEW_AUDIT.md`.
 * **Dependency**: TASK-P03-02
 * **Priority**: HIGH
-* **Expected Output**: Bản đánh giá Design Review Checklist được Approve 100%.
-* **Acceptance Criteria**: Không còn lỗi UX flow, giao diện đạt chứng nhận Approve để chuyển sang bước Dev.
+* **Expected Output**: Bản đánh giá Design Review Checklist được Approve 100% tại `docs/DESIGN_REVIEW_AUDIT.md`.
+* **Acceptance Criteria**: Không còn lỗi UX flow, giao diện đạt chứng nhận Approve 100% để chuyển sang Phase 5.
 
 ---
 
