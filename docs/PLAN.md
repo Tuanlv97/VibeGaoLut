@@ -5,8 +5,8 @@
 
 - **Dự án**: GreenPantry Platform
 - **Tác giả**: Senior Solution Architect & Senior Product Manager
-- **Phiên bản**: 2.9.0 (Phase 9 E2E Feature Integration Completed)
-- **Trạng thái**: Phase 1, 2, 3, 4, 5, 6, 7, 8 & 9 Completed 🟢 -> Phase 10 Pending ⚪
+- **Phiên bản**: 3.0.0 (Phase 10 Admin Management Portal Added to Plan)
+- **Trạng thái**: Phase 1, 2, 3, 4, 5, 6, 7, 8 & 9 Completed 🟢 -> Phase 10 Admin Management Portal Development 🟡 -> Phase 11 & 12 Pending ⚪
 
 ---
 
@@ -40,10 +40,13 @@ PHASE 8: PostgreSQL Integration & TypeORM Data Mappers   [COMPLETED] 🟢
 PHASE 9: E2E Integration (Frontend + Backend REST APIs)  [COMPLETED] 🟢
    │
    ▼
-PHASE 10: Comprehensive Testing (Unit, Integration, E2E)       [TODO] ⚪
+PHASE 10: Admin Management Portal Development (Design + FE/BE) [IN PROGRESS] 🟡
    │
    ▼
-PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
+PHASE 11: Comprehensive Testing (Unit, Integration, E2E)       [TODO] ⚪
+   │
+   ▼
+PHASE 12: Production Deployment & Infrastructure Setup         [TODO] ⚪
 ```
 
 ---
@@ -429,9 +432,95 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 
 ---
 
-### PHASE 10 — COMPREHENSIVE TESTING ⚪ [TODO]
+### PHASE 10 — ADMIN MANAGEMENT PORTAL DEVELOPMENT 🟡 [IN PROGRESS]
 
 #### TASK-P10-01
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Admin UI Design
+* **Feature**: Admin Visual Mockups & Stitch Prompts
+* **Task**: Thiết kế giao diện trực quan cho Admin Management Portal (`SCR-19` đến `SCR-24`)
+* **Sub-tasks**:
+  - [x] 1. Thiết kế `SCR-19`: Admin Dashboard & Overview (`/admin`).
+  - [x] 2. Thiết kế `SCR-20`: Admin Product Management Table & Actions (`/admin/products`).
+  - [x] 3. Thiết kế `SCR-21`: Admin Product Form Add/Edit (`/admin/products/new`).
+  - [x] 4. Thiết kế `SCR-22`: Admin Order Approval & Status Management (`/admin/orders`).
+  - [x] 5. Thiết kế `SCR-23`: Admin Blog Article Management (`/admin/blog`).
+  - [x] 6. Thiết kế `SCR-24`: Admin Community Q&A Moderation (`/admin/questions`).
+  - [x] 7. Lưu bộ ảnh UI Mockups chuẩn Design Tokens tại `.stitch/SCR-19_admin_dashboard.png`, `SCR-20_admin_products.png`, `SCR-21_admin_product_form.png`, `SCR-22_admin_orders.png`, `SCR-23_admin_blog.png`, `SCR-24_admin_qa.png`.
+* **Description**: Biên soạn Prompts và sinh bộ ảnh UI Mockups hoàn chỉnh cho Admin Portal (Sản phẩm, Đơn hàng, Bài viết Blog & Hỏi đáp Q&A) trước khi viết code.
+* **Dependency**: TASK-P09-01
+* **Priority**: HIGH
+* **Expected Output**: 6 Ảnh UI Mockups Admin hoàn chỉnh tại thư mục `.stitch/`.
+* **Acceptance Criteria**: Tuân thủ bảng màu Sage Green + Dark Slate Neutrals, hiển thị đầy đủ quản lý sản phẩm, đơn hàng, bài viết và hỏi đáp.
+
+#### TASK-P10-02
+* **Status**: `TODO` ⚪
+* **Epic**: Admin Component Architecture
+* **Feature**: Admin Component & Route Mapping
+* **Task**: Phân rã giao diện Admin thành cây linh kiện React Component & Next.js App Router Structure
+* **Sub-tasks**:
+  - [ ] 1. Định nghĩa layout quản trị: `web/app/admin/layout.tsx` (Sidebar + Top Navigation Bar).
+  - [ ] 2. Định nghĩa components quản trị sản phẩm: `AdminProductTable`, `ProductFormModal`, `DeleteConfirmModal`.
+  - [ ] 3. Định nghĩa components quản trị đơn hàng: `AdminOrderTable`, `OrderStatusBadge`, `OrderStatusSelector`.
+* **Description**: Xây dựng cấu trúc linh kiện cho Admin Portal phía Frontend.
+* **Dependency**: TASK-P10-01
+* **Priority**: HIGH
+* **Expected Output**: Bảng Mapping Linh kiện Admin đầy đủ.
+* **Acceptance Criteria**: Đảm bảo cấu trúc code sạch, tái sử dụng UI Primitives.
+
+#### TASK-P10-03
+* **Status**: `TODO` ⚪
+* **Epic**: Backend Admin Domain
+* **Feature**: NestJS Admin REST APIs & Use Cases
+* **Task**: Phát triển Use Cases & Controllers cho Admin Portal
+* **Sub-tasks**:
+  - [ ] 1. Implement Product CRUD Use Cases: `CreateProductUseCase`, `UpdateProductUseCase`, `DeleteProductUseCase`.
+  - [ ] 2. Implement Order Management Use Cases: `GetAdminOrdersUseCase`, `UpdateOrderStatusUseCase` (`PENDING` -> `CONFIRMED` -> `PROCESSING` -> `SHIPPED` -> `DELIVERED` -> `CANCELLED`).
+  - [ ] 3. Implement Dashboard Stats Use Case: `GetAdminStatsUseCase` (Doanh thu, số đơn, đơn chờ duyệt, số sản phẩm).
+  - [ ] 4. Mở rộng `AdminController` (`/api/v1/admin/*`) với Swagger API documentation đầy đủ.
+* **Description**: Cung cấp bộ REST API quản trị cho Admin Portal.
+* **Dependency**: TASK-P10-02
+* **Priority**: HIGH
+* **Expected Output**: NestJS Controller `/api/v1/admin/*` cùng các Business Use Cases hoàn chỉnh.
+* **Acceptance Criteria**: Phù hợp Clean Architecture, API validation chặt chẽ bằng class-validator.
+
+#### TASK-P10-04
+* **Status**: `TODO` ⚪
+* **Epic**: Frontend Admin Portal
+* **Feature**: Next.js Admin UI & TanStack Query Mutations
+* **Task**: Phát triển giao diện Admin Web App tại `/admin`
+* **Sub-tasks**:
+  - [ ] 1. Code `web/app/admin/layout.tsx` & `web/features/admin/AdminSidebar.tsx`.
+  - [ ] 2. Code `web/app/admin/page.tsx` (Dashboard chỉ số & đơn mới).
+  - [ ] 3. Code `web/app/admin/products/page.tsx` (Bảng Sản phẩm + Modal/Trang Thêm/Sửa/Xóa).
+  - [ ] 4. Code `web/app/admin/orders/page.tsx` (Bảng Đơn hàng + Tabs trạng thái + Dropdown duyệt nhanh).
+  - [ ] 5. Tích hợp TanStack Query hooks `useAdminStats`, `useAdminOrders`, `useUpdateOrderStatus`, `useCreateProduct`, `useUpdateProduct`, `useDeleteProduct`.
+* **Description**: Hiện thực hóa giao diện Admin Portal trực quan cho phép Thêm/Sửa/Xóa sản phẩm và Duyệt đơn hàng.
+* **Dependency**: TASK-P10-03
+* **Priority**: HIGH
+* **Expected Output**: Trang `/admin` hoạt động đầy đủ tính năng Thêm/Sửa/Xóa sản phẩm và Duyệt đơn hàng.
+* **Acceptance Criteria**: Giao diện mượt mà, phản hồi Toast realtime, không có lỗi console.
+
+#### TASK-P10-05
+* **Status**: `TODO` ⚪
+* **Epic**: Integration & Verification
+* **Feature**: Admin Portal E2E Validation
+* **Task**: Kiểm thử liên thông giữa Admin Portal và Guest Storefront
+* **Sub-tasks**:
+  - [ ] 1. Kiểm thử tạo sản phẩm mới ở Admin -> Xuất hiện ngay lập tức trên Guest Storefront `/products`.
+  - [ ] 2. Kiểm thử sửa/xóa sản phẩm ở Admin -> Cập nhật tương ứng trên Guest Storefront.
+  - [ ] 3. Kiểm thử Guest đặt hàng COD (`GP-883920`) -> Hiện ở Admin `/admin/orders` -> Admin duyệt đơn `DELIVERED` -> Guest tra cứu tại `/orders/track` thấy trạng thái `DELIVERED`.
+* **Description**: Đảm bảo sự nhất quán dữ liệu 100% giữa Admin Portal và Guest Storefront.
+* **Dependency**: TASK-P10-04
+* **Priority**: HIGH
+* **Expected Output**: Luồng quản trị dữ liệu hoạt động hoàn hảo 100%.
+* **Acceptance Criteria**: Dữ liệu đồng bộ realtime giữa BE và cả 2 FE portals (Guest & Admin).
+
+---
+
+### PHASE 11 — COMPREHENSIVE TESTING ⚪ [TODO]
+
+#### TASK-P11-01
 * **Status**: `TODO` ⚪
 * **Epic**: Quality Assurance
 * **Feature**: Business-Critical Flow Testing
@@ -441,16 +530,16 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
   - [ ] 2. **Frontend Component Testing**: Test giao diện Giỏ hàng Zustand và Daily Todo chọn ngày.
   - [ ] 3. **E2E Testing**: Viết Playwright/Cypress E2E test tự động chạy luồng Guest Checkout từ xem sản phẩm → thêm giỏ → checkout COD → xem Order Success → tra cứu Order Tracking.
 * **Description**: Đảm bảo chất lượng sản phẩm không phát sinh lỗi nghiêm trọng (Zero Critical Bugs).
-* **Dependency**: TASK-P09-01
+* **Dependency**: TASK-P10-05
 * **Priority**: HIGH
 * **Expected Output**: Bộ Test suite tự động qua 100% (Pass).
 * **Acceptance Criteria**: Luồng Guest Checkout và Daily Todo đạt 100% kịch bản thành công.
 
 ---
 
-### PHASE 11 — PRODUCTION DEPLOYMENT & INFRASTRUCTURE SETUP ⚪ [TODO]
+### PHASE 12 — PRODUCTION DEPLOYMENT & INFRASTRUCTURE SETUP ⚪ [TODO]
 
-#### TASK-P11-01
+#### TASK-P12-01
 * **Status**: `TODO` ⚪
 * **Epic**: DevOps & Deployment
 * **Feature**: Production Build & Server Deployment
@@ -463,16 +552,16 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
   - [ ] 5. Cấu hình biến môi trường (`.env.production`): `DATABASE_URL`, `PORT`, `CORS_ORIGIN`, `NEXT_PUBLIC_API_URL`.
   - [ ] 6. Thiết lập SSL Certificate (HTTPS) & cấu hình Domain (vd: `greenpantry.vn`).
 * **Description**: Đưa hệ thống GreenPantry chính thức hoạt động công khai.
-* **Dependency**: TASK-P10-01
+* **Dependency**: TASK-P11-01
 * **Priority**: HIGH
 * **Expected Output**: Website GreenPantry chạy trên domain chính thức với chứng chỉ HTTPS an toàn.
 * **Acceptance Criteria**: Tốc độ tải trang < 1.5s, 100% tính năng Guest Checkout & Daily Todo hoạt động ổn định trên Production.
 
 ---
 
-## 3. 18 SCREEN SPECIFICATIONS & COMPONENT MAPPING MATRIX
+## 3. 22 SCREEN SPECIFICATIONS & COMPONENT MAPPING MATRIX
 
-> Bảng quy chuẩn dưới đây lưu giữ **Screen IDs (`SCR-01` -> `SCR-18`)**, Google Stitch Prompts, Cấu trúc bố cục, Linh kiện React Component tương ứng và 4 Trạng thái UI chuẩn bị cho Hand-off Phase 3 và Phase 5.
+> Bảng quy chuẩn dưới đây lưu giữ **Screen IDs (`SCR-01` -> `SCR-22`)**, Google Stitch Prompts, Cấu trúc bố cục, Linh kiện React Component tương ứng và 4 Trạng thái UI chuẩn bị cho Hand-off Phase 3 và Phase 5.
 
 ---
 
@@ -939,7 +1028,140 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 
 ---
 
-### 3.4. COMPONENT & SCREEN CROSS-REFERENCE SUMMARY
+### 3.4. ADMIN MANAGEMENT DOMAIN SCREENS (SCR-19 -> SCR-22)
+
+#### 🟢 SCR-19: Admin Dashboard & Overview (Trang Tổng Quan Báo Cáo & Thống Kê Admin)
+* **Screen ID**: `SCR-19`
+* **Route**: `/admin`
+* **Local UI Image**: [SCR-19_admin_dashboard.png](file:///c:/Users/Tho%20Code/DuAn_CongTy/VibeGaoLut/.stitch/SCR-19_admin_dashboard.png)
+* **Target React Page**: `web/app/admin/page.tsx`
+* **Mapped React Components**:
+  - `features/admin/AdminSidebar.tsx` (Left navigation bar: Dashboard, Products, Orders, Reviews, Q&A)
+  - `features/admin/AdminHeader.tsx` (Top bar with Admin Profile & Notifications)
+  - `features/admin/AdminStatCard.tsx` (Metric cards: Revenue, Total Orders, Pending Orders, Total Products)
+  - `features/admin/RecentOrdersTable.tsx` (Recent orders table with status badges)
+* **Google Stitch Prompt**:
+  ```markdown
+  A clean, modern Admin Management Dashboard UI for "GreenPantry" healthy food e-commerce platform.
+  PLATFORM: Web Desktop Dashboard layout.
+  PAGE STRUCTURE:
+  1. Sidebar Navigation (Left): Dark Slate sidebar with brand logo, and menu links (Tổng Quan, Sản Phẩm, Đơn Hàng, Đánh Giá, Hỏi Đáp).
+  2. Header Bar (Top): User Profile avatar "Admin GreenPantry", notification bell icon.
+  3. KPI Stats Grid: 4 summary cards (Tổng doanh thu '154.200.000đ', Tổng đơn hàng '1,248', Đơn chờ duyệt '18', Tổng sản phẩm '42') styled with Sage Green accents.
+  4. Recent Orders Section: Data table listing 5 recent guest orders with Order ID, Customer Name, Date, Amount, Payment Method (COD), and Status Badges.
+  ```
+* **Navigation Flow**: -> `/admin/products` (Quản lý sản phẩm), -> `/admin/orders` (Duyệt đơn hàng).
+
+---
+
+#### 🟢 SCR-20: Admin Product Management Page (Trang Quản Lý & Bảng Sản Phẩm Admin)
+* **Screen ID**: `SCR-20`
+* **Route**: `/admin/products`
+* **Local UI Image**: [SCR-20_admin_products.png](file:///c:/Users/Tho%20Code/DuAn_CongTy/VibeGaoLut/.stitch/SCR-20_admin_products.png)
+* **Target React Page**: `web/app/admin/products/page.tsx`
+* **Mapped React Components**:
+  - `features/admin/AdminProductTable.tsx` (Product table with image, name, price, stock, new arrival badge)
+  - `features/admin/ProductFilterBar.tsx` (Search input, category dropdown, clear filter)
+  - `features/admin/DeleteConfirmModal.tsx` (Delete confirmation dialog)
+* **Google Stitch Prompt**:
+  ```markdown
+  An Admin Product Management UI for "GreenPantry".
+  PLATFORM: Web Desktop Data Table layout.
+  PAGE STRUCTURE:
+  1. Header Bar: Page title "Quản Lý Sản Phẩm", primary CTA button "+ Thêm Sản Phẩm Mới".
+  2. Search & Filter Bar: Search box by product name, category dropdown, and status filter.
+  3. Product Data Table: Table columns showing Thumbnail, Product Name, Category, Price, Stock, New Arrival Flag Toggle, and Actions (Edit, Delete).
+  ```
+* **Navigation Flow**: -> `/admin/products/new` (Click Thêm sản phẩm), -> `/admin/products/[id]/edit` (Click Sửa sản phẩm).
+
+---
+
+#### 🟢 SCR-21: Admin Product Add/Edit Form Page (Trang Form Thêm & Sửa Sản Phẩm)
+* **Screen ID**: `SCR-21`
+* **Route**: `/admin/products/new` & `/admin/products/[id]/edit`
+* **Local UI Image**: [SCR-21_admin_product_form.png](file:///c:/Users/Tho%20Code/DuAn_CongTy/VibeGaoLut/.stitch/SCR-21_admin_product_form.png)
+* **Target React Page**: `web/app/admin/products/new/page.tsx`
+* **Mapped React Components**:
+  - `features/admin/ProductForm.tsx` (Form inputs for name, price, compare price, stock, category, origin, ingredients, nutrition, image dropzone, new arrival toggle)
+* **Google Stitch Prompt**:
+  ```markdown
+  An Admin Product Add/Edit Form UI for "GreenPantry".
+  PLATFORM: Web Desktop 2-column Form layout.
+  PAGE STRUCTURE:
+  1. Header: Title "Thêm Sản Phẩm Mới", Back to product list link.
+  2. Form Details (Left Column): Input fields for Product Name, Category, Price, Compare Price, Stock Quantity, Weight Unit, Origin, Ingredients, Description.
+  3. Media & Flags (Right Column): Image upload dropzone area, Image previews gallery, and Toggle switch for "Sản Phẩm Mới (New Arrival)".
+  4. Actions: Primary CTA "Lưu Sản Phẩm" in Sage Green.
+  ```
+* **Navigation Flow**: -> `/admin/products` (Sau khi lưu hoặc bấm Hủy).
+
+---
+
+#### 🟢 SCR-22: Admin Order Management & Approval Page (Trang Quản Lý & Duyệt Đơn Hàng Admin)
+* **Screen ID**: `SCR-22`
+* **Route**: `/admin/orders`
+* **Local UI Image**: [SCR-22_admin_orders.png](file:///c:/Users/Tho%20Code/DuAn_CongTy/VibeGaoLut/.stitch/SCR-22_admin_orders.png)
+* **Target React Page**: `web/app/admin/orders/page.tsx`
+* **Mapped React Components**:
+  - `features/admin/AdminOrderTable.tsx` (Orders list table with status selector & detail modal trigger)
+  - `features/admin/OrderStatusTabs.tsx` (Filter tabs: Tất cả, PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED)
+  - `features/admin/OrderDetailsModal.tsx` (Detailed view of order items & customer address)
+* **Google Stitch Prompt**:
+  ```markdown
+  An Admin Order Approval & Status Management UI for "GreenPantry".
+  PLATFORM: Web Desktop Data Table layout.
+  PAGE STRUCTURE:
+  1. Header: Page title "Quản Lý & Duyệt Đơn Hàng".
+  2. Status Filter Tabs: Horizontal filter tabs (Tất cả, Chờ duyệt PENDING, Đã xác nhận, Đang đóng gói, Đang giao, Đã giao, Đã hủy).
+  3. Orders Data Table: Columns showing Order Number (GP-883920), Customer Name, Phone, Items Summary, Total Amount (COD), Date, Status Badge, and Action dropdown "Chuyển Trạng Thái" (Confirm / Ship / Deliver / Cancel).
+  ```
+* **Navigation Flow**: Direct status updates via dropdown or view details modal.
+
+---
+
+#### 🟢 SCR-23: Admin Blog Article Management Page (Trang Quản Lý Bài Viết Blog Admin)
+* **Screen ID**: `SCR-23`
+* **Route**: `/admin/blog`
+* **Local UI Image**: [SCR-23_admin_blog.png](file:///c:/Users/Tho%20Code/DuAn_CongTy/VibeGaoLut/.stitch/SCR-23_admin_blog.png)
+* **Target React Page**: `web/app/admin/blog/page.tsx`
+* **Mapped React Components**:
+  - `features/admin/AdminBlogTable.tsx` (Blog post list table with title, category, author, date, linked products count)
+  - `features/admin/BlogFormModal.tsx` (Create/Edit article modal with product attachment selector)
+* **Google Stitch Prompt**:
+  ```markdown
+  An Admin Blog Article Management UI for "GreenPantry".
+  PLATFORM: Web Desktop Data Table layout.
+  PAGE STRUCTURE:
+  1. Header Bar: Title "Quản Lý Bài Viết Blog", primary CTA "+ Viết Bài Mới".
+  2. Filter Bar: Search input bar by article title, category dropdown filter.
+  3. Blog Data Table: Columns showing Cover Image, Title, Category, Author, Published Date, Linked Products count, Status (Published/Draft), Actions (Edit, Delete).
+  ```
+* **Navigation Flow**: Open modal or page to edit articles.
+
+---
+
+#### 🟢 SCR-24: Admin Community Q&A Moderation Page (Trang Duyệt & Trả Lời Hỏi Đáp Q&A Admin)
+* **Screen ID**: `SCR-24`
+* **Route**: `/admin/questions`
+* **Local UI Image**: [SCR-24_admin_qa.png](file:///c:/Users/Tho%20Code/DuAn_CongTy/VibeGaoLut/.stitch/SCR-24_admin_qa.png)
+* **Target React Page**: `web/app/admin/questions/page.tsx`
+* **Mapped React Components**:
+  - `features/admin/AdminQaTable.tsx` (Q&A moderation table with approve/reject actions)
+  - `features/admin/AnswerQaModal.tsx` (Modal to add official reply to guest question)
+* **Google Stitch Prompt**:
+  ```markdown
+  An Admin Community Q&A Moderation UI for "GreenPantry".
+  PLATFORM: Web Desktop Data Table layout.
+  PAGE STRUCTURE:
+  1. Header: Page title "Duyệt & Trả Lời Câu Hỏi Q&A".
+  2. Status Tabs: Filter tabs [Chờ Duyệt (PENDING)], [Đã Duyệt (APPROVED)], [Bị Từ Chối (REJECTED)].
+  3. Q&A Data Table: Columns showing Guest Name, Email, Question Content, Related Product Tag, Date, Status Badge, and Action buttons ("Duyệt & Phản Hồi", "Từ Chối").
+  ```
+* **Navigation Flow**: Open answer modal to approve and reply to guest questions.
+
+---
+
+### 3.5. COMPONENT & SCREEN CROSS-REFERENCE SUMMARY
 
 | Screen ID | Screen Name | Route Path | Primary Feature Component | State Management |
 | :--- | :--- | :--- | :--- | :--- |
@@ -961,6 +1183,12 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 | `SCR-16` | Ask Question Form | `/questions/new` | `AskQuestionForm` | TanStack Query Mutation |
 | `SCR-17` | Daily Todo | `/todo` | `DatePickerHeader`, `TodoList`, `AddTodoForm` | Zustand Client Store (`todo-store.ts`) |
 | `SCR-18` | Unified Search | `/search` | `SearchResultTabs`, `ProductGrid`, `BlogGrid` | TanStack Query (`useSearch`) |
+| `SCR-19` | Admin Dashboard | `/admin` | `AdminSidebar`, `AdminHeader`, `AdminStatCard` | Client Component (`'use client'`) |
+| `SCR-20` | Admin Product List | `/admin/products` | `AdminProductTable`, `ProductFilterBar` | TanStack Query (`useAdminProducts`) |
+| `SCR-21` | Admin Product Form | `/admin/products/new` | `ProductForm` | React Hook Form + TanStack Query Mutation |
+| `SCR-22` | Admin Order Approval | `/admin/orders` | `AdminOrderTable`, `OrderStatusTabs` | TanStack Query (`useAdminOrders`) |
+| `SCR-23` | Admin Blog Management | `/admin/blog` | `AdminBlogTable`, `BlogFormModal` | TanStack Query (`useAdminBlogPosts`) |
+| `SCR-24` | Admin Q&A Moderation | `/admin/questions` | `AdminQaTable`, `AnswerQaModal` | TanStack Query (`useAdminQuestions`) |
 
 ---
 
@@ -1055,6 +1283,14 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 * `SearchInputBar.tsx` (`Client Component`): Thanh tìm kiếm hợp nhất có chức năng debounced search input.
 * `SearchResultTabs.tsx` (`Client Component`): Dynamic tabs hiển thị số lượng kết quả theo danh mục (Tất cả, Sản phẩm, Bài viết, Hỏi đáp).
 
+#### I. Admin Feature Domain (`web/features/admin/`)
+* `AdminSidebar.tsx` (`Client Component`): Nav bar bên trái của Admin Portal với logo và các menu mục quản trị.
+* `AdminHeader.tsx` (`Client Component`): Header trên cùng chứa thông tin admin và nút quay về Storefront.
+* `AdminStatCard.tsx` (`Client Component`): Thẻ hiển thị chỉ số KPI (Doanh thu, Đơn hàng, Đơn chờ duyệt, Số sản phẩm).
+* `AdminProductTable.tsx` (`Client Component`): Bảng dữ liệu quản lý sản phẩm với thao tác Sửa, Xóa và bật/tắt cờ Sản Phẩm Mới.
+* `ProductForm.tsx` (`Client Component`): Form nhập thông tin sản phẩm (Tên, giá, tồn kho, thành phần, ảnh, cờ New Arrival).
+* `AdminOrderTable.tsx` (`Client Component`): Bảng dữ liệu quản lý đơn hàng với dropdown chuyển trạng thái nhanh (`PENDING` -> `DELIVERED`).
+
 ---
 
 ### 4.3. RENDER ARCHITECTURE BOUNDARY & STATE CLASSIFICATION
@@ -1069,6 +1305,11 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 | `web/app/cart/page.tsx` | Client Component (`'use client'`) | Phụ thuộc 100% vào Zustand Store `cart-store` & `localStorage` phía Client. |
 | `web/app/checkout/page.tsx` | Client Component (`'use client'`) | Xử lý Form tương tác `react-hook-form`, validation realtime và gửi API Mutation. |
 | `web/app/orders/track/page.tsx` | Client Component (`'use client'`) | Nhập thông tin tra cứu động và hiển thị kết quả từ API Query. |
+| `web/app/admin/page.tsx` | Client Component (`'use client'`) | Dashboard Admin tương tác dữ liệu biến đổi từ REST APIs. |
+| `web/app/admin/products/page.tsx` | Client Component (`'use client'`) | Phục vụ các thao tác CRUD sản phẩm trực tiếp. |
+| `web/app/admin/orders/page.tsx` | Client Component (`'use client'`) | Duyệt và chuyển trạng thái đơn hàng realtime. |
+| `web/app/admin/blog/page.tsx` | Client Component (`'use client'`) | Quản lý bài viết blog và đính kèm sản phẩm. |
+| `web/app/admin/questions/page.tsx` | Client Component (`'use client'`) | Duyệt và nhập câu trả lời Q&A từ cộng đồng. |
 | `web/components/ui/Navbar.tsx` | Client Component (`'use client'`) | Đọc số lượng sản phẩm từ `cart-store` để cập nhật badge số giỏ hàng realtime. |
 | `features/product/ProductCard.tsx` | Client Component (`'use client'`) | Chứa handler click nút "Thêm vào giỏ hàng" kích hoạt Zustand action. |
 | `features/blog/RelatedProductsWidget.tsx` | Client Component (`'use client'`) | Cho phép click "Thêm vào giỏ" ngay trong bài viết blog mà không cần chuyển trang. |
