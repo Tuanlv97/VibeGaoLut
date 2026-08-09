@@ -5,8 +5,8 @@
 
 - **Dự án**: GreenPantry Platform
 - **Tác giả**: Senior Solution Architect & Senior Product Manager
-- **Phiên bản**: 2.4.0 (Phase 5 Component Architecture Completed)
-- **Trạng thái**: Phase 1, 2, 3, 4 & 5 Completed 🟢 -> Phase 6 Pending ⚪
+- **Phiên bản**: 2.5.0 (Phase 6 Frontend Development Completed)
+- **Trạng thái**: Phase 1, 2, 3, 4, 5 & 6 Completed 🟢 -> Phase 7 Pending ⚪
 
 ---
 
@@ -28,7 +28,7 @@ PHASE 4: Design Review & Accessibility Audit            [COMPLETED] 🟢
 PHASE 5: Stitch Design → Next.js Component Mapping        [COMPLETED] 🟢
    │
    ▼
-PHASE 6: Frontend Development (Next.js, Tailwind, Stores)      [TODO] ⚪
+PHASE 6: Frontend Development (Next.js, Tailwind, Stores) [COMPLETED] 🟢
    │
    ▼
 PHASE 7: NestJS Backend Clean Architecture Development         [TODO] ⚪
@@ -237,19 +237,19 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 
 ---
 
-### PHASE 6 — FRONTEND DEVELOPMENT (NEXT.JS & CLIENT STORES) ⚪ [TODO]
+### PHASE 6 — FRONTEND DEVELOPMENT (NEXT.JS & CLIENT STORES) 🟢 [COMPLETED]
 
 #### TASK-P06-01
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Frontend Setup
 * **Feature**: Next.js Project & Global Infrastructure Initialization
 * **Task**: Khởi tạo dự án Next.js App Router & cài đặt thư viện UI/State
 * **Sub-tasks**:
-  - [ ] 1. Khởi tạo `web/` với Next.js App Router + TypeScript strict mode.
-  - [ ] 2. Setup Tailwind CSS, cấu hình `tailwind.config.ts` với Bảng màu Sage Green, Beige, Terracotta và Typography Inter.
-  - [ ] 3. Cài đặt và cấu hình TanStack Query v5 Client Provider.
-  - [ ] 4. Cài đặt Zustand, React Hook Form, Zod, Lucide-react icons.
-  - [ ] 5. Xây dựng bộ UI Primitives tại `components/ui/`.
+  - [x] 1. Khởi tạo `web/` với Next.js App Router + TypeScript strict mode.
+  - [x] 2. Setup Tailwind CSS, cấu hình `tailwind.config.ts` với Bảng màu Sage Green, Beige, Terracotta và Typography Inter.
+  - [x] 3. Cài đặt và cấu hình TanStack Query v5 Client Provider.
+  - [x] 4. Cài đặt Zustand, React Hook Form, Zod, Lucide-react icons.
+  - [x] 5. Xây dựng bộ UI Primitives tại `components/ui/`.
 * **Description**: Tạo dựng bộ khung dự án Frontend tiêu chuẩn sẵn sàng lắp ráp UI.
 * **Dependency**: TASK-P05-01
 * **Priority**: HIGH
@@ -257,14 +257,14 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 * **Acceptance Criteria**: Không có lỗi lint/build, UI Primitives hiển thị chuẩn theo Design System.
 
 #### TASK-P06-02
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Frontend Feature
 * **Feature**: Client Stores (Cart & Daily Todo) Implementation
 * **Task**: Triển khai các Zustand Stores cho Giỏ hàng & Daily Todo
 * **Sub-tasks**:
-  - [ ] 1. Tạo `stores/cart-store.ts`: Quản lý thêm/sửa/xóa sản phẩm, tự động tính tổng tiền Client, kết hợp `persist` middleware (`greenpantry_cart`).
-  - [ ] 2. Tạo `stores/todo-store.ts`: Quản lý Todo theo ngày (`TaskDate` dạng `YYYY-MM-DD`), tính năng thêm/sửa/xóa/tích hoàn thành, `persist` middleware (`greenpantry_todos`).
-  - [ ] 3. Viết Unit Test độc lập cho các thao tác trong Cart Store và Todo Store.
+  - [x] 1. Tạo `stores/cart-store.ts`: Quản lý thêm/sửa/xóa sản phẩm, tự động tính tổng tiền Client, kết hợp `persist` middleware (`greenpantry_cart`).
+  - [x] 2. Tạo `stores/todo-store.ts`: Quản lý Todo theo ngày (`TaskDate` dạng `YYYY-MM-DD`), tính năng thêm/sửa/xóa/tích hoàn thành, `persist` middleware (`greenpantry_todos`).
+  - [x] 3. Viết Unit Test độc lập cho các thao tác trong Cart Store và Todo Store.
 * **Description**: Hiện thực hóa quản lý state phía Client cho Guest User mà không cần Server DB.
 * **Dependency**: TASK-P06-01
 * **Priority**: HIGH
@@ -272,16 +272,16 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 * **Acceptance Criteria**: F5 trang hoặc đóng trình duyệt dữ liệu Giỏ hàng & Todo không bị mất, Todo phân tách đúng từng ngày.
 
 #### TASK-P06-03
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Frontend Feature
 * **Feature**: E-commerce Pages & Components UI Implementation
 * **Task**: Lắp ráp giao diện các trang E-commerce (Home, Product, Cart, Checkout, Track Order)
 * **Sub-tasks**:
-  - [ ] 1. Xây dựng Home Page (`app/page.tsx`) & các sections (Hero, Categories, New Arrivals, Featured).
-  - [ ] 2. Xây dựng Product Listing (`app/products/page.tsx`) & Lọc/Sắp xếp.
-  - [ ] 3. Xây dựng Product Detail (`app/products/[slug]/page.tsx`) & Album ảnh, Nutrition, Reviews block, Q&A block.
-  - [ ] 4. Xây dựng Cart (`app/cart/page.tsx`) & Checkout (`app/checkout/page.tsx`).
-  - [ ] 5. Xây dựng Order Success & Track Order (`app/orders/track/page.tsx`).
+  - [x] 1. Xây dựng Home Page (`app/page.tsx`) & các sections (Hero, Categories, New Arrivals, Featured).
+  - [x] 2. Xây dựng Product Listing (`app/products/page.tsx`) & Lọc/Sắp xếp.
+  - [x] 3. Xây dựng Product Detail (`app/products/[slug]/page.tsx`) & Album ảnh, Nutrition, Reviews block, Q&A block.
+  - [x] 4. Xây dựng Cart (`app/cart/page.tsx`) & Checkout (`app/checkout/page.tsx`).
+  - [x] 5. Xây dựng Order Success & Track Order (`app/orders/track/page.tsx`).
 * **Description**: Code hoàn chỉnh giao diện các trang E-commerce chuẩn Stitch Design.
 * **Dependency**: TASK-P06-02
 * **Priority**: HIGH
@@ -289,15 +289,15 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 * **Acceptance Criteria**: Đúng 100% bản vẽ Stitch, responsive hoàn hảo trên Mobile/Desktop.
 
 #### TASK-P06-04
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Frontend Feature
 * **Feature**: Content, Q&A & Daily Todo Pages Implementation
 * **Task**: Lắp ráp giao diện các trang Blog, Hỏi đáp Q&A, Daily Todo & Search
 * **Sub-tasks**:
-  - [ ] 1. Xây dựng Blog Listing (`app/blog/page.tsx`) & Blog Detail (`app/blog/[slug]/page.tsx`) tích hợp widget "Sản phẩm trong bài".
-  - [ ] 2. Xây dựng Q&A Listing (`app/questions/page.tsx`) & Form gửi câu hỏi Guest.
-  - [ ] 3. Xây dựng Daily Todo (`app/todo/page.tsx`) kết nối `todo-store.ts` có DatePicker chuyển ngày.
-  - [ ] 4. Xây dựng Unified Search Page (`app/search/page.tsx`).
+  - [x] 1. Xây dựng Blog Listing (`app/blog/page.tsx`) & Blog Detail (`app/blog/[slug]/page.tsx`) tích hợp widget "Sản phẩm trong bài".
+  - [x] 2. Xây dựng Q&A Listing (`app/questions/page.tsx`) & Form gửi câu hỏi Guest.
+  - [x] 3. Xây dựng Daily Todo (`app/todo/page.tsx`) kết nối `todo-store.ts` có DatePicker chuyển ngày.
+  - [x] 4. Xây dựng Unified Search Page (`app/search/page.tsx`).
 * **Description**: Code hoàn thiện các trang Content Commerce, Community Q&A và Daily Todo.
 * **Dependency**: TASK-P06-03
 * **Priority**: HIGH
