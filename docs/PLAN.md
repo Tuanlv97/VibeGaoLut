@@ -5,8 +5,8 @@
 
 - **Dự án**: GreenPantry Platform
 - **Tác giả**: Senior Solution Architect & Senior Product Manager
-- **Phiên bản**: 2.3.0 (Detailed Task Breakdown & 18-Screen Stitch Specifications)
-- **Trạng thái**: Phase 1, 2, 3 & 4 Completed 🟢 -> Phase 5 Pending ⚪
+- **Phiên bản**: 2.4.0 (Phase 5 Component Architecture Completed)
+- **Trạng thái**: Phase 1, 2, 3, 4 & 5 Completed 🟢 -> Phase 6 Pending ⚪
 
 ---
 
@@ -25,7 +25,7 @@ PHASE 3: Google Stitch UI/UX Design Generation (18 Screens) [COMPLETED] 🟢
 PHASE 4: Design Review & Accessibility Audit            [COMPLETED] 🟢
    │
    ▼
-PHASE 5: Stitch Design → Next.js Component Mapping            [TODO] ⚪
+PHASE 5: Stitch Design → Next.js Component Mapping        [COMPLETED] 🟢
    │
    ▼
 PHASE 6: Frontend Development (Next.js, Tailwind, Stores)      [TODO] ⚪
@@ -211,16 +211,16 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 
 ---
 
-### PHASE 5 — STITCH DESIGN → NEXT.JS COMPONENT MAPPING ⚪ [TODO]
+### PHASE 5 — STITCH DESIGN → NEXT.JS COMPONENT MAPPING 🟢 [COMPLETED]
 
 #### TASK-P05-01
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Frontend Architecture
 * **Feature**: Atomic Component Breakdown & Mapping
 * **Task**: Phân rã giao diện Stitch thành cây linh kiện React Component
 * **Sub-tasks**:
-  - [ ] 1. Phân rã UI Components dùng chung (`components/ui/`): Button, Input, Card, Badge, Modal, Toast, Skeleton, Tabs, Breadcrumb, Pagination, Drawer.
-  - [ ] 2. Phân rã Feature Components (`features/*`):
+  - [x] 1. Phân rã UI Components dùng chung (`components/ui/`): Button, Input, Card, Badge, Modal, Toast, Skeleton, Tabs, Breadcrumb, Pagination, Drawer.
+  - [x] 2. Phân rã Feature Components (`features/*`):
      - `features/product`: ProductCard, ProductGrid, ProductFilter, ProductGallery, NutritionTable.
      - `features/cart`: CartItem, CartSummary, CartDrawer.
      - `features/checkout`: CheckoutForm, OrderSummary.
@@ -228,7 +228,7 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
      - `features/blog`: BlogCard, BlogHeader, RelatedProductsWidget.
      - `features/qa`: QuestionCard, AnswerBox, AskQuestionModal.
      - `features/todo`: TodoItem, TodoList, DatePickerHeader.
-  - [ ] 3. Đánh dấu các Component cần Client State vs Server Component.
+  - [x] 3. Đánh dấu các Component cần Client State vs Server Component.
 * **Description**: Tạo bảng Mapping từ Stitch Design sang đường dẫn file React Component cụ thể trong dự án Next.js.
 * **Dependency**: TASK-P04-01
 * **Priority**: HIGH
@@ -961,4 +961,116 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 | `SCR-16` | Ask Question Form | `/questions/new` | `AskQuestionForm` | TanStack Query Mutation |
 | `SCR-17` | Daily Todo | `/todo` | `DatePickerHeader`, `TodoList`, `AddTodoForm` | Zustand Client Store (`todo-store.ts`) |
 | `SCR-18` | Unified Search | `/search` | `SearchResultTabs`, `ProductGrid`, `BlogGrid` | TanStack Query (`useSearch`) |
+
+---
+
+## 4. ATOMIC COMPONENT BREAKDOWN & RENDER ARCHITECTURE MATRIX (CLIENT VS SERVER COMPONENTS)
+
+> Phần dưới đây chi tiết hóa cây linh kiện React Component trong ứng dụng Next.js App Router (`web/`), phân tách vai trò UI Primitives (`components/ui/`) và Domain Feature Components (`features/*`), đồng thời phân ranh giới kỹ thuật giữa Server Component (RSC) và Client Component (`'use client'`).
+
+---
+
+### 4.1. SHARED UI PRIMITIVES (`web/components/ui/`)
+
+| Component Name | File Path | Type | Render Boundary | Purpose & Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `Button` | `components/ui/Button.tsx` | Base UI | Server Component | Nút bấm hệ thống với các variant (primary, secondary, outline, ghost, danger) và kích thước (sm, md, lg). |
+| `Input` | `components/ui/Input.tsx` | Base UI | Client Component (`'use client'`) | Ô nhập dữ liệu hỗ trợ label, helper text, error text, icon prefix/suffix. |
+| `Textarea` | `components/ui/Textarea.tsx` | Base UI | Client Component (`'use client'`) | Khung nhập văn bản nhiều dòng cho địa chỉ, câu hỏi, review. |
+| `Select` | `components/ui/Select.tsx` | Base UI | Client Component (`'use client'`) | Dropdown lựa chọn tùy chỉnh (Tỉnh/Thành, Danh mục, Lọc giá). |
+| `Card` | `components/ui/Card.tsx` | Base UI | Server Component | Thẻ container đa năng hỗ trợ Header, Content, Footer với shadow và border chuẩn Design System. |
+| `Badge` | `components/ui/Badge.tsx` | Base UI | Server Component | Nhãn hiển thị trạng thái (NEW, Out of stock, Verified, Status Order). |
+| `Modal` | `components/ui/Modal.tsx` | UI Overlay | Client Component (`'use client'`) | Hộp thoại popup dùng cho Ask Question, Image Preview, Confirm Dialog. |
+| `Toast` | `components/ui/Toast.tsx` | Notification | Client Component (`'use client'`) | Thông báo nổi phản hồi hành động Thêm giỏ hàng, Gửi câu hỏi, Đặt hàng thành công. |
+| `Skeleton` | `components/ui/Skeleton.tsx` | Feedback | Server/Client Component | Shimmer loader cho Product Card, Blog Card, Table và Form trong trạng thái đang tải. |
+| `Tabs` | `components/ui/Tabs.tsx` | Navigation | Client Component (`'use client'`) | Chuyển đổi tab linh hoạt cho Blog Category, Search Results, Product Specs. |
+| `Breadcrumb` | `components/ui/Breadcrumb.tsx` | Navigation | Server Component | Đường dẫn điều hướng vị trí người dùng (`Trang chủ > Sản phẩm > Gạo lứt`). |
+| `Pagination` | `components/ui/Pagination.tsx` | Navigation | Client Component (`'use client'`) | Bộ phân trang cho danh sách sản phẩm, bài viết và câu hỏi Q&A. |
+| `Drawer` | `components/ui/Drawer.tsx` | UI Overlay | Client Component (`'use client'`) | Khung trượt cạnh màn hình dùng cho Quick Cart Drawer và Mobile Navigation Menu. |
+| `Navbar` | `components/ui/Navbar.tsx` | Header | Client Component (`'use client'`) | Sticky Glassmorphism Header chứa Brand Logo, Links, Quick Search Bar và Cart Icon Counter. |
+| `Footer` | `components/ui/Footer.tsx` | Footer | Server Component | Khung chân trang tĩnh với thông tin thương hiệu, liên kết dịch vụ, lookup đơn hàng. |
+
+---
+
+### 4.2. DOMAIN FEATURE COMPONENTS (`web/features/*`)
+
+#### A. Product Feature Domain (`web/features/product/`)
+* `ProductCard.tsx` (`Client Component`): Thẻ sản phẩm chuẩn với hover animation, rating, giá tiền và nút "Thêm vào giỏ" kết nối Zustand `cart-store`.
+* `ProductGrid.tsx` (`Server Component`): Bố cục lưới sản phẩm responsive (3 hoặc 4 cột) render danh sách từ Props.
+* `ProductFilterSidebar.tsx` (`Client Component`): Accordion bộ lọc danh mục, khoảng giá slider và rating sao phía bên trái.
+* `ProductSortHeader.tsx` (`Client Component`): Dropdown sắp xếp sản phẩm (Mới nhất, Giá tăng/giảm, Đánh giá cao).
+* `ProductGallery.tsx` (`Client Component`): Khung xem ảnh sản phẩm chính + thumbnails gallery chọn ảnh xem chi tiết.
+* `ProductInfo.tsx` (`Client Component`): Khối mua hàng bên phải (tiêu đề, so sánh giá, trạng thái kho, bộ tăng giảm số lượng `- 1 +`, nút Thêm giỏ & Mua ngay).
+* `NutritionTable.tsx` (`Server Component`): Bảng thành phần giá trị dinh dưỡng (Calories, Protein, Carbs, Fiber, Fat) thiết kế sạch sẽ.
+* `ProductReviewSection.tsx` (`Client Component`): Rating tổng quan + danh sách đánh giá Verified kèm nút mở Modal gửi đánh giá theo Order ID.
+* `ProductQaSection.tsx` (`Client Component`): Danh sách Q&A rút gọn được nhúng trực tiếp trong chi tiết sản phẩm.
+* `RelatedProducts.tsx` (`Server Component`): Carousel/Grid sản phẩm liên quan theo danh mục hoặc công dụng.
+* `NewArrivalsHeader.tsx` (`Server Component`): Hero banner cho trang Sản phẩm mới tháng này (`/new-products`).
+
+#### B. Cart Feature Domain (`web/features/cart/`)
+* `CartItemList.tsx` (`Client Component`): Danh sách sản phẩm trong giỏ hàng render từ `cart-store`.
+* `CartItemRow.tsx` (`Client Component`): Dòng sản phẩm trong giỏ cho phép đổi số lượng hoặc bấm icon thùng rác xóa sản phẩm.
+* `CartSummary.tsx` (`Client Component`): Thẻ tóm tắt đơn hàng (Tạm tính, Phí ship ước tính, Tổng tiền) và nút "Tiến hành thanh toán".
+* `CartDrawer.tsx` (`Client Component`): Quick Cart Drawer trượt phải khi bấm vào icon Giỏ hàng ở Navbar.
+* `EmptyCart.tsx` (`Client Component`): Giao diện giỏ hàng trống với minh họa và button "Khám phá sản phẩm".
+
+#### C. Checkout Feature Domain (`web/features/checkout/`)
+* `GuestAddressForm.tsx` (`Client Component`): Form điền thông tin người nhận (Họ tên, SĐT, Email, Tỉnh/Thành, Quận/Huyện, Phường/Xã, Địa chỉ cụ thể, Ghi chú) kết hợp `react-hook-form` + `zod`.
+* `PaymentMethodSelector.tsx` (`Client Component`): Lựa chọn phương thức thanh toán (mặc định COD - Thanh toán khi nhận hàng).
+* `OrderSummaryWidget.tsx` (`Client Component`): Widget tóm tắt giỏ hàng rút gọn ở trang checkout kèm nút "Xác Nhận Đặt Hàng (COD)".
+
+#### D. Order Feature Domain (`web/features/order/`)
+* `TrackOrderForm.tsx` (`Client Component`): Form nhập Mã đơn hàng + Số điện thoại để tra cứu trạng thái đơn.
+* `OrderTimeline.tsx` (`Server Component`): Timeline trạng thái 5 bước (PENDING -> CONFIRMED -> PROCESSING -> SHIPPED -> DELIVERED).
+* `OrderDetailsView.tsx` (`Server Component`): Thẻ xem toàn bộ chi tiết đơn hàng, danh sách món, địa chỉ giao hàng và tổng tiền.
+* `OrderSuccessCard.tsx` (`Client Component`): Thẻ thông báo đặt hàng thành công, hiển thị Mã đơn hàng vừa sinh và nút Copy mã.
+
+#### E. Content & Blog Feature Domain (`web/features/blog/`)
+* `FeaturedBlogPost.tsx` (`Server Component`): Bài viết blog nổi bật nhất thiết kế bố cục 2 cột.
+* `BlogCategoryTabs.tsx` (`Client Component`): Navigation tab lọc bài viết theo chuyên mục/thẻ.
+* `BlogGrid.tsx` (`Server Component`): Lưới 3 cột hiển thị thẻ bài viết dinh dưỡng.
+* `BlogCard.tsx` (`Server Component`): Card xem trước bài viết (ảnh bìa, tag, tiêu đề, tác giả, thời gian đọc).
+* `BlogHeader.tsx` (`Server Component`): Header bài viết chi tiết (Tiêu đề, Tác giả, Ngày đăng, Thời lượng đọc).
+* `BlogContent.tsx` (`Server Component`): Khung nội dung rich text bài viết tối ưu khoảng cách dòng và typography.
+* `RelatedProductsWidget.tsx` (`Client Component`): Callout widget **Content Commerce** nhúng sản phẩm được đề cập trực tiếp trong bài viết kèm nút "Thêm vào giỏ".
+* `ShareAndTags.tsx` (`Client Component`): Nút chia sẻ mạng xã hội và các tag bài viết.
+
+#### F. Community Q&A Feature Domain (`web/features/qa/`)
+* `QuestionFilterTabs.tsx` (`Client Component`): Tabs lọc câu hỏi theo chủ đề (Tất cả, Sản phẩm, Dinh dưỡng, Công thức).
+* `QuestionCardList.tsx` (`Server Component`): Danh sách thẻ hỏi đáp cộng đồng.
+* `QuestionCard.tsx` (`Server Component`): Thẻ hiển thị 1 câu hỏi Guest + câu trả lời chính thức từ GreenPantry.
+* `AskQuestionButton.tsx` (`Client Component`): CTA Button kích hoạt mở Modal hoặc chuyển hướng sang trang đặt câu hỏi.
+* `QuestionDetailView.tsx` (`Server Component`): Màn hình xem chi tiết 1 câu hỏi và câu trả lời.
+* `AskQuestionForm.tsx` (`Client Component`): Form gửi câu hỏi mới (Họ tên, Email, Loại câu hỏi, Nội dung câu hỏi).
+* `AskQuestionModal.tsx` (`Client Component`): Modal chứa `AskQuestionForm` phục vụ trải nghiệm tại chỗ.
+
+#### G. Daily Todo Feature Domain (`web/features/todo/`)
+* `DatePickerHeader.tsx` (`Client Component`): Thanh chuyển đổi ngày (Ngày trước, Hôm nay, Ngày sau, Calendar Picker).
+* `TodoList.tsx` (`Client Component`): Danh sách checklist thói quen cho ngày được chọn lấy từ `todo-store`.
+* `TodoItemRow.tsx` (`Client Component`): Dòng 1 task thói quen với checkbox tròn, hiệu ứng gạch ngang và nút xóa.
+* `AddTodoForm.tsx` (`Client Component`): Ô nhập nhanh thói quen lành mạnh cho ngày được chọn.
+* `TodoProgressBar.tsx` (`Client Component`): Thanh tiến độ hoàn thành thói quen (vd: 3/5 hoàn thành).
+
+#### H. Search Feature Domain (`web/features/search/`)
+* `SearchInputBar.tsx` (`Client Component`): Thanh tìm kiếm hợp nhất có chức năng debounced search input.
+* `SearchResultTabs.tsx` (`Client Component`): Dynamic tabs hiển thị số lượng kết quả theo danh mục (Tất cả, Sản phẩm, Bài viết, Hỏi đáp).
+
+---
+
+### 4.3. RENDER ARCHITECTURE BOUNDARY & STATE CLASSIFICATION
+
+| Component Path | Component Type | Primary Reason for Boundary Choice |
+| :--- | :--- | :--- |
+| `web/app/page.tsx` | Server Component | Render HTML phía server cho Hero, Category Grid & SEO content. |
+| `web/app/products/page.tsx` | Server Component | Tối ưu SEO catalog sản phẩm, truyền searchParams xuống Client filter. |
+| `web/app/products/[slug]/page.tsx` | Server Component | Crawl SEO tốt nhất cho sản phẩm, nhúng JSON-LD Schema `Product`. |
+| `web/app/blog/[slug]/page.tsx` | Server Component | Render toàn bộ nội dung bài viết phục vụ Google Indexing & OpenGraph metadata. |
+| `web/app/todo/page.tsx` | Client Component (`'use client'`) | Phụ thuộc 100% vào Zustand Store `todo-store` & `localStorage` phía Client. |
+| `web/app/cart/page.tsx` | Client Component (`'use client'`) | Phụ thuộc 100% vào Zustand Store `cart-store` & `localStorage` phía Client. |
+| `web/app/checkout/page.tsx` | Client Component (`'use client'`) | Xử lý Form tương tác `react-hook-form`, validation realtime và gửi API Mutation. |
+| `web/app/orders/track/page.tsx` | Client Component (`'use client'`) | Nhập thông tin tra cứu động và hiển thị kết quả từ API Query. |
+| `web/components/ui/Navbar.tsx` | Client Component (`'use client'`) | Đọc số lượng sản phẩm từ `cart-store` để cập nhật badge số giỏ hàng realtime. |
+| `features/product/ProductCard.tsx` | Client Component (`'use client'`) | Chứa handler click nút "Thêm vào giỏ hàng" kích hoạt Zustand action. |
+| `features/blog/RelatedProductsWidget.tsx` | Client Component (`'use client'`) | Cho phép click "Thêm vào giỏ" ngay trong bài viết blog mà không cần chuyển trang. |
+
 
