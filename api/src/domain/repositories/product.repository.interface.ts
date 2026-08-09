@@ -17,4 +17,5 @@ export interface IProductRepository {
   findNewArrivals(referenceDate?: Date): Promise<Product[]>;
   findByIds(ids: string[]): Promise<Product[]>;
   save(product: Product): Promise<Product>;
+  delete(id: string): Promise<boolean>;
 }

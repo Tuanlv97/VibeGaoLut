@@ -221,3 +221,217 @@ export function useCreateQuestion() {
     },
   });
 }
+
+// ================= ADMIN HOOKS & MUTATIONS ================= //
+
+// 12. Admin Stats KPI
+export function useAdminStats() {
+  return useQuery({
+    queryKey: ['admin', 'stats'],
+    queryFn: async () => {
+      try {
+        return await fetchAPI<{
+          totalRevenue: number;
+          totalOrders: number;
+          pendingOrdersCount: number;
+          totalProducts: number;
+        }>('/admin/stats');
+      } catch {
+        return {
+          totalRevenue: 154200000,
+          totalOrders: 1248,
+          pendingOrdersCount: 18,
+          totalProducts: MOCK_PRODUCTS.length,
+        };
+      }
+    },
+  });
+}
+
+// 13. Admin Orders
+export function useAdminOrders(status?: string) {
+  return useQuery({
+    queryKey: ['admin', 'orders', status],
+    queryFn: async () => {
+      try {
+        const queryStr = status ? `?status=${status}` : '';
+        return await fetchAPI<any[]>(`/admin/orders${queryStr}`);
+      } catch {
+        return [
+          {
+            id: 'ord-1',
+            orderNumber: 'GP-883920',
+            customerName: 'Nguyễn Văn An',
+            customerPhone: '0912345678',
+            customerEmail: 'an.nguyen@example.com',
+            province: 'Hà Nội',
+            district: 'Cầu Giấy',
+            ward: 'Dịch Vọng',
+            addressDetail: 'Số 12 Ngõ 45',
+            subtotal: 240000,
+            shippingFee: 25000,
+            totalAmount: 265000,
+            paymentMethod: 'COD',
+            status: 'PENDING',
+            createdAt: new Date().toISOString(),
+            items: [
+              {
+                id: 'item-1',
+                productId: 'p-1',
+                productName: 'Gạo Lứt Đỏ ST25 GreenPantry 1kg',
+                unitPrice: 120000,
+                quantity: 2,
+                subtotal: 240000,
+              },
+            ],
+          },
+        ];
+      }
+    },
+  });
+}
+
+// 14. Update Order Status
+export function useUpdateOrderStatus() {
+  return useMutation({
+    mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
+      return await fetchAPI<any>(`/admin/orders/${orderId}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      });
+    },
+  });
+}
+
+// 15. Create Product
+export function useCreateProduct() {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      return await fetchAPI<any>('/admin/products', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    },
+  });
+}
+
+// 16. Update Product
+export function useUpdateProduct() {
+  return useMutation({
+    mutationFn: async ({ id, ...payload }: { id: string; [key: string]: any }) => {
+      return await fetchAPI<any>(`/admin/products/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+    },
+  });
+}
+
+// 17. Delete Product
+export function useDeleteProduct() {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      return await fetchAPI<any>(`/admin/products/${id}`, {
+        method: 'DELETE',
+      });
+    },
+  });
+}
+
+// 18. Admin Blog Posts
+export function useAdminBlogPosts() {
+  return useQuery({
+    queryKey: ['admin', 'blog'],
+    queryFn: async () => {
+      try {
+        return await fetchAPI<{ items: any[]; total: number }>('/admin/blog');
+      } catch {
+        return { items: MOCK_BLOG_POSTS, total: MOCK_BLOG_POSTS.length };
+      }
+    },
+  });
+}
+
+// 19. Create Blog Post
+export function useCreateBlogPost() {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      return await fetchAPI<any>('/admin/blog', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    },
+  });
+}
+
+// 20. Update Blog Post
+export function useUpdateBlogPost() {
+  return useMutation({
+    mutationFn: async ({ id, ...payload }: { id: string; [key: string]: any }) => {
+      return await fetchAPI<any>(`/admin/blog/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+    },
+  });
+}
+
+// 21. Delete Blog Post
+export function useDeleteBlogPost() {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      return await fetchAPI<any>(`/admin/blog/${id}`, {
+        method: 'DELETE',
+      });
+    },
+  });
+}
+
+// 22. Admin Questions
+export function useAdminQuestions() {
+  return useQuery({
+    queryKey: ['admin', 'questions'],
+    queryFn: async () => {
+      try {
+        return await fetchAPI<any[]>('/admin/questions');
+      } catch {
+        return MOCK_QUESTIONS;
+      }
+    },
+  });
+}
+
+// 23. Moderate Question Status
+export function useModerateQuestionStatus() {
+  return useMutation({
+    mutationFn: async ({ questionId, status }: { questionId: string; status: string }) => {
+      return await fetchAPI<any>(`/admin/questions/${questionId}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      });
+    },
+  });
+}
+
+// 24. Answer Question
+export function useAnswerQuestion() {
+  return useMutation({
+    mutationFn: async ({
+      questionId,
+      content,
+      responderName,
+      approve,
+    }: {
+      questionId: string;
+      content: string;
+      responderName?: string;
+      approve?: boolean;
+    }) => {
+      return await fetchAPI<any>(`/admin/questions/${questionId}/answer`, {
+        method: 'POST',
+        body: JSON.stringify({ content, responderName, approve }),
+      });
+    },
+  });
+}
+

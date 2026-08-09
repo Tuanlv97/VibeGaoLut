@@ -10,4 +10,6 @@ export interface BlogPostFilterOptions {
 export interface IBlogPostRepository {
   findAll(filter?: BlogPostFilterOptions): Promise<{ items: BlogPost[]; total: number }>;
   findBySlug(slug: string): Promise<BlogPost | null>;
+  save(post: BlogPost): Promise<BlogPost>;
+  delete(id: string): Promise<boolean>;
 }

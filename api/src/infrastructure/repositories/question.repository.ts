@@ -34,4 +34,9 @@ export class QuestionRepository implements IQuestionRepository {
 
     return result;
   }
+
+  async findById(id: string): Promise<Question | null> {
+    const found = this.questions.find((q) => q.id === id);
+    return found || null;
+  }
 }

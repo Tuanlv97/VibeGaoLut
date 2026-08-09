@@ -39,12 +39,23 @@ import { GetBlogPostDetailUseCase } from './application/use-cases/content/get-bl
 import { GetQuestionsUseCase } from './application/use-cases/community/get-questions.use-case';
 import { CreateQuestionUseCase } from './application/use-cases/community/create-question.use-case';
 
+// Use Cases - Admin
+import { GetAdminStatsUseCase } from './application/use-cases/admin/get-admin-stats.use-case';
+import { CreateProductUseCase } from './application/use-cases/admin/create-product.use-case';
+import { UpdateProductUseCase } from './application/use-cases/admin/update-product.use-case';
+import { DeleteProductUseCase } from './application/use-cases/admin/delete-product.use-case';
+import { GetAdminOrdersUseCase } from './application/use-cases/admin/get-admin-orders.use-case';
+import { UpdateOrderStatusUseCase } from './application/use-cases/admin/update-order-status.use-case';
+import { ManageBlogUseCase } from './application/use-cases/admin/manage-blog.use-case';
+import { ModerateQuestionUseCase } from './application/use-cases/admin/moderate-question.use-case';
+
 // Controllers
 import { ProductController } from './presentation/controllers/product.controller';
 import { OrderController } from './presentation/controllers/order.controller';
 import { ReviewController } from './presentation/controllers/review.controller';
 import { BlogController } from './presentation/controllers/blog.controller';
 import { QuestionController } from './presentation/controllers/question.controller';
+import { AdminController } from './presentation/controllers/admin.controller';
 
 const ormEntities = [
   CategoryOrmEntity,
@@ -88,6 +99,7 @@ const ormEntities = [
     ReviewController,
     BlogController,
     QuestionController,
+    AdminController,
   ],
   providers: [
     SeederService,
@@ -163,6 +175,49 @@ const ormEntities = [
     {
       provide: 'CreateQuestionUseCase',
       useFactory: (qRepo: QuestionRepository) => new CreateQuestionUseCase(qRepo),
+      inject: ['IQuestionRepository'],
+    },
+
+    // Admin Use Cases
+    {
+      provide: 'GetAdminStatsUseCase',
+      useFactory: (orderRepo: OrderRepository, prodRepo: ProductRepository) =>
+        new GetAdminStatsUseCase(orderRepo, prodRepo),
+      inject: ['IOrderRepository', 'IProductRepository'],
+    },
+    {
+      provide: 'CreateProductUseCase',
+      useFactory: (prodRepo: ProductRepository) => new CreateProductUseCase(prodRepo),
+      inject: ['IProductRepository'],
+    },
+    {
+      provide: 'UpdateProductUseCase',
+      useFactory: (prodRepo: ProductRepository) => new UpdateProductUseCase(prodRepo),
+      inject: ['IProductRepository'],
+    },
+    {
+      provide: 'DeleteProductUseCase',
+      useFactory: (prodRepo: ProductRepository) => new DeleteProductUseCase(prodRepo),
+      inject: ['IProductRepository'],
+    },
+    {
+      provide: 'GetAdminOrdersUseCase',
+      useFactory: (orderRepo: OrderRepository) => new GetAdminOrdersUseCase(orderRepo),
+      inject: ['IOrderRepository'],
+    },
+    {
+      provide: 'UpdateOrderStatusUseCase',
+      useFactory: (orderRepo: OrderRepository) => new UpdateOrderStatusUseCase(orderRepo),
+      inject: ['IOrderRepository'],
+    },
+    {
+      provide: 'ManageBlogUseCase',
+      useFactory: (blogRepo: BlogPostRepository) => new ManageBlogUseCase(blogRepo),
+      inject: ['IBlogPostRepository'],
+    },
+    {
+      provide: 'ModerateQuestionUseCase',
+      useFactory: (qRepo: QuestionRepository) => new ModerateQuestionUseCase(qRepo),
       inject: ['IQuestionRepository'],
     },
   ],

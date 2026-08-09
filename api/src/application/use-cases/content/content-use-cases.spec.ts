@@ -50,6 +50,8 @@ describe('Content Domain Use Cases', () => {
     mockBlogRepo = {
       findAll: jest.fn().mockResolvedValue({ items: samplePosts, total: samplePosts.length }),
       findBySlug: jest.fn().mockImplementation(async (slug: string) => samplePosts.find((p) => p.slug === slug) || null),
+      save: jest.fn(),
+      delete: jest.fn(),
     };
 
     mockProductRepo = {
@@ -59,6 +61,7 @@ describe('Content Domain Use Cases', () => {
       findNewArrivals: jest.fn(),
       findByIds: jest.fn().mockImplementation(async (ids: string[]) => sampleProducts.filter((p) => ids.includes(p.id))),
       save: jest.fn(),
+      delete: jest.fn(),
     };
   });
 

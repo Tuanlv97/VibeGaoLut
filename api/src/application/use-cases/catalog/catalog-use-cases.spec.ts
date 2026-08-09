@@ -88,6 +88,7 @@ describe('Catalog Domain Use Cases', () => {
       }),
       findByIds: jest.fn().mockImplementation(async (ids: string[]) => sampleProducts.filter((p) => ids.includes(p.id))),
       save: jest.fn(),
+      delete: jest.fn(),
     };
 
     mockCategoryRepo = {

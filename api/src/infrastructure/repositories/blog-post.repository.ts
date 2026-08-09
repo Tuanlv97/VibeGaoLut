@@ -35,4 +35,20 @@ export class BlogPostRepository implements IBlogPostRepository {
     const found = this.blogPosts.find((b) => b.slug === slug);
     return found || null;
   }
+
+  async save(post: BlogPost): Promise<BlogPost> {
+    const index = this.blogPosts.findIndex((b) => b.id === post.id);
+    if (index >= 0) {
+      this.blogPosts[index] = post;
+    } else {
+      this.blogPosts.push(post);
+    }
+    return post;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const initialLen = this.blogPosts.length;
+    this.blogPosts = this.blogPosts.filter((b) => b.id !== id);
+    return this.blogPosts.length < initialLen;
+  }
 }

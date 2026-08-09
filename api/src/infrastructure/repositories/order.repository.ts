@@ -34,4 +34,8 @@ export class OrderRepository implements IOrderRepository {
     const found = this.orders.find((o) => o.id === id);
     return found || null;
   }
+
+  async findAll(): Promise<Order[]> {
+    return [...this.orders];
+  }
 }

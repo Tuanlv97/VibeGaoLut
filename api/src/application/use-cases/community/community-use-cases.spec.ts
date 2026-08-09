@@ -40,6 +40,7 @@ describe('Community Domain Use Cases', () => {
         }
         return [approvedQuestion, pendingQuestion];
       }),
+      findById: jest.fn(),
     };
   });
 

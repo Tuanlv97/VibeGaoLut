@@ -9,4 +9,5 @@ export interface QuestionFilterOptions {
 export interface IQuestionRepository {
   save(question: Question): Promise<Question>;
   findAll(filter?: QuestionFilterOptions): Promise<Question[]>;
+  findById(id: string): Promise<Question | null>;
 }

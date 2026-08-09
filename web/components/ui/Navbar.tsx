@@ -15,6 +15,10 @@ export const Navbar: React.FC = () => {
     setMounted(true);
   }, []);
 
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   const totalCartCount = useCartStore((s) => s.getTotalCount());
   const displayCartCount = mounted ? totalCartCount : 0;
   const [searchQuery, setSearchQuery] = useState('');

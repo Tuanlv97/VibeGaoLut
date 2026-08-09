@@ -82,4 +82,10 @@ export class ProductRepository implements IProductRepository {
     }
     return product;
   }
+
+  async delete(id: string): Promise<boolean> {
+    const initialLen = this.products.length;
+    this.products = this.products.filter((p) => p.id !== id);
+    return this.products.length < initialLen;
+  }
 }

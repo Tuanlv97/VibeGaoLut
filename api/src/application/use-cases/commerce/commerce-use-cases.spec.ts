@@ -100,6 +100,7 @@ describe('Commerce Domain Use Cases', () => {
       findNewArrivals: jest.fn(),
       findByIds: jest.fn().mockImplementation(async (ids: string[]) => sampleProducts.filter((p) => ids.includes(p.id))),
       save: jest.fn(),
+      delete: jest.fn(),
     };
 
     mockOrderRepo = {
@@ -110,6 +111,7 @@ describe('Commerce Domain Use Cases', () => {
         return null;
       }),
       findById: jest.fn(),
+      findAll: jest.fn(),
     };
 
     mockReviewRepo = {
