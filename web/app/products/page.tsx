@@ -7,25 +7,35 @@ import { ProductFilterSidebar } from '@/features/product/ProductFilterSidebar';
 import { ProductSortHeader } from '@/features/product/ProductSortHeader';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 
+import { useProducts, useCategories } from '@/lib/api/hooks';
+
 export default function ProductListingPage() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [priceRange, setPriceRange] = useState<[number, number]>([50000, 500000]);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState('newest');
 
+  const { data: productsData } = useProducts({
+    categoryId: selectedCategory || undefined,
+    maxPrice: priceRange[1],
+    sort: sortBy === 'price-asc' ? 'price_asc' : sortBy === 'price-desc' ? 'price_desc' : 'newest',
+  });
+
+  const productsList = productsData?.items || MOCK_PRODUCTS;
+
   const filteredProducts = useMemo(() => {
-    return MOCK_PRODUCTS.filter((p) => {
-      if (selectedCategory && p.categorySlug !== selectedCategory) return false;
+    return productsList.filter((p: any) => {
+      if (selectedCategory && p.categorySlug && p.categorySlug !== selectedCategory) return false;
       if (p.price > priceRange[1]) return false;
-      if (selectedRating && p.rating < selectedRating) return false;
+      if (selectedRating && p.rating && p.rating < selectedRating) return false;
       return true;
-    }).sort((a, b) => {
+    }).sort((a: any, b: any) => {
       if (sortBy === 'price-asc') return a.price - b.price;
       if (sortBy === 'price-desc') return b.price - a.price;
-      if (sortBy === 'rating') return b.rating - a.rating;
-      return new Date(b.releasedAt).getTime() - new Date(a.releasedAt).getTime();
+      if (sortBy === 'rating') return (b.rating || 5) - (a.rating || 5);
+      return new Date(b.releasedAt || Date.now()).getTime() - new Date(a.releasedAt || Date.now()).getTime();
     });
-  }, [selectedCategory, priceRange, selectedRating, sortBy]);
+  }, [productsList, selectedCategory, priceRange, selectedRating, sortBy]);
 
   const handleReset = () => {
     setSelectedCategory('');

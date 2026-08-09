@@ -8,13 +8,17 @@ import { QuestionCardList } from '@/features/qa/QuestionCardList';
 import { AskQuestionButton } from '@/features/qa/AskQuestionButton';
 import { AskQuestionModal } from '@/features/qa/AskQuestionModal';
 
+import { useQuestions } from '@/lib/api/hooks';
+
 export default function QuestionListingPage() {
   const [selectedType, setSelectedType] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const filteredQuestions = MOCK_QUESTIONS.filter((q) => {
+  const { data: questions = MOCK_QUESTIONS } = useQuestions();
+
+  const filteredQuestions = (questions || []).filter((q: any) => {
     if (selectedType && q.questionType !== selectedType) return false;
-    return q.status === 'APPROVED';
+    return q.status === 'APPROVED' || !q.status;
   });
 
   return (

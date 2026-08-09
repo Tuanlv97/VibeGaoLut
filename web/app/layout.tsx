@@ -28,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" className={`${inter.variable} ${outfit.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#F9F6F0] text-[#1E293B]">
+    <html lang="vi" className={`${inter.variable} ${outfit.variable} h-full antialiased`} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-[#F9F6F0] text-[#1E293B]" suppressHydrationWarning>
         <Providers>
           <Navbar />
           <main className="flex-grow">{children}</main>

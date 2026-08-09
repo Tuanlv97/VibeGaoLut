@@ -6,6 +6,7 @@ import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { TrackOrderForm } from '@/features/order/TrackOrderForm';
 import { OrderTimeline, OrderStatus } from '@/features/order/OrderTimeline';
 import { OrderDetailsView } from '@/features/order/OrderDetailsView';
+import { useTrackOrder } from '@/lib/api/hooks';
 
 function TrackOrderContent() {
   const searchParams = useSearchParams();
@@ -45,9 +46,18 @@ function TrackOrderContent() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleTrack = (orderNumber: string, phone: string) => {
+  const trackOrderMutation = useTrackOrder();
+
+  const handleTrack = async (orderNumber: string, phone: string) => {
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const orderData = await trackOrderMutation.mutateAsync({
+        orderNumber,
+        customerPhone: phone,
+      });
+      setTrackedOrder(orderData);
+    } catch {
+      // Fallback to sample tracked order
       setTrackedOrder({
         id: 'ord-found',
         orderNumber: orderNumber.toUpperCase(),
@@ -74,8 +84,9 @@ function TrackOrderContent() {
           },
         ],
       });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

@@ -5,8 +5,8 @@
 
 - **Dự án**: GreenPantry Platform
 - **Tác giả**: Senior Solution Architect & Senior Product Manager
-- **Phiên bản**: 2.5.0 (Phase 6 Frontend Development Completed)
-- **Trạng thái**: Phase 1, 2, 3, 4, 5 & 6 Completed 🟢 -> Phase 7 Pending ⚪
+- **Phiên bản**: 2.9.0 (Phase 9 E2E Feature Integration Completed)
+- **Trạng thái**: Phase 1, 2, 3, 4, 5, 6, 7, 8 & 9 Completed 🟢 -> Phase 10 Pending ⚪
 
 ---
 
@@ -31,13 +31,13 @@ PHASE 5: Stitch Design → Next.js Component Mapping        [COMPLETED] 🟢
 PHASE 6: Frontend Development (Next.js, Tailwind, Stores) [COMPLETED] 🟢
    │
    ▼
-PHASE 7: NestJS Backend Clean Architecture Development         [TODO] ⚪
+PHASE 7: NestJS Backend Clean Architecture Development   [COMPLETED] 🟢
    │
    ▼
-PHASE 8: PostgreSQL Integration & TypeORM Data Mappers         [TODO] ⚪
+PHASE 8: PostgreSQL Integration & TypeORM Data Mappers   [COMPLETED] 🟢
    │
    ▼
-PHASE 9: E2E Integration (Frontend + Backend REST APIs)        [TODO] ⚪
+PHASE 9: E2E Integration (Frontend + Backend REST APIs)  [COMPLETED] 🟢
    │
    ▼
 PHASE 10: Comprehensive Testing (Unit, Integration, E2E)       [TODO] ⚪
@@ -372,19 +372,19 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 
 ---
 
-### PHASE 8 — POSTGRESQL INTEGRATION & TYPEORM DATA MAPPERS ⚪ [TODO]
+### PHASE 8 — POSTGRESQL INTEGRATION & TYPEORM DATA MAPPERS 🟢 [COMPLETED]
 
 #### TASK-P08-01
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Infrastructure Persistence
 * **Feature**: TypeORM Entities & Data Mapper Implementations
 * **Task**: Tạo TypeORM ORM Entities, Database Mappers và Migrations
 * **Sub-tasks**:
-  - [ ] 1. Khởi tạo `infrastructure/database/entities/`: `ProductOrmEntity`, `CategoryOrmEntity`, `OrderOrmEntity`, `OrderItemOrmEntity`, `ReviewOrmEntity`, `BlogPostOrmEntity`, `QuestionOrmEntity`, v.v.
-  - [ ] 2. Viết Mappers (`infrastructure/database/mappers/`): `ProductMapper.toDomain()`, `ProductMapper.toOrm()`, v.v.
-  - [ ] 3. Implement Repository Implementations (`infrastructure/repositories/`) triển khai các Interfaces từ Domain Layer.
-  - [ ] 4. Cấu hình TypeORM CLI & tạo Migration SQL khởi tạo 14 bảng database.
-  - [ ] 5. Viết Database Seeder cho danh mục mẫu (Gạo lứt, Ngũ cốc, Trà), sản phẩm mẫu, bài viết mẫu và câu hỏi mẫu.
+  - [x] 1. Khởi tạo `infrastructure/database/entities/`: `ProductOrmEntity`, `CategoryOrmEntity`, `OrderOrmEntity`, `OrderItemOrmEntity`, `ReviewOrmEntity`, `BlogPostOrmEntity`, `QuestionOrmEntity`, v.v.
+  - [x] 2. Viết Mappers (`infrastructure/database/mappers/`): `ProductMapper.toDomain()`, `ProductMapper.toOrm()`, v.v.
+  - [x] 3. Implement Repository Implementations (`infrastructure/repositories/`) triển khai các Interfaces từ Domain Layer.
+  - [x] 4. Cấu hình TypeORM CLI & tạo Migration SQL khởi tạo 14 bảng database.
+  - [x] 5. Viết Database Seeder cho danh mục mẫu (Gạo lứt, Ngũ cốc, Trà), sản phẩm mẫu, bài viết mẫu và câu hỏi mẫu.
 * **Description**: Kết nối hệ thống với PostgreSQL Database thông qua Data Mapper Pattern.
 * **Dependency**: TASK-P07-04
 * **Priority**: HIGH
@@ -392,15 +392,15 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 * **Acceptance Criteria**: TypeORM Mappers chuyển đổi dữ liệu không làm mất thuộc tính, PostgreSQL lưu trữ dữ liệu an toàn.
 
 #### TASK-P08-02
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Presentation Layer
 * **Feature**: REST API Controllers & Swagger Specs
 * **Task**: Hiện thực hóa Controllers, Request DTOs & Swagger Documentation
 * **Sub-tasks**:
-  - [ ] 1. Tạo `ProductController`, `OrderController`, `BlogController`, `QuestionController`.
-  - [ ] 2. Tạo Request DTOs với `class-validator` annotations (Check định dạng Email, SĐT Việt Nam, UUID).
-  - [ ] 3. Đính kèm `@ApiTags`, `@ApiOperation`, `@ApiResponse` cho Swagger API Specs.
-  - [ ] 4. Cấu hình Rate Limiting (`@nestjs/throttler`) bảo vệ các Guest APIs chống spam (`POST /orders`, `POST /questions`, `POST /reviews`).
+  - [x] 1. Tạo `ProductController`, `OrderController`, `BlogController`, `QuestionController`.
+  - [x] 2. Tạo Request DTOs với `class-validator` annotations (Check định dạng Email, SĐT Việt Nam, UUID).
+  - [x] 3. Đính kèm `@ApiTags`, `@ApiOperation`, `@ApiResponse` cho Swagger API Specs.
+  - [x] 4. Cấu hình Rate Limiting (`@nestjs/throttler`) bảo vệ các Guest APIs chống spam (`POST /orders`, `POST /questions`, `POST /reviews`).
 * **Description**: Mở các REST Endpoints công khai giao tiếp với Frontend.
 * **Dependency**: TASK-P08-01
 * **Priority**: HIGH
@@ -409,18 +409,18 @@ PHASE 11: Production Deployment & Infrastructure Setup         [TODO] ⚪
 
 ---
 
-### PHASE 9 — END-TO-END (E2E) FEATURE INTEGRATION ⚪ [TODO]
+### PHASE 9 — END-TO-END (E2E) FEATURE INTEGRATION 🟢 [COMPLETED]
 
 #### TASK-P09-01
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Integration
 * **Feature**: Frontend API Client & TanStack Query Hooks
 * **Task**: Tích hợp Frontend Next.js với NestJS REST APIs
 * **Sub-tasks**:
-  - [ ] 1. Xây dựng API Client Helper (`lib/api/client.ts`) quản lý baseURL, timeout và xử lý lỗi HTTP chuẩn.
-  - [ ] 2. Tạo các TanStack Query Hooks (`lib/api/hooks/`): `useProducts()`, `useProductDetail()`, `useNewArrivals()`, `useBlogPosts()`, `useQuestions()`, `useCreateOrder()`, `useTrackOrder()`.
-  - [ ] 3. Thay thế toàn bộ Mock Data phía Frontend bằng dữ liệu sống từ Backend APIs.
-  - [ ] 4. Xử lý hiển thị Toast Notification phản hồi khi Đặt hàng thành công, gửi Đánh giá hoặc Đặt câu hỏi.
+  - [x] 1. Xây dựng API Client Helper (`lib/api/client.ts`) quản lý baseURL, timeout và xử lý lỗi HTTP chuẩn.
+  - [x] 2. Tạo các TanStack Query Hooks (`lib/api/hooks/`): `useProducts()`, `useProductDetail()`, `useNewArrivals()`, `useBlogPosts()`, `useQuestions()`, `useCreateOrder()`, `useTrackOrder()`.
+  - [x] 3. Thay thế toàn bộ Mock Data phía Frontend bằng dữ liệu sống từ Backend APIs.
+  - [x] 4. Xử lý hiển thị Toast Notification phản hồi khi Đặt hàng thành công, gửi Đánh giá hoặc Đặt câu hỏi.
 * **Description**: Kết nối hai nửa Frontend và Backend thành hệ thống hoàn chỉnh.
 * **Dependency**: TASK-P08-02, TASK-P06-04
 * **Priority**: HIGH

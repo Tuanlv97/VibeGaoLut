@@ -2,13 +2,21 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { ShoppingBag, Search, Calendar, Menu, X, Leaf } from 'lucide-react';
 import { useCartStore } from '@/stores/cart-store';
 
 export const Navbar: React.FC = () => {
   const router = useRouter();
+  const pathname = usePathname();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const totalCartCount = useCartStore((s) => s.getTotalCount());
+  const displayCartCount = mounted ? totalCartCount : 0;
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -18,6 +26,12 @@ export const Navbar: React.FC = () => {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
+
+  const isProductsActive = pathname.startsWith('/products') || pathname.startsWith('/categories');
+  const isNewActive = pathname === '/new-products';
+  const isBlogActive = pathname.startsWith('/blog');
+  const isQaActive = pathname.startsWith('/questions');
+  const isTodoActive = pathname === '/todo';
 
   return (
     <header className="sticky top-0 z-40 w-full glass-backdrop border-b border-[#E2E8F0]">
@@ -31,24 +45,74 @@ export const Navbar: React.FC = () => {
         </Link>
 
         {/* Navigation Links (Desktop) */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-[#1E293B]">
-          <Link href="/products" className="hover:text-[#2D5A27] transition-colors">
-            Sản Phẩm
-          </Link>
-          <Link href="/new-products" className="hover:text-[#2D5A27] transition-colors flex items-center gap-1">
-            Mới Về
-            <span className="w-2 h-2 rounded-full bg-[#C86D51]"></span>
-          </Link>
-          <Link href="/blog" className="hover:text-[#2D5A27] transition-colors">
-            Bài Viết
+        <nav className="hidden md:flex items-center gap-7 text-sm text-[#1E293B]">
+          <Link
+            href="/products"
+            className={`relative py-1.5 transition-all ${
+              isProductsActive
+                ? 'text-[#2D5A27] font-bold'
+                : 'font-medium hover:text-[#2D5A27]'
+            }`}
+          >
+            <span>Sản Phẩm</span>
+            {isProductsActive && (
+              <span className="absolute -bottom-1.5 left-0 right-0 h-[3px] bg-[#2D5A27] rounded-full shadow-xs" />
+            )}
           </Link>
 
-          <Link href="/questions" className="hover:text-[#2D5A27] transition-colors">
-            Q&A Hỏi Đáp
+          <Link
+            href="/new-products"
+            className={`relative py-1.5 transition-all flex items-center gap-1.5 ${
+              isNewActive
+                ? 'text-[#2D5A27] font-bold'
+                : 'font-medium hover:text-[#2D5A27]'
+            }`}
+          >
+            <span>Mới Về</span>
+            <span className="w-2 h-2 rounded-full bg-[#C86D51]"></span>
+            {isNewActive && (
+              <span className="absolute -bottom-1.5 left-0 right-0 h-[3px] bg-[#2D5A27] rounded-full shadow-xs" />
+            )}
           </Link>
-          <Link href="/todo" className="hover:text-[#2D5A27] transition-colors flex items-center gap-1 text-[#2D5A27] font-semibold bg-[#2D5A27]/10 px-3 py-1.5 rounded-lg">
+
+          <Link
+            href="/blog"
+            className={`relative py-1.5 transition-all ${
+              isBlogActive
+                ? 'text-[#2D5A27] font-bold'
+                : 'font-medium hover:text-[#2D5A27]'
+            }`}
+          >
+            <span>Bài Viết</span>
+            {isBlogActive && (
+              <span className="absolute -bottom-1.5 left-0 right-0 h-[3px] bg-[#2D5A27] rounded-full shadow-xs" />
+            )}
+          </Link>
+
+          <Link
+            href="/questions"
+            className={`relative py-1.5 transition-all ${
+              isQaActive
+                ? 'text-[#2D5A27] font-bold'
+                : 'font-medium hover:text-[#2D5A27]'
+            }`}
+          >
+            <span>Q&A Hỏi Đáp</span>
+            {isQaActive && (
+              <span className="absolute -bottom-1.5 left-0 right-0 h-[3px] bg-[#2D5A27] rounded-full shadow-xs" />
+            )}
+          </Link>
+
+          <Link
+            href="/todo"
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all ${
+              isTodoActive
+                ? 'bg-[#2D5A27] text-white shadow-sm ring-2 ring-[#2D5A27]/20'
+                : 'text-[#2D5A27] bg-[#2D5A27]/10 hover:bg-[#2D5A27]/20'
+            }`}
+          >
             <Calendar className="w-4 h-4" />
-            Nhật Ký Todo
+            <span>Nhật Ký Todo</span>
           </Link>
         </nav>
 
@@ -72,9 +136,9 @@ export const Navbar: React.FC = () => {
             aria-label="Giỏ hàng"
           >
             <ShoppingBag className="w-5 h-5" />
-            {totalCartCount > 0 && (
+            {displayCartCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 bg-[#C86D51] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
-                {totalCartCount}
+                {displayCartCount}
               </span>
             )}
           </Link>
@@ -104,12 +168,48 @@ export const Navbar: React.FC = () => {
           </form>
 
           <nav className="flex flex-col gap-3 font-medium text-sm text-[#1E293B]">
-            <Link href="/products" onClick={() => setMobileMenuOpen(false)}>Sản Phẩm</Link>
-            <Link href="/new-products" onClick={() => setMobileMenuOpen(false)}>Sản Phẩm Mới</Link>
-            <Link href="/blog" onClick={() => setMobileMenuOpen(false)}>Bài Viết Dinh Dưỡng</Link>
-            <Link href="/questions" onClick={() => setMobileMenuOpen(false)}>Q&A Hỏi Đáp</Link>
-            <Link href="/todo" onClick={() => setMobileMenuOpen(false)} className="text-[#2D5A27] font-semibold">Nhật Ký Todo Thói Quen</Link>
-            <Link href="/orders/track" onClick={() => setMobileMenuOpen(false)}>Tra Cứu Đơn Hàng</Link>
+            <Link
+              href="/products"
+              onClick={() => setMobileMenuOpen(false)}
+              className={isProductsActive ? 'text-[#2D5A27] font-bold border-l-2 border-[#2D5A27] pl-2' : ''}
+            >
+              Sản Phẩm
+            </Link>
+            <Link
+              href="/new-products"
+              onClick={() => setMobileMenuOpen(false)}
+              className={isNewActive ? 'text-[#2D5A27] font-bold border-l-2 border-[#2D5A27] pl-2' : ''}
+            >
+              Sản Phẩm Mới
+            </Link>
+            <Link
+              href="/blog"
+              onClick={() => setMobileMenuOpen(false)}
+              className={isBlogActive ? 'text-[#2D5A27] font-bold border-l-2 border-[#2D5A27] pl-2' : ''}
+            >
+              Bài Viết Dinh Dưỡng
+            </Link>
+            <Link
+              href="/questions"
+              onClick={() => setMobileMenuOpen(false)}
+              className={isQaActive ? 'text-[#2D5A27] font-bold border-l-2 border-[#2D5A27] pl-2' : ''}
+            >
+              Q&A Hỏi Đáp
+            </Link>
+            <Link
+              href="/todo"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`font-semibold ${isTodoActive ? 'text-[#2D5A27] font-bold border-l-2 border-[#2D5A27] pl-2' : 'text-[#2D5A27]'}`}
+            >
+              Nhật Ký Todo Thói Quen
+            </Link>
+            <Link
+              href="/orders/track"
+              onClick={() => setMobileMenuOpen(false)}
+              className={pathname === '/orders/track' ? 'text-[#2D5A27] font-bold border-l-2 border-[#2D5A27] pl-2' : ''}
+            >
+              Tra Cứu Đơn Hàng
+            </Link>
           </nav>
         </div>
       )}

@@ -8,23 +8,27 @@ interface ProductGalleryProps {
   productName: string;
 }
 
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80';
+
 export const ProductGallery: React.FC<ProductGalleryProps> = ({
   images,
   productName,
 }) => {
-  const [selectedImage, setSelectedImage] = useState(images[0] || '');
+  const validImages = (images || []).map((img) => (img && img.startsWith('http') ? img : DEFAULT_IMAGE));
+  const [selectedImage, setSelectedImage] = useState(validImages[0] || DEFAULT_IMAGE);
 
   return (
     <div className="space-y-4">
       {/* Main Image View */}
       <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-white border border-[#E2E8F0] shadow-xs">
         <Image
-          src={selectedImage || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80'}
+          src={selectedImage}
           alt={productName}
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
           priority
           className="object-cover transition-all duration-300 hover:scale-105"
+          onError={() => setSelectedImage(DEFAULT_IMAGE)}
         />
       </div>
 

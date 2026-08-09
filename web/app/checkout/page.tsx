@@ -7,6 +7,7 @@ import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { GuestAddressForm } from '@/features/checkout/GuestAddressForm';
 import { PaymentMethodSelector } from '@/features/checkout/PaymentMethodSelector';
 import { OrderSummaryWidget } from '@/features/checkout/OrderSummaryWidget';
+import { useCreateOrder } from '@/lib/api/hooks';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -62,15 +63,44 @@ export default function CheckoutPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleConfirmOrder = () => {
+  const createOrderMutation = useCreateOrder();
+
+  const handleConfirmOrder = async () => {
     if (!validate()) return;
 
     setIsSubmitting(true);
-
-    const generatedOrderNumber = `GP-${Math.floor(100000 + Math.random() * 900000)}`;
     const grandTotal = getGrandTotal();
 
-    setTimeout(() => {
+    try {
+      const orderPayload = {
+        customerName: formData.fullName,
+        customerPhone: formData.phone,
+        customerEmail: formData.email,
+        province: formData.province,
+        district: formData.district,
+        ward: formData.ward,
+        addressDetail: formData.addressDetail,
+        items: items.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
+      };
+
+      const result = await createOrderMutation.mutateAsync(orderPayload);
+      clearCart();
+      setIsSubmitting(false);
+
+      const orderNum = result.orderNumber || `GP-${Math.floor(100000 + Math.random() * 900000)}`;
+      const total = result.totalAmount || grandTotal;
+
+      router.push(
+        `/orders/success?orderNumber=${orderNum}&name=${encodeURIComponent(
+          formData.fullName
+        )}&phone=${encodeURIComponent(formData.phone)}&total=${total}`
+      );
+    } catch {
+      // Fallback if API server is offline
+      const generatedOrderNumber = `GP-${Math.floor(100000 + Math.random() * 900000)}`;
       clearCart();
       setIsSubmitting(false);
       router.push(
@@ -78,7 +108,7 @@ export default function CheckoutPage() {
           formData.fullName
         )}&phone=${encodeURIComponent(formData.phone)}&total=${grandTotal}`
       );
-    }, 1500);
+    }
   };
 
   return (

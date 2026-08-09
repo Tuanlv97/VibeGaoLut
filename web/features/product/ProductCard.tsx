@@ -12,9 +12,19 @@ interface ProductCardProps {
   product: Product;
 }
 
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80';
+
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const addItem = useCartStore((s) => s.addItem);
   const [added, setAdded] = React.useState(false);
+  const rawImage = product.images && product.images[0] ? product.images[0] : '';
+  const initialImage = rawImage.startsWith('http') ? rawImage : DEFAULT_IMAGE;
+  const [imgSrc, setImgSrc] = React.useState(initialImage);
+
+  React.useEffect(() => {
+    const raw = product.images && product.images[0] ? product.images[0] : '';
+    setImgSrc(raw.startsWith('http') ? raw : DEFAULT_IMAGE);
+  }, [product.images]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -24,7 +34,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       price: product.price,
       compareAtPrice: product.compareAtPrice,
       weightUnit: product.weightUnit,
-      image: product.images[0],
+      image: imgSrc,
       slug: product.slug,
     });
     setAdded(true);
@@ -47,11 +57,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <div className="group bg-white border border-[#E2E8F0] rounded-xl p-4 flex flex-col justify-between shadow-xs hover:shadow-md hover:border-[#2D5A27]/40 transition-all duration-200">
       <Link href={`/products/${product.slug}`} className="block relative aspect-square w-full rounded-lg overflow-hidden mb-3 bg-slate-50">
         <Image
-          src={product.images[0]}
+          src={imgSrc}
           alt={product.name}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           className="object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={() => setImgSrc(DEFAULT_IMAGE)}
         />
         {product.isFeaturedNew && (
           <div className="absolute top-2 left-2">
