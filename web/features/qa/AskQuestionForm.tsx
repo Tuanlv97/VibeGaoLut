@@ -2,12 +2,10 @@
 
 import React, { useState } from 'react';
 import { HelpCircle, CheckCircle2, AlertCircle } from 'lucide-react';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
+import { useCreateQuestion, useProducts } from '@/lib/api/hooks';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
-
-import { useCreateQuestion } from '@/lib/api/hooks';
 
 interface AskQuestionFormProps {
   onSuccess?: () => void;
@@ -21,6 +19,8 @@ export const AskQuestionForm: React.FC<AskQuestionFormProps> = ({ onSuccess }) =
   const [content, setContent] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  const { data: productsData } = useProducts();
+  const productsList = productsData?.items || [];
   const createQuestionMutation = useCreateQuestion();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -124,7 +124,7 @@ export const AskQuestionForm: React.FC<AskQuestionFormProps> = ({ onSuccess }) =
             className="w-full bg-white border border-[#E2E8F0] rounded-lg px-3 py-2.5 text-sm text-[#1E293B] focus:outline-none focus:border-[#2D5A27]"
           >
             <option value="">-- Chọn sản phẩm --</option>
-            {MOCK_PRODUCTS.map((p) => (
+            {productsList.map((p: any) => (
               <option key={p.id} value={p.id}>
                 {p.name}
               </option>

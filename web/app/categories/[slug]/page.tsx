@@ -1,22 +1,20 @@
+'use client';
+
 import React from 'react';
-import { notFound } from 'next/navigation';
-import { MOCK_CATEGORIES, MOCK_PRODUCTS } from '@/lib/mock-data';
+import { useParams } from 'next/navigation';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { ProductGrid } from '@/features/product/ProductGrid';
+import { useCategories, useProducts } from '@/lib/api/hooks';
 
-interface CategoryPageProps {
-  params: Promise<{ slug: string }>;
-}
+export default function CategoryPage() {
+  const params = useParams();
+  const slug = (params?.slug as string) || '';
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
-  const { slug } = await params;
-  const category = MOCK_CATEGORIES.find((c) => c.slug === slug);
+  const { data: categories = [] } = useCategories();
+  const category = categories.find((c: any) => c.slug === slug);
 
-  if (!category) {
-    notFound();
-  }
-
-  const products = MOCK_PRODUCTS.filter((p) => p.categorySlug === slug);
+  const { data: productsData } = useProducts({ categoryId: category?.id });
+  const products = productsData?.items || [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -24,7 +22,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         items={[
           { label: 'Trang chủ', href: '/' },
           { label: 'Danh mục', href: '/products' },
-          { label: category.name },
+          { label: category?.name || 'Danh mục' },
         ]}
       />
 
@@ -34,11 +32,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           Danh Mục Sản Phẩm
         </span>
         <h1 className="text-3xl sm:text-4xl font-bold font-display leading-tight">
-          {category.name}
+          {category?.name || 'Danh Mục Sản Phẩm'}
         </h1>
-        <p className="text-sm text-emerald-100 max-w-2xl leading-relaxed">
-          {category.description}
-        </p>
+        {category?.description && (
+          <p className="text-sm text-emerald-100 max-w-2xl leading-relaxed">
+            {category.description}
+          </p>
+        )}
       </div>
 
       <div className="space-y-4">

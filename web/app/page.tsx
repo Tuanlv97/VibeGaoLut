@@ -1,15 +1,24 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Leaf, Sparkles, ShieldCheck, HeartHandshake } from 'lucide-react';
-import { MOCK_PRODUCTS, MOCK_CATEGORIES, MOCK_BLOG_POSTS } from '@/lib/mock-data';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { ProductGrid } from '@/features/product/ProductGrid';
 import { BlogCard } from '@/features/blog/BlogCard';
 import { Button } from '@/components/ui/Button';
+import { useProducts, useCategories, useBlogPosts } from '@/lib/api/hooks';
 
 export default function HomePage() {
-  const featuredProducts = MOCK_PRODUCTS.slice(0, 4);
-  const featuredBlog = MOCK_BLOG_POSTS[0];
+  const { data: productsData } = useProducts();
+  const { data: categories = [] } = useCategories();
+  const { data: blogPostsData } = useBlogPosts();
+
+  const products = productsData?.items || [];
+  const blogPosts = blogPostsData?.items || [];
+
+  const featuredProducts = products.slice(0, 4);
+  const featuredBlog = blogPosts[0];
 
   return (
     <div className="space-y-16 pb-16">
@@ -74,34 +83,37 @@ export default function HomePage() {
       </section>
 
       {/* Category Showcase Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#1E293B]">
-              Danh Mục Sản Phẩm Tự Nhiên
-            </h2>
-            <p className="text-xs text-[#64748B] mt-1">Tuyển chọn từ lúa nương và thảo mộc Việt Nam</p>
+      {categories.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#1E293B]">
+                Danh Mục Sản Phẩm Tự Nhiên
+              </h2>
+              <p className="text-xs text-[#64748B] mt-1">Tuyển chọn từ lúa nương và thảo mộc Việt Nam</p>
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6">
-          {MOCK_CATEGORIES.map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/categories/${cat.slug}`}
-              className="group bg-white border border-[#E2E8F0] rounded-2xl p-4 text-center space-y-3 shadow-xs hover:shadow-md hover:border-[#2D5A27]/40 transition-all duration-200"
-            >
-              <div className="relative w-16 h-16 rounded-full overflow-hidden mx-auto bg-slate-50 border border-[#E2E8F0]">
-                <Image src={cat.imageUrl} alt={cat.name} fill className="object-cover group-hover:scale-110 transition-transform" />
-              </div>
-              <h3 className="font-bold text-sm text-[#1E293B] group-hover:text-[#2D5A27] transition-colors">
-                {cat.name}
-              </h3>
-              <p className="text-[11px] text-[#64748B] font-mono">{cat.productCount} sản phẩm</p>
-            </Link>
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 sm:gap-6">
+            {categories.map((cat: any) => (
+              <Link
+                key={cat.id}
+                href={`/categories/${cat.slug}`}
+                className="group bg-white border border-[#E2E8F0] rounded-2xl p-4 text-center space-y-3 shadow-xs hover:shadow-md hover:border-[#2D5A27]/40 transition-all duration-200"
+              >
+                <div className="relative w-16 h-16 rounded-full overflow-hidden mx-auto bg-slate-50 border border-[#E2E8F0]">
+                  {cat.imageUrl && (
+                    <Image src={cat.imageUrl} alt={cat.name} fill className="object-cover group-hover:scale-110 transition-transform" />
+                  )}
+                </div>
+                <h3 className="font-bold text-sm text-[#1E293B] group-hover:text-[#2D5A27] transition-colors">
+                  {cat.name}
+                </h3>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Featured Products Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -122,59 +134,65 @@ export default function HomePage() {
       </section>
 
       {/* Content Commerce Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-[#F9F6F0] border-2 border-[#2D5A27]/20 rounded-3xl p-8 sm:p-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          <div className="space-y-4">
-            <span className="bg-[#C86D51] text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-              Content Commerce
-            </span>
-            <h2 className="text-3xl font-bold font-display text-[#1E293B]">
-              {featuredBlog.title}
-            </h2>
-            <p className="text-sm text-[#64748B] leading-relaxed">
-              {featuredBlog.excerpt}
-            </p>
-            <div className="pt-2">
-              <Link href={`/blog/${featuredBlog.slug}`}>
-                <Button variant="primary" size="md" className="bg-[#2D5A27]">
-                  Đọc Bài Viết & Xem Sản Phẩm <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
+      {featuredBlog && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#F9F6F0] border-2 border-[#2D5A27]/20 rounded-3xl p-8 sm:p-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div className="space-y-4">
+              <span className="bg-[#C86D51] text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                Content Commerce
+              </span>
+              <h2 className="text-3xl font-bold font-display text-[#1E293B]">
+                {featuredBlog.title}
+              </h2>
+              <p className="text-sm text-[#64748B] leading-relaxed">
+                {featuredBlog.excerpt}
+              </p>
+              <div className="pt-2">
+                <Link href={`/blog/${featuredBlog.slug}`}>
+                  <Button variant="primary" size="md" className="bg-[#2D5A27]">
+                    Đọc Bài Viết & Xem Sản Phẩm <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <div className="relative aspect-video rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-md bg-white">
+              {featuredBlog.coverImage && (
+                <Image
+                  src={featuredBlog.coverImage}
+                  alt={featuredBlog.title}
+                  fill
+                  className="object-cover"
+                />
+              )}
             </div>
           </div>
-
-          <div className="relative aspect-video rounded-2xl overflow-hidden border border-[#E2E8F0] shadow-md bg-white">
-            <Image
-              src={featuredBlog.coverImage}
-              alt={featuredBlog.title}
-              fill
-              className="object-cover"
-            />
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Blog Highlights Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#1E293B]">
-              Góc Sức Khỏe & Dinh Dưỡng
-            </h2>
-            <p className="text-xs text-[#64748B] mt-1">Bài viết thực dưỡng, công thức nấu ăn & mẹo sống xanh</p>
+      {blogPosts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold font-display text-[#1E293B]">
+                Góc Sức Khỏe & Dinh Dưỡng
+              </h2>
+              <p className="text-xs text-[#64748B] mt-1">Bài viết thực dưỡng, công thức nấu ăn & mẹo sống xanh</p>
+            </div>
+
+            <Link href="/blog" className="text-xs text-[#2D5A27] font-semibold hover:underline flex items-center gap-1">
+              Xem tất cả bài viết <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
-          <Link href="/blog" className="text-xs text-[#2D5A27] font-semibold hover:underline flex items-center gap-1">
-            Xem tất cả bài viết <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {MOCK_BLOG_POSTS.map((post) => (
-            <BlogCard key={post.id} post={post} />
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {blogPosts.map((post: any) => (
+              <BlogCard key={post.id} post={post} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

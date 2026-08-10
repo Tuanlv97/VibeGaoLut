@@ -21,7 +21,7 @@ export default function ProductListingPage() {
     sort: sortBy === 'price-asc' ? 'price_asc' : sortBy === 'price-desc' ? 'price_desc' : 'newest',
   });
 
-  const productsList = productsData?.items || MOCK_PRODUCTS;
+  const productsList = productsData?.items || [];
 
   const filteredProducts = useMemo(() => {
     return productsList.filter((p: any) => {

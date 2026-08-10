@@ -1,13 +1,15 @@
 import React from 'react';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
 import { ProductGrid } from './ProductGrid';
+import { useProducts } from '@/lib/api/hooks';
 
 interface RelatedProductsProps {
   currentProductId: string;
 }
 
 export const RelatedProducts: React.FC<RelatedProductsProps> = ({ currentProductId }) => {
-  const related = MOCK_PRODUCTS.filter((p) => p.id !== currentProductId).slice(0, 4);
+  const { data: productsData } = useProducts();
+  const allProducts = productsData?.items || [];
+  const related = allProducts.filter((p: any) => p.id !== currentProductId).slice(0, 4);
 
   return (
     <div className="space-y-4 pt-6">

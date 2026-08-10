@@ -14,7 +14,7 @@ export default function QuestionListingPage() {
   const [selectedType, setSelectedType] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data: questions = MOCK_QUESTIONS } = useQuestions();
+  const { data: questions = [] } = useQuestions();
 
   const filteredQuestions = (questions || []).filter((q: any) => {
     if (selectedType && q.questionType !== selectedType) return false;

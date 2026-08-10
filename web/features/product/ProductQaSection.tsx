@@ -1,14 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { HelpCircle, MessageSquare } from 'lucide-react';
-import { MOCK_QUESTIONS } from '@/lib/mock-data';
+import { useQuestions } from '@/lib/api/hooks';
 
 interface ProductQaSectionProps {
   productId: string;
 }
 
 export const ProductQaSection: React.FC<ProductQaSectionProps> = ({ productId }) => {
-  const questions = MOCK_QUESTIONS.filter((q) => q.productId === productId);
+  const { data: questions = [] } = useQuestions(productId);
 
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 space-y-4">

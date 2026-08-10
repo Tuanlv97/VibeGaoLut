@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MOCK_CATEGORIES } from '@/lib/mock-data';
+import { useCategories } from '@/lib/api/hooks';
 import { Filter, Star, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -24,6 +24,7 @@ export const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
   onRatingChange,
   onReset,
 }) => {
+  const { data: categories = [] } = useCategories();
   return (
     <aside className="bg-white border border-[#E2E8F0] rounded-xl p-5 space-y-6">
       <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
@@ -54,7 +55,7 @@ export const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
           >
             Tất Cả Sản Phẩm
           </button>
-          {MOCK_CATEGORIES.map((cat) => (
+          {categories.map((cat: any) => (
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat.slug)}

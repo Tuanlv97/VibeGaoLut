@@ -89,16 +89,16 @@ export const OrderSuccessCard: React.FC<OrderSuccessCardProps> = ({
 
       {/* Action Buttons */}
       <div className="pt-2 flex flex-col sm:flex-row gap-3">
-        <Link href={`/orders/track?order=${orderNumber}&phone=${phone}`} className="flex-1">
-          <Button variant="primary" size="lg" className="w-full justify-center whitespace-nowrap gap-2">
+        <Link href={`/orders/track?order=${orderNumber}&phone=${phone}`} className="flex-1 min-w-0">
+          <Button variant="primary" size="lg" className="w-full justify-center whitespace-nowrap gap-2 text-sm sm:text-base px-3 sm:px-4">
             <Search className="w-4 h-4 shrink-0" />
-            <span>Tra Cứu Đơn Hàng</span>
+            <span>Tra Cứu Tiến Độ</span>
           </Button>
         </Link>
-        <Link href="/" className="flex-1">
-          <Button variant="outline" size="lg" className="w-full justify-center whitespace-nowrap gap-2">
+        <Link href="/" className="flex-1 min-w-0">
+          <Button variant="outline" size="lg" className="w-full justify-center whitespace-nowrap gap-2 text-sm sm:text-base px-3 sm:px-4">
             <Home className="w-4 h-4 shrink-0" />
-            <span>Quay Về Trang Chủ</span>
+            <span>Về Trang Chủ</span>
           </Button>
         </Link>
       </div>

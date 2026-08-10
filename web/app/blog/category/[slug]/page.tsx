@@ -1,15 +1,17 @@
+'use client';
+
 import React from 'react';
-import { MOCK_BLOG_POSTS } from '@/lib/mock-data';
+import { useParams } from 'next/navigation';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { BlogGrid } from '@/features/blog/BlogGrid';
+import { useBlogPosts } from '@/lib/api/hooks';
 
-interface BlogCategoryPageProps {
-  params: Promise<{ slug: string }>;
-}
+export default function BlogCategoryPage() {
+  const params = useParams();
+  const slug = (params?.slug as string) || '';
 
-export default async function BlogCategoryPage({ params }: BlogCategoryPageProps) {
-  const { slug } = await params;
-  const filteredPosts = MOCK_BLOG_POSTS.filter((p) => p.categorySlug === slug);
+  const { data: blogPostsData } = useBlogPosts({ categoryId: slug });
+  const filteredPosts = blogPostsData?.items || [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">

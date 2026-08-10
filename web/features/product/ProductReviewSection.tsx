@@ -97,13 +97,17 @@ export const ProductReviewSection: React.FC<ProductReviewSectionProps> = ({
       {/* Average Rating Summary */}
       <div className="flex items-center gap-6 p-4 bg-[#F9F6F0] rounded-xl border border-[#E2E8F0]">
         <div className="text-center border-r border-[#E2E8F0] pr-6">
-          <div className="text-4xl font-bold text-[#2D5A27] font-mono">4.9</div>
+          <div className="text-4xl font-bold text-[#2D5A27] font-mono">
+            {reviews.length > 0
+              ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+              : '0.0'}
+          </div>
           <div className="flex items-center gap-0.5 text-amber-500 justify-center my-1">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star key={i} className="w-4 h-4 fill-current" />
             ))}
           </div>
-          <div className="text-xs text-[#64748B] font-medium">{reviews.length + 36} lượt đánh giá</div>
+          <div className="text-xs text-[#64748B] font-medium">{reviews.length} lượt đánh giá</div>
         </div>
 
         <div className="space-y-1 text-xs text-[#64748B] flex-1">

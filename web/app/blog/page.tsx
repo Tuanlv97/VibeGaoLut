@@ -1,21 +1,21 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MOCK_BLOG_POSTS } from '@/lib/mock-data';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { FeaturedBlogPost } from '@/features/blog/FeaturedBlogPost';
 import { BlogCategoryTabs } from '@/features/blog/BlogCategoryTabs';
 import { BlogGrid } from '@/features/blog/BlogGrid';
+import { useBlogPosts } from '@/lib/api/hooks';
 
 export default function BlogListingPage() {
   const [selectedCategory, setSelectedCategory] = useState('');
 
-  const featuredPost = MOCK_BLOG_POSTS.find((p) => p.isFeatured) || MOCK_BLOG_POSTS[0];
-
-  const filteredPosts = MOCK_BLOG_POSTS.filter((p) => {
-    if (selectedCategory && p.categorySlug !== selectedCategory) return false;
-    return true;
+  const { data: blogPostsData } = useBlogPosts({
+    categoryId: selectedCategory || undefined,
   });
+
+  const postsList = blogPostsData?.items || [];
+  const featuredPost = postsList.find((p: any) => p.isFeatured) || postsList[0];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -36,7 +36,7 @@ export default function BlogListingPage() {
       </div>
 
       {/* Hero Featured Article */}
-      <FeaturedBlogPost post={featuredPost} />
+      {featuredPost && <FeaturedBlogPost post={featuredPost} />}
 
       {/* Category Tabs & Blog Grid */}
       <div className="space-y-4 pt-4 border-t border-[#E2E8F0]">
@@ -44,7 +44,7 @@ export default function BlogListingPage() {
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
         />
-        <BlogGrid posts={filteredPosts} />
+        <BlogGrid posts={postsList} />
       </div>
     </div>
   );

@@ -67,15 +67,7 @@ export function useProducts(params?: ProductsQueryParams) {
         const res = await fetchAPI<{ items: any[]; total: number }>(`/products?${queryStr.toString()}`);
         return res;
       } catch {
-        // Graceful fallback to Mock Data
-        let filtered = [...MOCK_PRODUCTS];
-        if (params?.search) {
-          const q = params.search.toLowerCase();
-          filtered = filtered.filter(
-            (p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q),
-          );
-        }
-        return { items: filtered, total: filtered.length };
+        return { items: [], total: 0 };
       }
     },
   });
@@ -89,7 +81,7 @@ export function useNewArrivals() {
       try {
         return await fetchAPI<any[]>('/products/new-arrivals');
       } catch {
-        return MOCK_PRODUCTS.filter((p) => p.isFeaturedNew);
+        return [];
       }
     },
   });
@@ -103,7 +95,7 @@ export function useProductDetail(slug: string) {
       try {
         return await fetchAPI<any>(`/products/${slug}`);
       } catch {
-        return MOCK_PRODUCTS.find((p) => p.slug === slug || p.id === slug) || MOCK_PRODUCTS[0];
+        return null;
       }
     },
     enabled: Boolean(slug),
@@ -118,7 +110,7 @@ export function useCategories() {
       try {
         return await fetchAPI<any[]>('/categories');
       } catch {
-        return MOCK_CATEGORIES;
+        return [];
       }
     },
   });
@@ -135,7 +127,7 @@ export function useBlogPosts(params?: { categoryId?: string; page?: number }) {
         if (params?.page) queryStr.set('page', params.page.toString());
         return await fetchAPI<{ items: any[]; total: number }>(`/blog/posts?${queryStr.toString()}`);
       } catch {
-        return { items: MOCK_BLOG_POSTS, total: MOCK_BLOG_POSTS.length };
+        return { items: [], total: 0 };
       }
     },
   });
@@ -149,9 +141,7 @@ export function useBlogPostDetail(slug: string) {
       try {
         return await fetchAPI<{ post: any; relatedProducts: any[] }>(`/blog/posts/${slug}`);
       } catch {
-        const post = MOCK_BLOG_POSTS.find((b) => b.slug === slug || b.id === slug) || MOCK_BLOG_POSTS[0];
-        const related = MOCK_PRODUCTS.filter((p) => post.relatedProductIds.includes(p.id));
-        return { post, relatedProducts: related };
+        return { post: null, relatedProducts: [] };
       }
     },
     enabled: Boolean(slug),
@@ -167,10 +157,7 @@ export function useQuestions(productId?: string) {
         const queryStr = productId ? `?productId=${productId}` : '';
         return await fetchAPI<any[]>(`/questions${queryStr}`);
       } catch {
-        if (productId) {
-          return MOCK_QUESTIONS.filter((q) => q.productId === productId);
-        }
-        return MOCK_QUESTIONS;
+        return [];
       }
     },
   });
@@ -273,8 +260,11 @@ export function useCreateQuestion() {
 
 // 12. Admin Stats KPI
 export function useAdminStats() {
+  const { data: orders = [] } = useAdminOrders();
+  const { data: productsData } = useProducts();
+
   return useQuery({
-    queryKey: ['admin', 'stats'],
+    queryKey: ['admin', 'stats', orders, productsData],
     queryFn: async () => {
       try {
         return await fetchAPI<{
@@ -284,13 +274,18 @@ export function useAdminStats() {
           totalProducts: number;
         }>('/admin/stats');
       } catch {
-        const local = getLocalOrders();
-        const totalRev = 154200000 + local.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+        const totalRevenue = orders.reduce(
+          (sum, o) => (o.status !== 'CANCELLED' ? sum + (o.totalAmount || 0) : sum),
+          0,
+        );
+        const pendingOrdersCount = orders.filter((o) => o.status === 'PENDING').length;
+        const totalProducts = productsData?.items?.length || MOCK_PRODUCTS.length;
+
         return {
-          totalRevenue: totalRev,
-          totalOrders: 1248 + local.length,
-          pendingOrdersCount: 18 + local.filter((o) => o.status === 'PENDING').length,
-          totalProducts: MOCK_PRODUCTS.length,
+          totalRevenue,
+          totalOrders: orders.length,
+          pendingOrdersCount,
+          totalProducts,
         };
       }
     },
@@ -305,43 +300,27 @@ export function useAdminOrders(status?: string) {
       let apiOrders: any[] = [];
       try {
         const queryStr = status ? `?status=${status}` : '';
-        apiOrders = await fetchAPI<any[]>(`/admin/orders${queryStr}`);
+        const res = await fetchAPI<any>(`/admin/orders${queryStr}`);
+        apiOrders = Array.isArray(res) ? res : (res?.items || []);
       } catch {
-        apiOrders = [
-          {
-            id: 'ord-1',
-            orderNumber: 'GP-883920',
-            customerName: 'Nguyễn Văn An',
-            customerPhone: '0912345678',
-            customerEmail: 'an.nguyen@example.com',
-            province: 'Hà Nội',
-            district: 'Cầu Giấy',
-            ward: 'Dịch Vọng',
-            addressDetail: 'Số 12 Ngõ 45',
-            subtotal: 240000,
-            shippingFee: 25000,
-            totalAmount: 265000,
-            paymentMethod: 'COD',
-            status: 'PENDING',
-            createdAt: new Date().toISOString(),
-            items: [
-              {
-                id: 'item-1',
-                productId: 'prod_gao_lut_st25',
-                productName: 'Gạo Lứt Đỏ ST25 GreenPantry 1kg',
-                unitPrice: 120000,
-                quantity: 2,
-                subtotal: 240000,
-              },
-            ],
-          },
-        ];
+        apiOrders = [];
       }
 
       const localOrders = getLocalOrders();
       const orderMap = new Map<string, any>();
-      localOrders.forEach((o) => orderMap.set(o.orderNumber, o));
-      apiOrders.forEach((o) => orderMap.set(o.orderNumber, o));
+
+      // Put API orders first, then merge local orders so newly placed guest orders are never lost
+      if (Array.isArray(apiOrders)) {
+        apiOrders.forEach((o) => {
+          if (o && o.orderNumber) orderMap.set(o.orderNumber, o);
+        });
+      }
+
+      if (Array.isArray(localOrders)) {
+        localOrders.forEach((o) => {
+          if (o && o.orderNumber) orderMap.set(o.orderNumber, o);
+        });
+      }
 
       let allOrders = Array.from(orderMap.values());
 
@@ -414,7 +393,7 @@ export function useAdminBlogPosts() {
       try {
         return await fetchAPI<{ items: any[]; total: number }>('/admin/blog');
       } catch {
-        return { items: MOCK_BLOG_POSTS, total: MOCK_BLOG_POSTS.length };
+        return { items: [], total: 0 };
       }
     },
   });
@@ -463,7 +442,7 @@ export function useAdminQuestions() {
       try {
         return await fetchAPI<any[]>('/admin/questions');
       } catch {
-        return MOCK_QUESTIONS;
+        return [];
       }
     },
   });

@@ -2,7 +2,8 @@
 
 import React, { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { MOCK_PRODUCTS, MOCK_BLOG_POSTS, MOCK_QUESTIONS } from '@/lib/mock-data';
+import { MOCK_PRODUCTS, MOCK_BLOG_POSTS } from '@/lib/mock-data';
+import { useQuestions } from '@/lib/api/hooks';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { SearchInputBar } from '@/features/search/SearchInputBar';
 import { SearchResultTabs } from '@/features/search/SearchResultTabs';
@@ -38,15 +39,17 @@ function SearchContent() {
     );
   }, [query]);
 
+  const { data: questionsData = [] } = useQuestions();
+
   const filteredQuestions = useMemo(() => {
-    if (!query.trim()) return MOCK_QUESTIONS;
+    if (!query.trim()) return questionsData;
     const q = query.toLowerCase();
-    return MOCK_QUESTIONS.filter(
-      (ques) =>
-        ques.content.toLowerCase().includes(q) ||
-        (ques.answer && ques.answer.content.toLowerCase().includes(q))
+    return questionsData.filter(
+      (ques: any) =>
+        ques.content?.toLowerCase().includes(q) ||
+        (ques.answer && ques.answer.content?.toLowerCase().includes(q))
     );
-  }, [query]);
+  }, [query, questionsData]);
 
   const counts = {
     all: filteredProducts.length + filteredBlogs.length + filteredQuestions.length,

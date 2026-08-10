@@ -1,11 +1,13 @@
+'use client';
+
 import React from 'react';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { NewArrivalsHeader } from '@/features/product/NewArrivalsHeader';
 import { ProductGrid } from '@/features/product/ProductGrid';
+import { useNewArrivals } from '@/lib/api/hooks';
 
 export default function NewArrivalsPage() {
-  const newProducts = MOCK_PRODUCTS.filter((p) => p.isFeaturedNew);
+  const { data: newProducts = [] } = useNewArrivals();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">

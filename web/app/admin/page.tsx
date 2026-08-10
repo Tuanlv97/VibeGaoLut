@@ -28,28 +28,28 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <AdminStatCard
             title="Tổng Doanh Thu"
-            value={`${(stats?.totalRevenue || 154200000).toLocaleString('vi-VN')}đ`}
+            value={`${(stats?.totalRevenue ?? 0).toLocaleString('vi-VN')}đ`}
             icon="💰"
-            badgeText="+12% tháng này"
+            badgeText="Thực tế"
             badgeColor="emerald"
           />
           <AdminStatCard
             title="Tổng Đơn Hàng"
-            value={stats?.totalOrders || 1248}
+            value={stats?.totalOrders ?? 0}
             icon="📦"
             badgeText="Tất cả đơn"
             badgeColor="blue"
           />
           <AdminStatCard
             title="Đơn Hàng Chờ Duyệt"
-            value={stats?.pendingOrdersCount || 18}
+            value={stats?.pendingOrdersCount ?? 0}
             icon="⏳"
             badgeText="Cần xử lý"
             badgeColor="amber"
           />
           <AdminStatCard
             title="Tổng Số Sản Phẩm"
-            value={stats?.totalProducts || 42}
+            value={stats?.totalProducts ?? 0}
             icon="🌾"
             badgeText="Hoạt động"
             badgeColor="purple"
