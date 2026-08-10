@@ -28,68 +28,81 @@ export const OrderSuccessCard: React.FC<OrderSuccessCardProps> = ({
   };
 
   return (
-    <div className="bg-white border border-[#E2E8F0] rounded-2xl p-8 sm:p-12 max-w-xl mx-auto text-center space-y-6 shadow-sm my-8">
-      <div className="w-20 h-20 bg-[#DCFCE7] text-[#166534] rounded-full flex items-center justify-center mx-auto border border-[#DCFCE7] animate-bounce">
-        <CheckCircle2 className="w-10 h-10" />
+    <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 sm:p-10 max-w-xl mx-auto text-center space-y-6 shadow-sm my-8">
+      {/* Animated Glowing Success Icon */}
+      <div className="w-20 h-20 bg-[#DCFCE7] text-[#166534] rounded-full flex items-center justify-center mx-auto ring-8 ring-[#DCFCE7]/60 transition-transform hover:scale-105">
+        <CheckCircle2 className="w-10 h-10 stroke-[2.2]" />
       </div>
 
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold font-display text-[#1E293B]">
+        <h1 className="text-3xl font-extrabold font-display text-[#1E293B]">
           Đặt Hàng Thành Công!
         </h1>
-        <p className="text-sm text-[#64748B]">
-          Cảm ơn <strong>{customerName}</strong>. Đơn hàng của bạn đã được ghi nhận vào hệ thống GreenPantry và sẽ sớm được nhân viên xác nhận.
+        <p className="text-sm text-[#64748B] max-w-md mx-auto leading-relaxed">
+          Cảm ơn <strong className="text-[#1E293B]">{customerName}</strong>. Đơn hàng của bạn đã được ghi nhận vào hệ thống GreenPantry và đang được xử lý.
         </p>
       </div>
 
       {/* Generated Order ID Banner */}
-      <div className="p-4 bg-[#F9F6F0] border-2 border-[#2D5A27] rounded-xl flex items-center justify-between gap-4">
+      <div className="p-4 bg-[#F0FDF4] border border-[#DCFCE7] rounded-xl flex items-center justify-between gap-3 shadow-2xs">
         <div className="text-left">
-          <span className="text-xs text-[#64748B] uppercase font-semibold block">Mã Đơn Hàng Của Bạn</span>
-          <span className="text-2xl font-bold font-mono text-[#2D5A27] tracking-wider">{orderNumber}</span>
+          <span className="text-xs text-[#64748B] uppercase font-semibold tracking-wider block">Mã Đơn Hàng Của Bạn</span>
+          <span className="text-2xl font-extrabold font-mono text-[#2D5A27] tracking-wider">{orderNumber}</span>
         </div>
-        <Button variant="outline" size="sm" onClick={handleCopy} className="shrink-0 bg-white">
-          {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-          {copied ? 'Đã Sao Chép!' : 'Sao Chép'}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleCopy}
+          className="shrink-0 bg-white hover:bg-emerald-50 text-[#2D5A27] border-[#2D5A27]/20 whitespace-nowrap font-medium"
+        >
+          {copied ? <Check className="w-4 h-4 text-emerald-600 shrink-0" /> : <Copy className="w-4 h-4 shrink-0" />}
+          <span>{copied ? 'Đã Sao Chép!' : 'Sao Chép'}</span>
         </Button>
       </div>
 
       {/* Order Summary Metadata */}
-      <div className="text-xs text-[#64748B] space-y-1.5 p-4 bg-slate-50 rounded-xl text-left border border-[#E2E8F0]">
-        <div className="flex justify-between">
-          <span>Người nhận:</span>
-          <strong className="text-[#1E293B]">{customerName} ({phone})</strong>
-        </div>
-        <div className="flex justify-between">
-          <span>Hình thức thanh toán:</span>
-          <strong className="text-[#166534]">COD (Thanh toán khi nhận hàng)</strong>
-        </div>
-        <div className="flex justify-between">
-          <span>Tổng số tiền:</span>
-          <strong className="text-[#2D5A27] font-mono text-sm">
-            {new Intl.NumberFormat('vi-VN').format(totalAmount)}đ
-          </strong>
-        </div>
-        <div className="flex justify-between">
-          <span>Trạng thái ban đầu:</span>
-          <Badge variant="warning">ĐÃ TIẾP NHẬN (PENDING)</Badge>
+      <div className="p-5 bg-[#F9F6F0] rounded-xl text-left border border-[#E2E8F0] space-y-2.5">
+        <h3 className="font-display font-bold text-base text-[#1E293B] border-b border-[#E2E8F0] pb-2">
+          Tóm Tắt Đơn Hàng
+        </h3>
+        <div className="space-y-2 text-sm text-[#64748B]">
+          <div className="flex justify-between items-center gap-2">
+            <span>Người nhận:</span>
+            <strong className="text-[#1E293B] font-medium">{customerName} ({phone})</strong>
+          </div>
+          <div className="flex justify-between items-center gap-2">
+            <span>Hình thức thanh toán:</span>
+            <strong className="text-[#166534] font-medium">COD (Thanh toán khi nhận hàng)</strong>
+          </div>
+          <div className="flex justify-between items-center gap-2">
+            <span>Trạng thái ban đầu:</span>
+            <Badge variant="warning">ĐÃ TIẾP NHẬN (PENDING)</Badge>
+          </div>
+          <div className="border-t border-[#E2E8F0] pt-2 mt-1 flex justify-between items-center gap-2">
+            <span className="font-semibold text-[#1E293B]">Tổng số tiền:</span>
+            <strong className="text-[#2D5A27] font-mono text-lg font-bold">
+              {new Intl.NumberFormat('vi-VN').format(totalAmount)}đ
+            </strong>
+          </div>
         </div>
       </div>
 
+      {/* Action Buttons */}
       <div className="pt-2 flex flex-col sm:flex-row gap-3">
         <Link href={`/orders/track?order=${orderNumber}&phone=${phone}`} className="flex-1">
-          <Button variant="primary" size="lg" className="w-full">
-            <Search className="w-4 h-4" />
-            Tra Cứu Tiến Độ Đơn Hàng
+          <Button variant="primary" size="lg" className="w-full justify-center whitespace-nowrap gap-2">
+            <Search className="w-4 h-4 shrink-0" />
+            <span>Tra Cứu Đơn Hàng</span>
           </Button>
         </Link>
         <Link href="/" className="flex-1">
-          <Button variant="outline" size="lg" className="w-full">
-            <Home className="w-4 h-4" />
-            Về Trang Chủ
+          <Button variant="outline" size="lg" className="w-full justify-center whitespace-nowrap gap-2">
+            <Home className="w-4 h-4 shrink-0" />
+            <span>Quay Về Trang Chủ</span>
           </Button>
         </Link>
       </div>
     </div>
   );
 };
+

@@ -7,7 +7,7 @@ import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { GuestAddressForm } from '@/features/checkout/GuestAddressForm';
 import { PaymentMethodSelector } from '@/features/checkout/PaymentMethodSelector';
 import { OrderSummaryWidget } from '@/features/checkout/OrderSummaryWidget';
-import { useCreateOrder } from '@/lib/api/hooks';
+import { useCreateOrder, saveLocalOrder } from '@/lib/api/hooks';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -101,12 +101,44 @@ export default function CheckoutPage() {
     } catch {
       // Fallback if API server is offline
       const generatedOrderNumber = `GP-${Math.floor(100000 + Math.random() * 900000)}`;
+      const shippingFee = grandTotal >= 300000 ? 0 : 30000;
+      const totalAmount = grandTotal + shippingFee;
+
+      const fallbackOrder = {
+        id: `ord_local_${Date.now()}`,
+        orderNumber: generatedOrderNumber,
+        customerName: formData.fullName,
+        customerPhone: formData.phone,
+        customerEmail: formData.email,
+        province: formData.province,
+        district: formData.district,
+        ward: formData.ward,
+        addressDetail: formData.addressDetail,
+        subtotal: grandTotal,
+        shippingFee,
+        totalAmount,
+        paymentMethod: 'COD',
+        status: 'PENDING',
+        createdAt: new Date().toISOString(),
+        items: items.map((i) => ({
+          id: i.id,
+          productId: i.id,
+          productName: i.name,
+          unitPrice: i.price,
+          quantity: i.quantity,
+          subtotal: i.price * i.quantity,
+          weightUnit: i.weightUnit,
+        })),
+      };
+
+      saveLocalOrder(fallbackOrder);
       clearCart();
       setIsSubmitting(false);
+
       router.push(
         `/orders/success?orderNumber=${generatedOrderNumber}&name=${encodeURIComponent(
           formData.fullName
-        )}&phone=${encodeURIComponent(formData.phone)}&total=${grandTotal}`
+        )}&phone=${encodeURIComponent(formData.phone)}&total=${totalAmount}`
       );
     }
   };

@@ -99,7 +99,7 @@ function TrackOrderContent() {
       />
 
       {trackedOrder && (
-        <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="space-y-6 max-w-4xl mx-auto transition-all duration-300">
           <OrderTimeline currentStatus={trackedOrder.status} />
           <OrderDetailsView order={trackedOrder} />
         </div>
@@ -110,14 +110,14 @@ function TrackOrderContent() {
 
 export default function TrackOrderPage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
       <Breadcrumb
         items={[
           { label: 'Trang chủ', href: '/' },
           { label: 'Tra cứu đơn hàng' },
         ]}
       />
-      <Suspense fallback={<div className="text-center py-12 text-sm text-[#64748B]">Đang tải...</div>}>
+      <Suspense fallback={<div className="text-center py-12 text-sm text-[#64748B]">Đang tải thông tin tra cứu...</div>}>
         <TrackOrderContent />
       </Suspense>
     </div>

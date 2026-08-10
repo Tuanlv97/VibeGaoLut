@@ -177,13 +177,49 @@ export function useQuestions(productId?: string) {
 }
 
 // 8. Mutation for Guest Checkout
+// Local Order Storage Helpers for client-side persistence
+export function getLocalOrders(): any[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const data = localStorage.getItem('greenpantry_local_orders');
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveLocalOrder(order: any) {
+  if (typeof window === 'undefined') return;
+  try {
+    const existing = getLocalOrders();
+    const updated = [order, ...existing.filter((o) => o.orderNumber !== order.orderNumber)];
+    localStorage.setItem('greenpantry_local_orders', JSON.stringify(updated));
+  } catch {}
+}
+
+export function updateLocalOrderStatus(orderId: string, status: string) {
+  if (typeof window === 'undefined') return;
+  try {
+    const existing = getLocalOrders();
+    const updated = existing.map((o) =>
+      o.id === orderId || o.orderNumber === orderId ? { ...o, status } : o
+    );
+    localStorage.setItem('greenpantry_local_orders', JSON.stringify(updated));
+  } catch {}
+}
+
+// 8. Mutation for Guest Checkout
 export function useCreateOrder() {
   return useMutation({
     mutationFn: async (payload: CreateOrderPayload) => {
-      return await fetchAPI<any>('/orders', {
+      const res = await fetchAPI<any>('/orders', {
         method: 'POST',
         body: JSON.stringify(payload),
       });
+      if (res && res.orderNumber) {
+        saveLocalOrder(res);
+      }
+      return res;
     },
   });
 }
@@ -192,8 +228,19 @@ export function useCreateOrder() {
 export function useTrackOrder() {
   return useMutation({
     mutationFn: async ({ orderNumber, customerPhone }: { orderNumber: string; customerPhone: string }) => {
-      const queryStr = new URLSearchParams({ orderNumber, customerPhone }).toString();
-      return await fetchAPI<any>(`/orders/track?${queryStr}`);
+      try {
+        const queryStr = new URLSearchParams({ orderNumber, customerPhone }).toString();
+        return await fetchAPI<any>(`/orders/track?${queryStr}`);
+      } catch (error) {
+        const local = getLocalOrders();
+        const found = local.find(
+          (o) =>
+            o.orderNumber.toLowerCase() === orderNumber.toLowerCase() &&
+            (o.customerPhone === customerPhone || !customerPhone)
+        );
+        if (found) return found;
+        throw error;
+      }
     },
   });
 }
@@ -237,10 +284,12 @@ export function useAdminStats() {
           totalProducts: number;
         }>('/admin/stats');
       } catch {
+        const local = getLocalOrders();
+        const totalRev = 154200000 + local.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
         return {
-          totalRevenue: 154200000,
-          totalOrders: 1248,
-          pendingOrdersCount: 18,
+          totalRevenue: totalRev,
+          totalOrders: 1248 + local.length,
+          pendingOrdersCount: 18 + local.filter((o) => o.status === 'PENDING').length,
           totalProducts: MOCK_PRODUCTS.length,
         };
       }
@@ -253,11 +302,12 @@ export function useAdminOrders(status?: string) {
   return useQuery({
     queryKey: ['admin', 'orders', status],
     queryFn: async () => {
+      let apiOrders: any[] = [];
       try {
         const queryStr = status ? `?status=${status}` : '';
-        return await fetchAPI<any[]>(`/admin/orders${queryStr}`);
+        apiOrders = await fetchAPI<any[]>(`/admin/orders${queryStr}`);
       } catch {
-        return [
+        apiOrders = [
           {
             id: 'ord-1',
             orderNumber: 'GP-883920',
@@ -277,7 +327,7 @@ export function useAdminOrders(status?: string) {
             items: [
               {
                 id: 'item-1',
-                productId: 'p-1',
+                productId: 'prod_gao_lut_st25',
                 productName: 'Gạo Lứt Đỏ ST25 GreenPantry 1kg',
                 unitPrice: 120000,
                 quantity: 2,
@@ -287,6 +337,19 @@ export function useAdminOrders(status?: string) {
           },
         ];
       }
+
+      const localOrders = getLocalOrders();
+      const orderMap = new Map<string, any>();
+      localOrders.forEach((o) => orderMap.set(o.orderNumber, o));
+      apiOrders.forEach((o) => orderMap.set(o.orderNumber, o));
+
+      let allOrders = Array.from(orderMap.values());
+
+      if (status && status !== 'ALL') {
+        allOrders = allOrders.filter((o) => o.status === status);
+      }
+
+      return allOrders;
     },
   });
 }
@@ -295,10 +358,15 @@ export function useAdminOrders(status?: string) {
 export function useUpdateOrderStatus() {
   return useMutation({
     mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
-      return await fetchAPI<any>(`/admin/orders/${orderId}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status }),
-      });
+      updateLocalOrderStatus(orderId, status);
+      try {
+        return await fetchAPI<any>(`/admin/orders/${orderId}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status }),
+        });
+      } catch {
+        return { success: true, orderId, status };
+      }
     },
   });
 }

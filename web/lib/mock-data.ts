@@ -125,7 +125,7 @@ export const MOCK_CATEGORIES: Category[] = [
 
 export const MOCK_PRODUCTS: Product[] = [
   {
-    id: 'prod-1',
+    id: 'prod_gao_lut_st25',
     name: 'Gạo Lứt Đỏ ST25 GreenPantry 1kg',
     slug: 'gao-lut-do-st25-1kg',
     price: 120000,
@@ -154,7 +154,7 @@ export const MOCK_PRODUCTS: Product[] = [
     ],
   },
   {
-    id: 'prod-2',
+    id: 'prod_bot_san_day',
     name: 'Bột Sắn Dây Ta Nguyên Chất 500g',
     slug: 'bot-san-day-ta-nguyen-chat-500g',
     price: 135000,
@@ -182,7 +182,7 @@ export const MOCK_PRODUCTS: Product[] = [
     ],
   },
   {
-    id: 'prod-3',
+    id: 'prod_tra_gao_lut',
     name: 'Trà Gạo Lứt Đậu Đen Xanh Lòng 400g',
     slug: 'tra-gao-lut-dau-den-xanh-long-400g',
     price: 95000,
@@ -210,7 +210,7 @@ export const MOCK_PRODUCTS: Product[] = [
     ],
   },
   {
-    id: 'prod-4',
+    id: 'prod_yen_mach',
     name: 'Hạt Óc Chó Đỏ Nhập Khẩu Mỹ 500g',
     slug: 'hat-oc-cho-do-nhap-khau-my-500g',
     price: 240000,
