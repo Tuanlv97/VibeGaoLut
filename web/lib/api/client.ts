@@ -12,9 +12,25 @@ export async function fetchAPI<T>(
   options: RequestInit = {},
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-  
+
+  let authHeader: Record<string, string> = {};
+  if (typeof window !== 'undefined') {
+    try {
+      const authStorage = localStorage.getItem('greenpantry_admin_auth');
+      if (authStorage) {
+        const parsed = JSON.parse(authStorage);
+        if (parsed?.state?.token) {
+          authHeader = { Authorization: `Bearer ${parsed.state.token}` };
+        }
+      }
+    } catch {
+      // Ignore JSON parse error
+    }
+  }
+
   const headers = {
     'Content-Type': 'application/json',
+    ...authHeader,
     ...(options.headers || {}),
   };
 
@@ -47,3 +63,49 @@ export async function fetchAPI<T>(
     throw new APIError(500, error.message || 'Không thể kết nối đến máy chủ.');
   }
 }
+
+export async function uploadMedia(file: File): Promise<{ url: string; publicId: string }> {
+  const url = `${API_BASE_URL}/media/upload`;
+
+  let authHeader: Record<string, string> = {};
+  if (typeof window !== 'undefined') {
+    try {
+      const authStorage = localStorage.getItem('greenpantry_admin_auth');
+      if (authStorage) {
+        const parsed = JSON.parse(authStorage);
+        if (parsed?.state?.token) {
+          authHeader = { Authorization: `Bearer ${parsed.state.token}` };
+        }
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: authHeader,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    let errorMsg = `Upload ảnh thất bại (HTTP ${response.status})`;
+    try {
+      const err = await response.json();
+      if (typeof err.message === 'string') {
+        errorMsg = err.message;
+      } else if (Array.isArray(err.message)) {
+        errorMsg = err.message.join(', ');
+      } else if (err.error) {
+        errorMsg = typeof err.error === 'string' ? err.error : JSON.stringify(err.error);
+      }
+    } catch {}
+    throw new APIError(response.status, errorMsg);
+  }
+
+  return response.json();
+}
+

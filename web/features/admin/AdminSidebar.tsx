@@ -2,10 +2,16 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAdminAuthStore, AdminRole } from '@/stores/admin-auth-store';
+import { LogOut, Users } from 'lucide-react';
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAdminAuthStore();
+
+  const isSuperAdmin = user?.role === AdminRole.SUPER_ADMIN;
 
   const navItems = [
     { label: 'Tổng Quan', href: '/admin', icon: '📊' },
@@ -13,7 +19,15 @@ export function AdminSidebar() {
     { label: 'Đơn Hàng', href: '/admin/orders', icon: '📦' },
     { label: 'Bài Viết Blog', href: '/admin/blog', icon: '📝' },
     { label: 'Hỏi Đáp Q&A', href: '/admin/questions', icon: '💬' },
+    ...(isSuperAdmin
+      ? [{ label: 'Quản Lý Người Dùng', href: '/admin/users', icon: '👥' }]
+      : []),
   ];
+
+  const handleLogout = () => {
+    logout();
+    router.push('/admin/login');
+  };
 
   return (
     <aside className="w-64 bg-slate-900 text-slate-200 min-h-screen p-6 flex flex-col justify-between shadow-xl">
@@ -53,15 +67,23 @@ export function AdminSidebar() {
         </nav>
       </div>
 
-      {/* Back to Storefront Action */}
-      <div className="pt-6 border-t border-slate-800">
+      {/* Footer & Logout */}
+      <div className="pt-6 border-t border-slate-800 space-y-2">
         <Link
           href="/"
-          className="flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-sm font-medium"
+          className="flex items-center space-x-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-sm font-medium"
         >
           <span>🌐</span>
-          <span>Xem Guest Storefront</span>
+          <span>Guest Storefront</span>
         </Link>
+
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition-colors text-sm font-medium cursor-pointer"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Đăng Xuất</span>
+        </button>
       </div>
     </aside>
   );

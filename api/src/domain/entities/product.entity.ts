@@ -36,4 +36,11 @@ export class Product {
   public hasSufficientStock(requestedQuantity: number): boolean {
     return this.stockQuantity >= requestedQuantity;
   }
+
+  public decreaseStock(quantity: number): void {
+    if (!this.hasSufficientStock(quantity)) {
+      throw new Error(`Sản phẩm "${this.name}" không đủ số lượng trong kho.`);
+    }
+    this.stockQuantity -= quantity;
+  }
 }

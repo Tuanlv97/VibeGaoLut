@@ -5,8 +5,8 @@
 
 - **Dự án**: GreenPantry Platform
 - **Tác giả**: Senior Solution Architect & Senior Product Manager
-- **Phiên bản**: 3.0.0 (Phase 10 Admin Management Portal Added to Plan)
-- **Trạng thái**: Phase 1, 2, 3, 4, 5, 6, 7, 8, 9 & 10 Completed 🟢 -> Phase 11 & 12 Pending ⚪
+- **Phiên bản**: 3.1.0 (Phase 11 Comprehensive Testing Completed)
+- **Trạng thái**: Phase 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 & 11 Completed 🟢 -> Phase 12 Pending ⚪
 
 ---
 
@@ -43,7 +43,7 @@ PHASE 9: E2E Integration (Frontend + Backend REST APIs)  [COMPLETED] 🟢
 PHASE 10: Admin Management Portal Development (Design + FE/BE) [COMPLETED] 🟢
    │
    ▼
-PHASE 11: Comprehensive Testing (Unit, Integration, E2E)       [TODO] ⚪
+PHASE 11: Comprehensive Testing (Unit, Integration, E2E)       [COMPLETED] 🟢
    │
    ▼
 PHASE 12: Production Deployment & Infrastructure Setup         [TODO] ⚪
@@ -516,19 +516,36 @@ PHASE 12: Production Deployment & Infrastructure Setup         [TODO] ⚪
 * **Expected Output**: Luồng quản trị dữ liệu hoạt động hoàn hảo 100%.
 * **Acceptance Criteria**: Dữ liệu đồng bộ realtime giữa BE và cả 2 FE portals (Guest & Admin).
 
+#### TASK-P10-06
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Security & Access Control
+* **Feature**: Admin Authentication & RBAC User Management
+* **Task**: Phát triển tính năng Đăng nhập/Đăng xuất, Bảo mật JWT Guard và Quản lý Phân quyền Người dùng (RBAC)
+* **Sub-tasks**:
+  - [x] 1. Định nghĩa AdminUser domain entity, AdminRole enum (`SUPER_ADMIN`, `STORE_MANAGER`, `CONTENT_EDITOR`) và IAdminUserRepository.
+  - [x] 2. Implement `LoginAdminUseCase` (Xác thực JWT token & bcrypt hash) và `ManageAdminUsersUseCase` (CRUD Admin accounts).
+  - [x] 3. Cấu hình NestJS `JwtStrategy`, `JwtAuthGuard`, `@Roles()` decorator và `RolesGuard` bảo vệ toàn bộ REST APIs `/api/v1/admin/*`.
+  - [x] 4. Phát triển Giao diện Đăng nhập Admin (`web/app/admin/login/page.tsx`), `AdminAuthGuard`, Zustand `admin-auth-store`.
+  - [x] 5. Xây dựng trang Quản lý Người dùng & Phân quyền tại (`web/app/admin/users/page.tsx`), tích hợp nút Đăng xuất trên Admin Header & Sidebar.
+* **Description**: Bảo vệ toàn bộ Admin Management Portal với JWT Authentication và Phân quyền RBAC.
+* **Dependency**: TASK-P10-05
+* **Priority**: HIGH
+* **Expected Output**: Luồng đăng nhập, đăng xuất, chuyển hướng bảo mật và phân quyền Admin hoạt động 100%.
+* **Acceptance Criteria**: Người dùng chưa đăng nhập bị chặn truy cập `/admin`, Super Admin có thể tạo mới và phân quyền cho tài khoản nhân viên.
+
 ---
 
-### PHASE 11 — COMPREHENSIVE TESTING ⚪ [TODO]
+### PHASE 11 — COMPREHENSIVE TESTING 🟢 [COMPLETED]
 
 #### TASK-P11-01
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: Quality Assurance
 * **Feature**: Business-Critical Flow Testing
 * **Task**: Thực hiện kiểm thử Unit, Integration và E2E cho các luồng nghiệp vụ quan trọng
 * **Sub-tasks**:
-  - [ ] 1. **Backend Unit Testing**: Viết Jest tests cho `CreateOrderUseCase` (kiểm tra tính đúng tổng tiền, giảm stock), `GuestReviewVerification` (kiểm tra trạng thái đơn DELIVERED).
-  - [ ] 2. **Frontend Component Testing**: Test giao diện Giỏ hàng Zustand và Daily Todo chọn ngày.
-  - [ ] 3. **E2E Testing**: Viết Playwright/Cypress E2E test tự động chạy luồng Guest Checkout từ xem sản phẩm → thêm giỏ → checkout COD → xem Order Success → tra cứu Order Tracking.
+  - [x] 1. **Backend Unit Testing**: Viết Jest tests cho `CreateOrderUseCase` (kiểm tra tính đúng tổng tiền, giảm stock), `GuestReviewVerification` (kiểm tra trạng thái đơn DELIVERED).
+  - [x] 2. **Frontend Component Testing**: Test giao diện Giỏ hàng Zustand và Daily Todo chọn ngày.
+  - [x] 3. **E2E Testing**: Viết Playwright/Cypress E2E test tự động chạy luồng Guest Checkout từ xem sản phẩm → thêm giỏ → checkout COD → xem Order Success → tra cứu Order Tracking.
 * **Description**: Đảm bảo chất lượng sản phẩm không phát sinh lỗi nghiêm trọng (Zero Critical Bugs).
 * **Dependency**: TASK-P10-05
 * **Priority**: HIGH
@@ -556,6 +573,23 @@ PHASE 12: Production Deployment & Infrastructure Setup         [TODO] ⚪
 * **Priority**: HIGH
 * **Expected Output**: Website GreenPantry chạy trên domain chính thức với chứng chỉ HTTPS an toàn.
 * **Acceptance Criteria**: Tốc độ tải trang < 1.5s, 100% tính năng Guest Checkout & Daily Todo hoạt động ổn định trên Production.
+
+#### TASK-P12-02
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Media & Assets Management
+* **Feature**: Cloudinary CDN Integration
+* **Task**: Tích hợp Cloudinary Storage SDK vào NestJS Backend & Next.js Frontend
+* **Sub-tasks**:
+  - [x] 1. Cài đặt SDK `cloudinary` & `streamifier` trong NestJS API.
+  - [x] 2. Định nghĩa `CloudinaryProvider`, `CloudinaryService` và `MediaModule`.
+  - [x] 3. Mở REST Endpoint `POST /api/v1/media/upload` nhận multipart/form-data upload file ảnh lên Cloudinary.
+  - [x] 4. Đăng ký domain `res.cloudinary.com` vào `remotePatterns` trong `web/next.config.ts`.
+  - [x] 5. Cấu hình biến môi trường Cloudinary (`CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`) và kiểm thử upload thành công 100%.
+* **Description**: Cung cấp khả năng upload ảnh sản phẩm, bài viết và đánh giá trực tiếp lên Cloudinary CDN.
+* **Dependency**: TASK-P10-03
+* **Priority**: HIGH
+* **Expected Output**: API Upload hoạt động mượt mà và trả về CDN URL chuẩn `https://res.cloudinary.com/...`.
+* **Acceptance Criteria**: Upload ảnh qua API thành công 100%, file ảnh xuất hiện trên Cloudinary Dashboard.
 
 ---
 

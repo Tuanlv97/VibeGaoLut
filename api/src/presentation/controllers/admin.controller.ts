@@ -9,8 +9,11 @@ import {
   Param,
   Query,
   Inject,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '@infrastructure/auth/jwt-auth.guard';
+import { RolesGuard } from '@infrastructure/auth/roles.guard';
 import { OrderStatus } from '@domain/enums/order-status.enum';
 import { GetAdminStatsUseCase } from '@application/use-cases/admin/get-admin-stats.use-case';
 import { CreateProductUseCase } from '@application/use-cases/admin/create-product.use-case';
@@ -33,6 +36,8 @@ import {
 } from '../dtos/admin.dto';
 
 @ApiTags('Admin')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('admin')
 export class AdminController {
   constructor(

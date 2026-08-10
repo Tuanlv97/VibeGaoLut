@@ -143,6 +143,9 @@ describe('Commerce Domain Use Cases', () => {
       expect(order.orderNumber).toMatch(/^GP-\d{6}$/);
       expect(order.status).toBe(OrderStatus.PENDING);
       expect(mockOrderRepo.save).toHaveBeenCalledTimes(1);
+      expect(mockProductRepo.save).toHaveBeenCalledTimes(2);
+      expect(sampleProducts[0].stockQuantity).toBe(8); // 10 - 2 = 8
+      expect(sampleProducts[1].stockQuantity).toBe(1); // 2 - 1 = 1
     });
 
     it('should throw error if product stock is insufficient', async () => {

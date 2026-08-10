@@ -435,3 +435,64 @@ export function useAnswerQuestion() {
   });
 }
 
+// 25. Admin Auth Login
+export function useAdminLogin() {
+  return useMutation({
+    mutationFn: async (payload: { email: string; password: string }) => {
+      return await fetchAPI<{
+        accessToken: string;
+        user: { id: string; email: string; fullName: string; role: any };
+      }>('/admin/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    },
+  });
+}
+
+// 26. Admin Users List
+export function useAdminUsers() {
+  return useQuery({
+    queryKey: ['admin', 'users'],
+    queryFn: async () => {
+      return await fetchAPI<any[]>('/admin/users');
+    },
+  });
+}
+
+// 27. Create Admin User
+export function useCreateAdminUser() {
+  return useMutation({
+    mutationFn: async (payload: { email: string; password: string; fullName: string; role: string }) => {
+      return await fetchAPI<any>('/admin/users', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    },
+  });
+}
+
+// 28. Update Admin User
+export function useUpdateAdminUser() {
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: { fullName?: string; role?: string; isActive?: boolean; password?: string } }) => {
+      return await fetchAPI<any>(`/admin/users/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+  });
+}
+
+// 29. Delete Admin User
+export function useDeleteAdminUser() {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      return await fetchAPI<any>(`/admin/users/${id}`, {
+        method: 'DELETE',
+      });
+    },
+  });
+}
+
+

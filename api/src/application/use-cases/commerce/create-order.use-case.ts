@@ -49,6 +49,9 @@ export class CreateOrderUseCase {
         throw new Error(`Sản phẩm "${product.name}" không đủ số lượng trong kho.`);
       }
 
+      product.decreaseStock(itemInput.quantity);
+      await this.productRepository.save(product);
+
       const itemSubtotal = product.price * itemInput.quantity;
       subtotal += itemSubtotal;
 

@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 
 // Infrastructure
 import { SeederService } from './infrastructure/database/seeds/seeder.service';
@@ -10,6 +12,8 @@ import { OrderRepository } from './infrastructure/repositories/order.repository'
 import { ReviewRepository } from './infrastructure/repositories/review.repository';
 import { BlogPostRepository } from './infrastructure/repositories/blog-post.repository';
 import { QuestionRepository } from './infrastructure/repositories/question.repository';
+import { AdminUserRepository } from './infrastructure/repositories/admin-user.repository';
+import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 
 // ORM Entities
 import { CategoryOrmEntity } from './infrastructure/database/entities/category.orm-entity';
@@ -19,6 +23,7 @@ import { OrderItemOrmEntity } from './infrastructure/database/entities/order-ite
 import { ReviewOrmEntity } from './infrastructure/database/entities/review.orm-entity';
 import { BlogPostOrmEntity } from './infrastructure/database/entities/blog-post.orm-entity';
 import { QuestionOrmEntity, QuestionAnswerOrmEntity } from './infrastructure/database/entities/question.orm-entity';
+import { AdminUserOrmEntity } from './infrastructure/database/entities/admin-user.orm-entity';
 
 // Use Cases - Catalog
 import { GetProductsUseCase } from './application/use-cases/catalog/get-products.use-case';
@@ -48,6 +53,8 @@ import { GetAdminOrdersUseCase } from './application/use-cases/admin/get-admin-o
 import { UpdateOrderStatusUseCase } from './application/use-cases/admin/update-order-status.use-case';
 import { ManageBlogUseCase } from './application/use-cases/admin/manage-blog.use-case';
 import { ModerateQuestionUseCase } from './application/use-cases/admin/moderate-question.use-case';
+import { LoginAdminUseCase } from './application/use-cases/admin-auth/login-admin.use-case';
+import { ManageAdminUsersUseCase } from './application/use-cases/admin-auth/manage-admin-users.use-case';
 
 // Controllers
 import { ProductController } from './presentation/controllers/product.controller';
@@ -56,6 +63,10 @@ import { ReviewController } from './presentation/controllers/review.controller';
 import { BlogController } from './presentation/controllers/blog.controller';
 import { QuestionController } from './presentation/controllers/question.controller';
 import { AdminController } from './presentation/controllers/admin.controller';
+import { AdminAuthController } from './presentation/controllers/admin-auth.controller';
+import { AdminUserController } from './presentation/controllers/admin-user.controller';
+
+import { MediaModule } from './infrastructure/media/media.module';
 
 const ormEntities = [
   CategoryOrmEntity,
@@ -66,16 +77,23 @@ const ormEntities = [
   BlogPostOrmEntity,
   QuestionOrmEntity,
   QuestionAnswerOrmEntity,
+  AdminUserOrmEntity,
 ];
 
 @Module({
   imports: [
+    MediaModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
         limit: 20,
       },
     ]),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'greenpantry_secret_jwt_key_2026',
+      signOptions: { expiresIn: '7d' },
+    }),
     ...(process.env.DB_HOST || process.env.DATABASE_URL
       ? [
           TypeOrmModule.forRoot({
@@ -100,9 +118,12 @@ const ormEntities = [
     BlogController,
     QuestionController,
     AdminController,
+    AdminAuthController,
+    AdminUserController,
   ],
   providers: [
     SeederService,
+    JwtStrategy,
 
     // Repositories
     { provide: 'IProductRepository', useClass: ProductRepository },
@@ -111,6 +132,7 @@ const ormEntities = [
     { provide: 'IReviewRepository', useClass: ReviewRepository },
     { provide: 'IBlogPostRepository', useClass: BlogPostRepository },
     { provide: 'IQuestionRepository', useClass: QuestionRepository },
+    { provide: 'IAdminUserRepository', useClass: AdminUserRepository },
 
     // Catalog Use Cases
     {
@@ -219,6 +241,17 @@ const ormEntities = [
       provide: 'ModerateQuestionUseCase',
       useFactory: (qRepo: QuestionRepository) => new ModerateQuestionUseCase(qRepo),
       inject: ['IQuestionRepository'],
+    },
+    {
+      provide: 'LoginAdminUseCase',
+      useFactory: (userRepo: AdminUserRepository, jwtService: JwtService) =>
+        new LoginAdminUseCase(userRepo, jwtService),
+      inject: ['IAdminUserRepository', JwtService],
+    },
+    {
+      provide: 'ManageAdminUsersUseCase',
+      useFactory: (userRepo: AdminUserRepository) => new ManageAdminUsersUseCase(userRepo),
+      inject: ['IAdminUserRepository'],
     },
   ],
 })
