@@ -16,12 +16,21 @@ export async function fetchAPI<T>(
   let authHeader: Record<string, string> = {};
   if (typeof window !== 'undefined') {
     try {
-      const authStorage = localStorage.getItem('greenpantry_admin_auth');
-      if (authStorage) {
-        const parsed = JSON.parse(authStorage);
-        if (parsed?.state?.token) {
-          authHeader = { Authorization: `Bearer ${parsed.state.token}` };
-        }
+      const customerAuthStorage = localStorage.getItem('greenpantry_customer_auth');
+      const adminAuthStorage = localStorage.getItem('greenpantry_admin_auth');
+
+      let token: string | undefined;
+      if (customerAuthStorage) {
+        const parsed = JSON.parse(customerAuthStorage);
+        token = parsed?.state?.token;
+      }
+      if (!token && adminAuthStorage) {
+        const parsed = JSON.parse(adminAuthStorage);
+        token = parsed?.state?.token;
+      }
+
+      if (token) {
+        authHeader = { Authorization: `Bearer ${token}` };
       }
     } catch {
       // Ignore JSON parse error

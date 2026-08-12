@@ -96,7 +96,7 @@ describe('Commerce Domain Use Cases', () => {
     mockProductRepo = {
       findById: jest.fn(),
       findBySlug: jest.fn(),
-      findAll: jest.fn(),
+      findAll: jest.fn().mockResolvedValue({ items: sampleProducts, total: sampleProducts.length }),
       findNewArrivals: jest.fn(),
       findByIds: jest.fn().mockImplementation(async (ids: string[]) => sampleProducts.filter((p) => ids.includes(p.id))),
       save: jest.fn(),
@@ -111,6 +111,8 @@ describe('Commerce Domain Use Cases', () => {
         return null;
       }),
       findById: jest.fn(),
+      findByCustomerId: jest.fn().mockResolvedValue([]),
+      findByPhone: jest.fn().mockResolvedValue([]),
       findAll: jest.fn(),
     };
 

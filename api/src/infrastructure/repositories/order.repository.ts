@@ -88,6 +88,37 @@ export class OrderRepository implements IOrderRepository, OnModuleInit {
     return found || null;
   }
 
+  async findByCustomerId(customerId: string): Promise<Order[]> {
+    if (this.typeOrmRepo) {
+      try {
+        const list = await this.typeOrmRepo.find({
+          where: { customerId },
+          order: { createdAt: 'DESC' },
+        });
+        if (list.length > 0) return list.map(OrderMapper.toDomain);
+      } catch {}
+    }
+    return this.inMemoryOrders
+      .filter((o) => o.customerId === customerId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async findByPhone(phone: string): Promise<Order[]> {
+    const normalizedPhone = phone.trim();
+    if (this.typeOrmRepo) {
+      try {
+        const list = await this.typeOrmRepo.find({
+          where: { customerPhone: normalizedPhone },
+          order: { createdAt: 'DESC' },
+        });
+        if (list.length > 0) return list.map(OrderMapper.toDomain);
+      } catch {}
+    }
+    return this.inMemoryOrders
+      .filter((o) => o.customerPhone.trim() === normalizedPhone)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
   async findAll(): Promise<Order[]> {
     if (this.typeOrmRepo) {
       try {

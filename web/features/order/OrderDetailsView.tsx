@@ -20,6 +20,9 @@ interface OrderDetailsViewProps {
     paymentMethod: string;
     status: OrderStatus;
     createdAt: string;
+    pointsUsed?: number;
+    pointsDiscountAmount?: number;
+    pointsEarned?: number;
     items: Array<{
       id: string;
       name: string;
@@ -155,6 +158,25 @@ export const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({ order }) => 
               : 'Miễn phí'}
           </span>
         </div>
+
+        {Boolean(order.pointsDiscountAmount && order.pointsDiscountAmount > 0) && (
+          <div className="flex justify-between items-center text-amber-700 font-medium">
+            <span>Giảm giá từ điểm tích lũy ({order.pointsUsed || 0} điểm):</span>
+            <span className="font-mono font-semibold">
+              -{new Intl.NumberFormat('vi-VN').format(order.pointsDiscountAmount || 0)}đ
+            </span>
+          </div>
+        )}
+
+        {Boolean(order.pointsEarned && order.pointsEarned > 0) && (
+          <div className="flex justify-between items-center text-emerald-700 font-medium">
+            <span>Điểm tích lũy khi giao hàng:</span>
+            <span className="font-mono font-semibold">
+              +{order.pointsEarned} điểm
+            </span>
+          </div>
+        )}
+
         <div className="border-t border-[#E2E8F0] pt-2.5 mt-1 flex justify-between items-center text-sm sm:text-base font-bold">
           <span className="text-[#1E293B] font-display">Tổng cộng COD:</span>
           <span className="text-[#2D5A27] font-mono text-lg font-black">

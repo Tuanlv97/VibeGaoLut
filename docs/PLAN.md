@@ -46,7 +46,7 @@ PHASE 10: Admin Management Portal Development (Design + FE/BE) [COMPLETED] 🟢
 PHASE 11: Comprehensive Testing (Unit, Integration, E2E)       [COMPLETED] 🟢
    │
    ▼
-PHASE 12: Production Deployment & Infrastructure Setup         [TODO] ⚪
+PHASE 12: Production Deployment & Infrastructure Setup         [COMPLETED] 🟢
 ```
 
 ---
@@ -554,20 +554,20 @@ PHASE 12: Production Deployment & Infrastructure Setup         [TODO] ⚪
 
 ---
 
-### PHASE 12 — PRODUCTION DEPLOYMENT & INFRASTRUCTURE SETUP ⚪ [TODO]
+### PHASE 12 — PRODUCTION DEPLOYMENT & INFRASTRUCTURE SETUP 🟢 [COMPLETED]
 
 #### TASK-P12-01
-* **Status**: `TODO` ⚪
+* **Status**: `COMPLETED` 🟢
 * **Epic**: DevOps & Deployment
 * **Feature**: Production Build & Server Deployment
 * **Task**: Triển khai dự án GreenPantry lên môi trường Production
 * **Sub-tasks**:
-  - [ ] 1. Build bản bundle tối ưu cho Next.js Frontend (`npm run build`).
-  - [ ] 2. Build bản dist cho NestJS Backend (`npm run build`).
-  - [ ] 3. Khởi tạo Managed PostgreSQL Instance trên Production (Cloud DB).
-  - [ ] 4. Chạy SQL Migrations trên Production Database.
-  - [ ] 5. Cấu hình biến môi trường (`.env.production`): `DATABASE_URL`, `PORT`, `CORS_ORIGIN`, `NEXT_PUBLIC_API_URL`.
-  - [ ] 6. Thiết lập SSL Certificate (HTTPS) & cấu hình Domain (vd: `greenpantry.vn`).
+  - [x] 1. Build bản bundle tối ưu cho Next.js Frontend (`npm run build`).
+  - [x] 2. Build bản dist cho NestJS Backend (`npm run build`).
+  - [x] 3. Khởi tạo Managed PostgreSQL Instance trên Production (Cloud DB).
+  - [x] 4. Chạy SQL Migrations trên Production Database.
+  - [x] 5. Cấu hình biến môi trường (`.env.production`): `DATABASE_URL`, `PORT`, `CORS_ORIGIN`, `NEXT_PUBLIC_API_URL`.
+  - [x] 6. Thiết lập SSL Certificate (HTTPS) & cấu hình Domain (vd: `greenpantry.vn`).
 * **Description**: Đưa hệ thống GreenPantry chính thức hoạt động công khai.
 * **Dependency**: TASK-P11-01
 * **Priority**: HIGH
@@ -590,6 +590,73 @@ PHASE 12: Production Deployment & Infrastructure Setup         [TODO] ⚪
 * **Priority**: HIGH
 * **Expected Output**: API Upload hoạt động mượt mà và trả về CDN URL chuẩn `https://res.cloudinary.com/...`.
 * **Acceptance Criteria**: Upload ảnh qua API thành công 100%, file ảnh xuất hiện trên Cloudinary Dashboard.
+
+---
+
+### PHASE 13 — CUSTOMER PROFILE & AUTHENTICATION (DUAL GUEST + CUSTOMER MODE) 🟢 [COMPLETED]
+
+#### TASK-P13-01
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Customer Authentication
+* **Feature**: Customer Auth & Profile Backend Implementation
+* **Task**: Phát triển Entities, Repository, Services và JWT Auth cho Customer
+* **Sub-tasks**:
+  - [x] 1. Tạo Customer & CustomerAddress domain entities + TypeORM ORM entities + Repository interfaces & implementations.
+  - [x] 2. Update OrderOrmEntity & Order domain entity thêm column `customerId` (nullable).
+  - [x] 3. Implement `RegisterCustomerUseCase`, `LoginCustomerUseCase`, `GetCustomerProfileUseCase`, `ManageCustomerAddressesUseCase`, `GetCustomerOrdersUseCase`.
+  - [x] 4. Setup `CustomerJwtStrategy` & `CustomerJwtAuthGuard` độc lập với Admin Auth.
+  - [x] 5. Controller `/api/v1/customer/*` cho Auth, Profile, Address Book & Orders.
+* **Description**: Xây dựng hệ thống tài khoản khách hàng độc lập trên nền Clean Architecture.
+* **Dependency**: TASK-P08-02
+* **Priority**: HIGH
+* **Expected Output**: Swagger API Docs cho `/api/v1/customer/*` hoạt động 100%.
+
+#### TASK-P13-02
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Customer Frontend
+* **Feature**: Customer Auth UI, Zustand Store & Page Routes
+* **Task**: Phát triển UI Đăng nhập, Đăng ký, Hồ sơ cá nhân và Tích hợp Header/Checkout
+* **Sub-tasks**:
+  - [x] 1. Tạo `web/stores/customer-auth-store.ts` có `persist` middleware.
+  - [x] 2. Code `web/app/login/page.tsx` & `web/app/register/page.tsx`.
+  - [x] 3. Code `web/app/profile/page.tsx` (Thông tin cá nhân, Sổ địa chỉ, Lịch sử đơn hàng).
+  - [x] 4. Update Header `Navbar.tsx` hiển thị User Menu khi đã đăng nhập.
+  - [x] 5. Update Checkout `app/checkout/page.tsx` tự động điền địa chỉ mặc định và đính kèm `customerId`.
+* **Description**: Hoàn thiện trải nghiệm Khách hàng trên Frontend Next.js.
+* **Dependency**: TASK-P13-01
+* **Priority**: HIGH
+
+---
+
+### PHASE 14 — LOYALTY POINTS & DIRECT DISCOUNT SYSTEM (OPT-IN REDEMPTION) 🟢 [COMPLETED]
+
+#### TASK-P14-01
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Loyalty Points Engine
+* **Feature**: Point Accumulation, Redemption & Ledger Backend Logic
+* **Task**: Phát triển Domain Service Tích/Đổi điểm & Cập nhật Order Use Cases
+* **Sub-tasks**:
+  - [x] 1. Tạo `CustomerPointTransaction` domain entity & ORM entity.
+  - [x] 2. Tạo `LoyaltyPointCalculator` domain service (tích 10k = 1đ, đổi 10đ = 1.000đ).
+  - [x] 3. Cập nhật `CreateOrderUseCase`: nhận `pointsToUse` (mặc định 0), tính discount amount, cấn trừ điểm, tạo bản ghi `REDEEMED`.
+  - [x] 4. Cập nhật `UpdateOrderStatusUseCase`: khi `DELIVERED` -> tích điểm `subtotal / 10000` tạo bản ghi `EARNED`. Khi `CANCELLED` -> hoàn lại điểm `pointsToUse` tạo bản ghi `REFUNDED`.
+  - [x] 5. Controller `/api/v1/customer/points/history` trả về số dư và lịch sử tích/đổi điểm.
+* **Description**: Triển khai cơ chế tích điểm và trừ tiền trực tiếp vào đơn hàng.
+* **Dependency**: TASK-P13-01
+* **Priority**: HIGH
+
+#### TASK-P14-02
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Loyalty Points Frontend UI
+* **Feature**: Checkout Point Redemption & Profile Point History
+* **Task**: Tích hợp UI chọn đổi điểm ở Checkout & Trang điểm tích lũy trong Profile
+* **Sub-tasks**:
+  - [x] 1. Update `app/checkout/page.tsx`: Thêm khối "Dùng điểm tích lũy" (mặc định Unchecked `usePoints = false`). Khi tích chọn -> chọn số điểm muốn trừ, tính giảm giá realtime.
+  - [x] 2. Tạo `web/features/customer/LoyaltyPointsCard.tsx` hiển thị số dư & bảng lịch sử điểm trong `profile/page.tsx`.
+  - [x] 3. Update `OrderDetailsView.tsx` hiển thị điểm đã dùng (-X đ) & điểm nhận được khi giao hàng thành công (+Y đ).
+* **Description**: Hoàn thiện giao diện tích điểm và đổi điểm trên Web App.
+* **Dependency**: TASK-P14-01
+* **Priority**: HIGH
 
 ---
 
@@ -1223,6 +1290,43 @@ PHASE 12: Production Deployment & Infrastructure Setup         [TODO] ⚪
 | `SCR-22` | Admin Order Approval | `/admin/orders` | `AdminOrderTable`, `OrderStatusTabs` | TanStack Query (`useAdminOrders`) |
 | `SCR-23` | Admin Blog Management | `/admin/blog` | `AdminBlogTable`, `BlogFormModal` | TanStack Query (`useAdminBlogPosts`) |
 | `SCR-24` | Admin Q&A Moderation | `/admin/questions` | `AdminQaTable`, `AnswerQaModal` | TanStack Query (`useAdminQuestions`) |
+| `SCR-25` | Customer Login | `/login` | `CustomerLoginPage` | Zustand Store (`customer-auth-store`) |
+| `SCR-26` | Customer Register | `/register` | `CustomerRegisterPage` | Zustand Store (`customer-auth-store`) |
+| `SCR-27` | Forgot Password | `/forgot-password` | `ForgotPasswordPage` | Customer Auth API |
+
+---
+
+### 3.4. CUSTOMER & AUTHENTICATION DOMAIN SCREENS (SCR-25 -> SCR-27)
+
+#### 🟢 SCR-25: Customer Login Page (Trang Đăng Nhập Khách Hàng)
+* **Screen ID**: `SCR-25`
+* **Route**: `/login`
+* **Local UI Image**: [SCR-25_customer_login.png](file:///c:/Users/Tho%20Code/DuAn_CongTy/VibeGaoLut/.stitch/SCR-25_customer_login.png)
+* **Target React Page**: `web/app/login/page.tsx`
+* **Google Stitch Prompt**:
+  ```markdown
+  UI design mockup for GreenPantry Customer Login screen. Off-white canvas background (#F9F6F0), modern minimalist centered card with soft rounded corners (rounded-2xl) and subtle border (#E2D9CC). Top showing GreenPantry brand logo with leaf icon in primary green (#2D5A27), heading 'Đăng Nhập Tài Khoản' in Outfit font (#1E293B). Form inputs for phone/email and password with Lucide icons (User, Lock), primary green button 'Đăng Nhập', links for 'Quên mật khẩu?' and 'Tạo tài khoản mới'. Clean, elegant healthy food store branding. High resolution UI mockup, flat vector design.
+  ```
+
+#### 🟢 SCR-26: Customer Register Page (Trang Đăng Ký Tài Khoản Khách Hàng)
+* **Screen ID**: `SCR-26`
+* **Route**: `/register`
+* **Local UI Image**: [SCR-26_customer_register.png](file:///c:/Users/Tho%20Code/DuAn_CongTy/VibeGaoLut/.stitch/SCR-26_customer_register.png)
+* **Target React Page**: `web/app/register/page.tsx`
+* **Google Stitch Prompt**:
+  ```markdown
+  UI design mockup for GreenPantry Customer Registration screen. Off-white canvas background (#F9F6F0), modern minimalist centered card with soft rounded corners (rounded-2xl) and subtle border (#E2D9CC). Top showing GreenPantry brand logo with leaf icon in primary green (#2D5A27), title 'Tạo Tài Khoản Khách Hàng' in Outfit font (#1E293B), subtitle 'Đăng ký để tích điểm và nhận ưu đãi riêng'. Form inputs for Full Name (User icon), Phone Number (Phone icon), Email (Mail icon), Password (Lock icon). Primary green button 'Đăng Ký Tài Khoản', link to 'Đã có tài khoản? Đăng nhập ngay'. Clean, elegant healthy food ecommerce design system. High resolution flat UI mockup.
+  ```
+
+#### 🟢 SCR-27: Forgot Password Page (Trang Quên Mật Khẩu Khách Hàng)
+* **Screen ID**: `SCR-27`
+* **Route**: `/forgot-password`
+* **Local UI Image**: [SCR-27_forgot_password.png](file:///c:/Users/Tho%20Code/DuAn_CongTy/VibeGaoLut/.stitch/SCR-27_forgot_password.png)
+* **Target React Page**: `web/app/forgot-password/page.tsx`
+* **Google Stitch Prompt**:
+  ```markdown
+  UI design mockup for GreenPantry Forgot Password & Reset Password screen. Off-white canvas background (#F9F6F0), modern minimalist centered card with soft rounded corners (rounded-2xl) and subtle border (#E2D9CC). Icon with key or lock in circular green badge (#2D5A27), heading 'Quên Mật Khẩu?' in Outfit font (#1E293B), subtitle 'Nhập email hoặc số điện thoại của bạn để nhận mã khôi phục mật khẩu'. Input field for Email/Phone, primary green button 'Gửi Mã Khôi Phục', link 'Quay lại đăng nhập'. Step-by-step recovery flow. Clean, elegant healthy food store UI design. High resolution flat UI mockup.
+  ```
 
 ---
 

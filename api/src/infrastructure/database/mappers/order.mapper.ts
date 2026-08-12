@@ -35,6 +35,10 @@ export class OrderMapper {
       ormEntity.status as OrderStatus,
       new Date(ormEntity.createdAt),
       items,
+      ormEntity.customerId || null,
+      ormEntity.pointsUsed || 0,
+      Number(ormEntity.pointsDiscountAmount || 0),
+      ormEntity.pointsEarned || 0,
     );
   }
 
@@ -55,6 +59,10 @@ export class OrderMapper {
     ormEntity.paymentMethod = domainEntity.paymentMethod;
     ormEntity.status = domainEntity.status;
     ormEntity.createdAt = domainEntity.createdAt;
+    ormEntity.customerId = domainEntity.customerId;
+    ormEntity.pointsUsed = domainEntity.pointsUsed;
+    ormEntity.pointsDiscountAmount = domainEntity.pointsDiscountAmount;
+    ormEntity.pointsEarned = domainEntity.pointsEarned;
 
     ormEntity.items = (domainEntity.items || []).map((item) => {
       const itemOrm = new OrderItemOrmEntity();

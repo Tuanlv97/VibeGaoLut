@@ -169,6 +169,18 @@ GreenPantry Web Platform
 * **FR-RV-01**: Hiển thị điểm rating trung bình, biểu đồ phân bổ 1-5 sao và danh sách đánh giá kèm hình ảnh thực tế.
 * **BR-RV-01**: Cơ chế **Guest Verified Review**: Để gửi đánh giá, Guest bắt buộc nhập Mã đơn hàng + Số điện thoại/Email. Backend kiểm tra đơn hàng có trạng thái `DELIVERED` và chứa sản phẩm tương ứng mới cho phép gửi Review với trạng thái ban đầu là `PENDING`.
 
+### 8.7. Customer Authentication & Profile Domain
+* **FR-AU-01**: Đăng ký & Đăng nhập tài khoản Khách hàng (Họ tên, SĐT, Email, Mật khẩu, JWT token authentication).
+* **FR-AU-02**: Quản lý Hồ sơ Khách hàng & Sổ địa chỉ (Thêm/Sửa/Xóa địa chỉ mặc định giao hàng).
+* **FR-AU-03**: Tra cứu Lịch sử Đơn hàng dành riêng cho Khách hàng đã đăng nhập (`/profile`).
+* **BR-AU-01**: Luồng mua hàng không cần tài khoản (Guest Checkout) luôn hoạt động 100% song song với luồng đăng nhập. Khi khách đã đăng nhập checkout, hệ thống tự động điền địa chỉ mặc định và gán `customerId` cho đơn hàng.
+
+### 8.8. Customer Loyalty & Point Discount Domain
+* **FR-LP-01**: Tích điểm đơn hàng hoàn thành: Đơn hàng ở trạng thái `DELIVERED` tự động tính điểm thưởng cho Khách hàng (`10.000 VNĐ = 1 điểm`).
+* **FR-LP-02**: Đổi điểm trừ trực tiếp vào đơn hàng ở bước Checkout: Tỷ lệ `10 điểm = 1.000 VNĐ` giảm giá.
+* **BR-LP-01**: Cơ chế **Opt-In Redemption**: Mặc định ở trang Checkout `usePoints = false` (KHÔNG tự động trừ điểm). Chỉ khi khách hàng tích chọn "Sử dụng điểm tích lũy" và chọn số điểm muốn trừ thì điểm mới được áp dụng và cấn trừ vào số dư khả dụng khi đặt hàng thành công.
+* **BR-LP-02**: Hoàn điểm khi hủy đơn: Đơn hàng bị `CANCELLED` mà có áp dụng trừ điểm sẽ tự động hoàn trả số điểm đã dùng lại cho Khách hàng.
+
 ---
 
 ## 9. ACCEPTANCE CRITERIA (GIVEN / WHEN / THEN)
@@ -188,6 +200,11 @@ GreenPantry Web Platform
 * **WHEN** User nhấn gửi Đánh giá cho sản phẩm Gạo lứt.
 * **THEN** Hệ thống trả về lỗi "Chỉ đơn hàng đã giao thành công mới có thể gửi đánh giá" và không tạo bản ghi Review.
 
+### AC-04: Khách hàng tích điểm và đổi điểm trừ vào bill (Opt-In)
+* **GIVEN** Khách hàng đã đăng nhập có 50 điểm tích lũy và đang ở trang `/checkout` với đơn hàng subtotal 200.000 VNĐ.
+* **WHEN** Khách hàng tích chọn "Sử dụng điểm tích lũy" và chọn dùng 30 điểm (tương ứng giảm 3.000 VNĐ).
+* **THEN** Hệ thống trừ 3.000 VNĐ vào tổng đơn hàng, sau khi đặt thành công số dư còn 20 điểm. Nếu không tích chọn, đơn hàng thanh toán đủ 200.000 VNĐ và điểm giữ nguyên 50.
+
 ---
 
 ## 10. SEO REQUIREMENTS
@@ -204,10 +221,11 @@ GreenPantry Web Platform
 
 ## 11. MVP SCOPE VS FUTURE PHASES
 
-| Module | MVP Scope (Phase 1) | Phase 2 (User Accounts & Payments) | Phase 3 (AI & Advanced) |
+| Module | MVP Scope (Phase 1) | Phase 2 (Completed - Accounts & Loyalty) | Phase 3 (AI & Advanced) |
 | :--- | :--- | :--- | :--- |
-| **Authentication** | Guest Only (No Login) | User Account (Email/OTP/OAuth) | Social Community Profiles |
-| **Checkout & Pay** | COD Only | Bank Transfer, VNPay, MoMo, Stripe | Subscription / Recurring Order |
+| **Authentication** | Guest Only (No Login) | Customer Account (Email/Phone JWT Auth) | Social Community Profiles |
+| **Loyalty Points** | N/A | 10k = 1đ, 10đ = 1k đ discount (Opt-in) | Tiered Loyalty & Birthday Vouchers |
+| **Checkout & Pay** | COD Only | COD + Loyalty Points Discount | Bank Transfer, VNPay, MoMo, Stripe |
 | **Todo** | Pure Client-side (localStorage) | Cloud Sync Todo với Account | AI Health Assistant Todo Suggestion |
-| **Reviews & Q&A** | Guest Verification via Order ID | User Verified Badge | AI Automated Q&A Answer |
+| **Reviews & Q&A** | Guest Verification via Order ID | Customer Verified Badge | AI Automated Q&A Answer |
 | **Content** | Editorial Blog + Linked Products | User Saved Articles / Wishlist | Personalized Content Feed |

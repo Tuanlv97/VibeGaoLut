@@ -1,7 +1,12 @@
+import { randomUUID } from 'crypto';
 import { IOrderRepository } from '@domain/repositories/order.repository.interface';
 import { IProductRepository } from '@domain/repositories/product.repository.interface';
+import { ICustomerRepository } from '@domain/repositories/customer.repository.interface';
+import { ICustomerPointTransactionRepository } from '@domain/repositories/customer-point-transaction.repository.interface';
 import { Order, OrderItem } from '@domain/entities/order.entity';
 import { OrderStatus } from '@domain/enums/order-status.enum';
+import { LoyaltyPointCalculator } from '@domain/services/loyalty-point.calculator';
+import { CustomerPointTransaction, PointTransactionType } from '@domain/entities/customer-point-transaction.entity';
 
 export interface CreateOrderItemInput {
   productId: string;
@@ -17,12 +22,17 @@ export interface CreateOrderInput {
   ward: string;
   addressDetail: string;
   items: CreateOrderItemInput[];
+  customerId?: string;
+  usePoints?: boolean;
+  pointsToUse?: number;
 }
 
 export class CreateOrderUseCase {
   constructor(
     private readonly orderRepository: IOrderRepository,
     private readonly productRepository: IProductRepository,
+    private readonly customerRepository?: ICustomerRepository,
+    private readonly transactionRepository?: ICustomerPointTransactionRepository,
   ) {}
 
   async execute(input: CreateOrderInput): Promise<Order> {
@@ -73,7 +83,50 @@ export class CreateOrderUseCase {
 
     // Shipping fee policy: Free shipping if subtotal >= 300,000 VND, otherwise 30,000 VND
     const shippingFee = subtotal >= 300000 ? 0 : 30000;
-    const totalAmount = subtotal + shippingFee;
+
+    let pointsUsed = 0;
+    let pointsDiscountAmount = 0;
+    let customerId = input.customerId || null;
+
+    // Loyalty Points Redemption (OPT-IN only: usePoints must be true and pointsToUse > 0)
+    if (input.usePoints && input.pointsToUse && input.pointsToUse > 0 && customerId && this.customerRepository) {
+      const customer = await this.customerRepository.findById(customerId);
+      if (customer) {
+        const validation = LoyaltyPointCalculator.validateRedemption(
+          input.pointsToUse,
+          customer.loyaltyPoints,
+          subtotal,
+        );
+        if (!validation.isValid) {
+          throw new Error(validation.message || 'Không thể đổi điểm tích lũy.');
+        }
+
+        pointsUsed = input.pointsToUse;
+        pointsDiscountAmount = LoyaltyPointCalculator.calculatePointsDiscountAmount(pointsUsed);
+
+        // Deduct points from customer balance
+        const newBalance = customer.loyaltyPoints - pointsUsed;
+        customer.loyaltyPoints = newBalance;
+        await this.customerRepository.save(customer);
+
+        // Record point transaction ledger
+        if (this.transactionRepository) {
+          const transaction = new CustomerPointTransaction(
+            randomUUID(),
+            customer.id,
+            orderId,
+            PointTransactionType.REDEEMED,
+            -pointsUsed,
+            newBalance,
+            `Dùng ${pointsUsed} điểm giảm giá ${pointsDiscountAmount.toLocaleString('vi-VN')}đ cho đơn hàng ${orderNumber}`,
+            new Date(),
+          );
+          await this.transactionRepository.save(transaction);
+        }
+      }
+    }
+
+    const totalAmount = Math.max(0, subtotal + shippingFee - pointsDiscountAmount);
 
     const order = new Order(
       orderId,
@@ -92,6 +145,10 @@ export class CreateOrderUseCase {
       OrderStatus.PENDING,
       new Date(),
       orderItems,
+      customerId,
+      pointsUsed,
+      pointsDiscountAmount,
+      0,
     );
 
     return this.orderRepository.save(order);

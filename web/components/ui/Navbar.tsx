@@ -3,13 +3,16 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { ShoppingBag, Search, Calendar, Menu, X, Leaf } from 'lucide-react';
+import { ShoppingBag, Search, Calendar, Menu, X, Leaf, User, Award, LogOut } from 'lucide-react';
 import { useCartStore } from '@/stores/cart-store';
+import { useCustomerAuthStore } from '@/stores/customer-auth-store';
 
 export const Navbar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = React.useState(false);
+
+  const { customer, token, logout } = useCustomerAuthStore();
 
   React.useEffect(() => {
     setMounted(true);
@@ -21,8 +24,11 @@ export const Navbar: React.FC = () => {
 
   const totalCartCount = useCartStore((s) => s.getTotalCount());
   const displayCartCount = mounted ? totalCartCount : 0;
+  const isCustomerLoggedIn = mounted && !!token && !!customer;
+
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,6 +138,75 @@ export const Navbar: React.FC = () => {
             />
             <Search className="w-4 h-4 absolute left-3 text-[#64748B]" />
           </form>
+
+          {/* Customer User Profile or Login button */}
+          {isCustomerLoggedIn ? (
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 p-2 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors"
+              >
+                <div className="w-7 h-7 rounded-full bg-[#2D5A27] text-white font-bold text-xs flex items-center justify-center">
+                  {customer?.fullName?.charAt(0).toUpperCase()}
+                </div>
+                <span className="hidden xl:inline text-xs font-semibold text-[#2D5A27]">
+                  {customer?.fullName}
+                </span>
+                <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                  <Award className="w-3 h-3 text-amber-500" />
+                  {customer?.loyaltyPoints || 0}đ
+                </span>
+              </button>
+
+              {userMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-[#E2D9CC] rounded-xl shadow-lg py-1.5 z-50 text-sm">
+                  <div className="px-4 py-2 border-b border-slate-100">
+                    <div className="font-semibold text-slate-800 text-xs truncate">{customer?.fullName}</div>
+                    <div className="text-[11px] text-slate-500 truncate">{customer?.email}</div>
+                  </div>
+                  <Link
+                    href="/profile"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="block px-4 py-2 text-slate-700 hover:bg-slate-50 font-medium"
+                  >
+                    Hồ sơ cá nhân & Địa chỉ
+                  </Link>
+                  <Link
+                    href="/profile"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="block px-4 py-2 text-slate-700 hover:bg-slate-50 font-medium"
+                  >
+                    Đơn hàng của tôi
+                  </Link>
+                  <Link
+                    href="/profile"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="block px-4 py-2 text-emerald-700 hover:bg-emerald-50 font-medium flex items-center gap-1.5"
+                  >
+                    <Award className="w-4 h-4 text-amber-500" /> {customer?.loyaltyPoints || 0} điểm thưởng
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      logout();
+                      router.push('/');
+                    }}
+                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 font-medium border-t border-slate-100 flex items-center gap-1.5"
+                  >
+                    <LogOut className="w-4 h-4" /> Đăng xuất
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#2D5A27] bg-[#2D5A27]/10 hover:bg-[#2D5A27]/20 rounded-xl transition-colors shrink-0"
+            >
+              <User className="w-4 h-4" />
+              <span>Đăng nhập</span>
+            </Link>
+          )}
 
           {/* Cart Badge */}
           <Link

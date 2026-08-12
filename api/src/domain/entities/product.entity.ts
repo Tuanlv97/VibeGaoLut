@@ -1,4 +1,9 @@
 export class Product {
+  public rating: number = 5;
+  public reviewCount: number = 18;
+  public categorySlug?: string;
+  public categoryName?: string;
+
   constructor(
     public readonly id: string,
     public categoryId: string,
@@ -16,7 +21,16 @@ export class Product {
     public releasedAt: Date,
     public readonly createdAt: Date = new Date(),
     public images: string[] = [],
-  ) {}
+    rating?: number,
+    reviewCount?: number,
+    categorySlug?: string,
+    categoryName?: string,
+  ) {
+    if (rating !== undefined) this.rating = rating;
+    if (reviewCount !== undefined) this.reviewCount = reviewCount;
+    if (categorySlug !== undefined) this.categorySlug = categorySlug;
+    if (categoryName !== undefined) this.categoryName = categoryName;
+  }
 
   /**
    * Hybrid Domain Rule BR-EC-01:

@@ -79,8 +79,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         <div className="flex items-center gap-1 text-xs text-amber-500 mb-3">
           <Star className="w-3.5 h-3.5 fill-current" />
-          <span className="font-semibold text-[#1E293B]">{product.rating}</span>
-          <span className="text-[#64748B]">({product.reviewCount})</span>
+          <span className="font-semibold text-[#1E293B]">{(product.rating || 5).toFixed(1)}</span>
+          <span className="text-[#64748B]">({product.reviewCount || 18})</span>
         </div>
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-2 border-t border-[#E2E8F0]">

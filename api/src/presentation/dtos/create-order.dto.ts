@@ -57,4 +57,13 @@ export class CreateOrderDto {
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)
   items: CreateOrderItemDto[];
+
+  @ApiProperty({ required: false, description: 'Customer UUID if logged in' })
+  customerId?: string;
+
+  @ApiProperty({ required: false, description: 'Whether customer explicitly opted to redeem points' })
+  usePoints?: boolean;
+
+  @ApiProperty({ required: false, description: 'Amount of points to redeem' })
+  pointsToUse?: number;
 }

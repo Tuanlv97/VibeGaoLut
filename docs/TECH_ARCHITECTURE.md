@@ -101,13 +101,14 @@ apps/api/src/
 
 ## 4. DOMAIN BOUNDARIES
 
-System bao gồm 5 Sub-Domains độc lập:
+System bao gồm 6 Sub-Domains độc lập:
 
 1. **Catalog Domain**: Quản lý Sản phẩm (`Product`), Album ảnh, Danh mục (`Category`), Logic Sản Phẩm Mới (Hybrid Rule).
 2. **Commerce Domain**: Quản lý Giỏ hàng (`Cart` - Client validation & Server recalculation), Đơn hàng (`Order`), Chi tiết đơn (`OrderItem`), Đánh giá sản phẩm đã xác thực (`Review`).
 3. **Content Domain**: Quản lý Bài viết (`BlogPost`), Danh mục Blog, Thẻ bài viết (`BlogTag`), và liên kết Content-Commerce (`BlogPostProduct`).
 4. **Community Domain**: Quản lý Hỏi đáp (`Question`, `QuestionAnswer`) và luồng duyệt nội dung (Moderation).
 5. **Personal Domain**: Quản lý Daily Todo (`Todo`) phân tách theo `TaskDate` hoàn toàn tại Client Side.
+6. **Customer & Loyalty Domain**: Quản lý Tài khoản Khách hàng (`Customer`), Sổ địa chỉ (`CustomerAddress`), Tích điểm & Đổi điểm trừ trực tiếp (`CustomerPointTransaction`, quy tắc 10k = 1đ, 10đ = 1k, Opt-in).
 
 ---
 
@@ -121,6 +122,11 @@ erdiagram
     orders ||--o{ order_items : includes
     products ||--o{ reviews : reviewed_by
     orders ||--o{ reviews : verifies
+
+    customers ||--o{ customer_addresses : has
+    customers ||--o{ orders : places
+    customers ||--o{ customer_point_transactions : possesses
+    orders ||--o{ customer_point_transactions : triggers
     
     blog_categories ||--o{ blog_posts : categorizes
     blog_posts ||--o{ blog_post_tags : tagged_with
@@ -130,6 +136,42 @@ erdiagram
 
     products ||--o{ questions : subject_of
     questions ||--o{ question_answers : answered_by
+
+    customers {
+        uuid id PK
+        string full_name
+        string phone UK
+        string email UK
+        string password_hash
+        int loyalty_points
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    customer_addresses {
+        uuid id PK
+        uuid customer_id FK
+        string recipient_name
+        string phone
+        string province
+        string district
+        string ward
+        string address_detail
+        boolean is_default
+        timestamp created_at
+    }
+
+    customer_point_transactions {
+        uuid id PK
+        uuid customer_id FK
+        uuid order_id FK
+        string transaction_type
+        int points
+        int balance_after
+        string description
+        timestamp created_at
+    }
 
     categories {
         uuid id PK
@@ -161,6 +203,7 @@ erdiagram
 
     orders {
         uuid id PK
+        uuid customer_id FK
         string order_number UK
         string customer_name
         string customer_phone
@@ -171,6 +214,9 @@ erdiagram
         string address_detail
         decimal subtotal
         decimal shipping_fee
+        int points_used
+        decimal points_discount_amount
+        int points_earned
         decimal total_amount
         string payment_method
         string status

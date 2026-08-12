@@ -45,6 +45,18 @@ export class OrderOrmEntity {
   @Column({ type: 'varchar', length: 50, default: 'PENDING' })
   status: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  customerId: string | null;
+
+  @Column({ type: 'int', default: 0 })
+  pointsUsed: number;
+
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  pointsDiscountAmount: number;
+
+  @Column({ type: 'int', default: 0 })
+  pointsEarned: number;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 

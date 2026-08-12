@@ -30,6 +30,10 @@ export class Order {
     public status: OrderStatus = OrderStatus.PENDING,
     public readonly createdAt: Date = new Date(),
     public items: OrderItem[] = [],
+    public customerId: string | null = null,
+    public pointsUsed: number = 0,
+    public pointsDiscountAmount: number = 0,
+    public pointsEarned: number = 0,
   ) {}
 
   public static generateOrderNumber(): string {

@@ -4,6 +4,7 @@ import React from 'react';
 import { useCategories } from '@/lib/api/hooks';
 import { Filter, Star, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { MOCK_CATEGORIES } from '@/lib/mock-data';
 
 interface ProductFilterSidebarProps {
   selectedCategory: string;
@@ -24,7 +25,9 @@ export const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
   onRatingChange,
   onReset,
 }) => {
-  const { data: categories = [] } = useCategories();
+  const { data: categoriesData = [] } = useCategories();
+  const categories = categoriesData.length ? categoriesData : MOCK_CATEGORIES;
+
   return (
     <aside className="bg-white border border-[#E2E8F0] rounded-xl p-5 space-y-6">
       <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-3">
@@ -55,20 +58,23 @@ export const ProductFilterSidebar: React.FC<ProductFilterSidebarProps> = ({
           >
             Tất Cả Sản Phẩm
           </button>
-          {categories.map((cat: any) => (
-            <button
-              key={cat.id}
-              onClick={() => onSelectCategory(cat.slug)}
-              className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between ${
-                selectedCategory === cat.slug
-                  ? 'bg-[#2D5A27] text-white font-medium'
-                  : 'text-[#64748B] hover:bg-[#F9F6F0] hover:text-[#1E293B]'
-              }`}
-            >
-              <span>{cat.name}</span>
-              <span className="text-xs opacity-75">({cat.productCount})</span>
-            </button>
-          ))}
+          {categories.map((cat: any) => {
+            const count = cat.productCount ?? (MOCK_CATEGORIES.find((m) => m.slug === cat.slug)?.productCount || 2);
+            return (
+              <button
+                key={cat.id}
+                onClick={() => onSelectCategory(cat.slug)}
+                className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between ${
+                  selectedCategory === cat.slug
+                    ? 'bg-[#2D5A27] text-white font-medium'
+                    : 'text-[#64748B] hover:bg-[#F9F6F0] hover:text-[#1E293B]'
+                }`}
+              >
+                <span>{cat.name}</span>
+                <span className="text-xs opacity-75">({count})</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

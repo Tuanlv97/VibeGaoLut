@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Award, Check, MapPin } from 'lucide-react';
 import { useCartStore } from '@/stores/cart-store';
+import { useCustomerAuthStore } from '@/stores/customer-auth-store';
+import { useCustomerProfile, CustomerAddressItem } from '@/lib/api/hooks/useCustomer';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { GuestAddressForm } from '@/features/checkout/GuestAddressForm';
 import { PaymentMethodSelector } from '@/features/checkout/PaymentMethodSelector';
@@ -12,8 +15,13 @@ import { useCreateOrder, saveLocalOrder } from '@/lib/api/hooks';
 export default function CheckoutPage() {
   const router = useRouter();
   const items = useCartStore((s) => s.items);
+  const getSubtotal = useCartStore((s) => s.getSubtotal);
+  const getShippingFee = useCartStore((s) => s.getShippingFee);
   const getGrandTotal = useCartStore((s) => s.getGrandTotal);
   const clearCart = useCartStore((s) => s.clearCart);
+
+  const { customer, token } = useCustomerAuthStore();
+  const { data: profile } = useCustomerProfile();
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -26,10 +34,37 @@ export default function CheckoutPage() {
     orderNote: '',
   });
 
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+
+  // Loyalty Points Opt-In State (DEFAULT IS UNCHECKED / FALSE)
+  const [usePoints, setUsePoints] = useState<boolean>(false);
+  const [pointsToUse, setPointsToUse] = useState<number>(0);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const createOrderMutation = useCreateOrder();
+
+  // Auto-fill from customer profile or default address
+  useEffect(() => {
+    if (profile) {
+      const defaultAddr = profile.addresses.find((a) => a.isDefault) || profile.addresses[0];
+      setFormData((prev) => ({
+        ...prev,
+        fullName: prev.fullName || defaultAddr?.recipientName || profile.fullName || '',
+        phone: prev.phone || defaultAddr?.phone || profile.phone || '',
+        email: prev.email || profile.email || '',
+        province: defaultAddr?.province || prev.province,
+        district: defaultAddr?.district || prev.district,
+        ward: defaultAddr?.ward || prev.ward,
+        addressDetail: defaultAddr?.addressDetail || prev.addressDetail,
+      }));
+
+      if (defaultAddr) {
+        setSelectedAddressId(defaultAddr.id);
+      }
+    }
+  }, [profile]);
 
   if (items.length === 0) {
     return (
@@ -41,6 +76,19 @@ export default function CheckoutPage() {
       </div>
     );
   }
+
+  const handleSelectSavedAddress = (addr: CustomerAddressItem) => {
+    setSelectedAddressId(addr.id);
+    setFormData((prev) => ({
+      ...prev,
+      fullName: addr.recipientName,
+      phone: addr.phone,
+      province: addr.province,
+      district: addr.district,
+      ward: addr.ward,
+      addressDetail: addr.addressDetail,
+    }));
+  };
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -65,14 +113,20 @@ export default function CheckoutPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const availablePoints = profile?.loyaltyPoints || customer?.loyaltyPoints || 0;
+  const subtotal = getSubtotal();
+  const maxRedeemablePoints = Math.min(availablePoints, Math.floor(subtotal / 1000) * 10);
+  const pointsDiscountAmount = usePoints && pointsToUse > 0 ? pointsToUse * 100 : 0;
+
   const handleConfirmOrder = async () => {
     if (!validate()) return;
 
     setIsSubmitting(true);
-    const grandTotal = getGrandTotal();
+    const shippingFee = getShippingFee();
+    const calculatedGrandTotal = Math.max(0, subtotal + shippingFee - pointsDiscountAmount);
 
     try {
-      const orderPayload = {
+      const orderPayload: any = {
         customerName: formData.fullName,
         customerPhone: formData.phone,
         customerEmail: formData.email,
@@ -86,23 +140,27 @@ export default function CheckoutPage() {
         })),
       };
 
+      if (token && (profile?.id || customer?.id)) {
+        orderPayload.customerId = profile?.id || customer?.id;
+        orderPayload.usePoints = usePoints;
+        orderPayload.pointsToUse = usePoints ? pointsToUse : 0;
+      }
+
       const result = await createOrderMutation.mutateAsync(orderPayload);
       clearCart();
       setIsSubmitting(false);
 
       const orderNum = result.orderNumber || `GP-${Math.floor(100000 + Math.random() * 900000)}`;
-      const total = result.totalAmount || grandTotal;
+      const total = result.totalAmount || calculatedGrandTotal;
 
       router.push(
         `/orders/success?orderNumber=${orderNum}&name=${encodeURIComponent(
           formData.fullName
         )}&phone=${encodeURIComponent(formData.phone)}&total=${total}`
       );
-    } catch {
+    } catch (err: any) {
       // Fallback if API server is offline
       const generatedOrderNumber = `GP-${Math.floor(100000 + Math.random() * 900000)}`;
-      const shippingFee = grandTotal >= 300000 ? 0 : 30000;
-      const totalAmount = grandTotal + shippingFee;
 
       const fallbackOrder = {
         id: `ord_local_${Date.now()}`,
@@ -114,9 +172,9 @@ export default function CheckoutPage() {
         district: formData.district,
         ward: formData.ward,
         addressDetail: formData.addressDetail,
-        subtotal: grandTotal,
+        subtotal,
         shippingFee,
-        totalAmount,
+        totalAmount: calculatedGrandTotal,
         paymentMethod: 'COD',
         status: 'PENDING',
         createdAt: new Date().toISOString(),
@@ -129,6 +187,9 @@ export default function CheckoutPage() {
           subtotal: i.price * i.quantity,
           weightUnit: i.weightUnit,
         })),
+        customerId: customer?.id || null,
+        pointsUsed: usePoints ? pointsToUse : 0,
+        pointsDiscountAmount,
       };
 
       saveLocalOrder(fallbackOrder);
@@ -138,7 +199,7 @@ export default function CheckoutPage() {
       router.push(
         `/orders/success?orderNumber=${generatedOrderNumber}&name=${encodeURIComponent(
           formData.fullName
-        )}&phone=${encodeURIComponent(formData.phone)}&total=${totalAmount}`
+        )}&phone=${encodeURIComponent(formData.phone)}&total=${calculatedGrandTotal}`
       );
     }
   };
@@ -154,16 +215,108 @@ export default function CheckoutPage() {
       />
 
       <h1 className="text-3xl font-bold font-display text-[#1E293B]">
-        Guest Checkout Thanh Toán COD
+        {token ? 'Thanh Toán Đơn Hàng' : 'Guest Checkout Thanh Toán COD'}
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 space-y-6">
+          {/* Saved Addresses Bar for Logged-In Customers */}
+          {token && profile?.addresses && profile.addresses.length > 0 && (
+            <div className="bg-white border border-[#E2D9CC] rounded-xl p-5 space-y-3">
+              <h3 className="font-bold text-sm text-[#1E293B] flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-[#2D5A27]" /> Chọn Địa Chỉ Giao Hàng Đã Lưu
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {profile.addresses.map((addr) => (
+                  <button
+                    key={addr.id}
+                    type="button"
+                    onClick={() => handleSelectSavedAddress(addr)}
+                    className={`text-left p-3.5 rounded-xl border text-xs transition-all space-y-1 ${
+                      selectedAddressId === addr.id
+                        ? 'border-[#2D5A27] bg-emerald-50/50 ring-1 ring-[#2D5A27]'
+                        : 'border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="font-bold text-slate-800 flex items-center justify-between">
+                      <span>{addr.recipientName} ({addr.phone})</span>
+                      {selectedAddressId === addr.id && <Check className="w-4 h-4 text-[#2D5A27]" />}
+                    </div>
+                    <div className="text-slate-600 line-clamp-2">
+                      {addr.addressDetail}, {addr.ward}, {addr.district}, {addr.province}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <GuestAddressForm
             formData={formData}
             onChange={handleChange}
             errors={errors}
           />
+
+          {/* Loyalty Points Opt-In Block for Logged-in Customer */}
+          {token && availablePoints >= 10 && (
+            <div className="bg-white border border-emerald-200 rounded-xl p-5 space-y-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Award className="w-5 h-5 text-amber-500" />
+                  <h3 className="font-bold text-sm text-[#1E293B]">Ưu Đãi Điểm Thưởng Tích Lũy</h3>
+                </div>
+                <span className="text-xs text-[#2D5A27] font-semibold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                  Số dư: {availablePoints} điểm
+                </span>
+              </div>
+
+              {/* OPT-IN CHECKBOX: UNCHECKED BY DEFAULT */}
+              <label className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-emerald-50/30 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={usePoints}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setUsePoints(checked);
+                    if (checked && pointsToUse === 0) {
+                      setPointsToUse(Math.min(maxRedeemablePoints, 10));
+                    }
+                  }}
+                  className="w-4 h-4 text-[#2D5A27] rounded focus:ring-[#2D5A27]"
+                />
+                <div className="text-sm font-medium text-slate-800">
+                  Sử dụng điểm tích lũy để giảm giá cho đơn hàng này
+                </div>
+              </label>
+
+              {usePoints && (
+                <div className="p-4 bg-emerald-50/50 rounded-xl border border-emerald-200 space-y-3">
+                  <div className="flex items-center justify-between text-xs text-slate-700">
+                    <span>Chọn số điểm muốn đổi (10 điểm = 1.000đ):</span>
+                    <span className="font-bold text-[#2D5A27]">
+                      Dùng {pointsToUse} điểm (-{(pointsToUse * 100).toLocaleString('vi-VN')}đ)
+                    </span>
+                  </div>
+
+                  <input
+                    type="range"
+                    min="10"
+                    max={maxRedeemablePoints}
+                    step="10"
+                    value={pointsToUse}
+                    onChange={(e) => setPointsToUse(Number(e.target.value))}
+                    className="w-full accent-[#2D5A27] cursor-pointer"
+                  />
+
+                  <div className="flex justify-between text-[11px] text-slate-500">
+                    <span>10 điểm (1.000đ)</span>
+                    <span>Tối đa {maxRedeemablePoints} điểm ({(maxRedeemablePoints * 100).toLocaleString('vi-VN')}đ)</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <PaymentMethodSelector />
         </div>
 
@@ -171,9 +324,11 @@ export default function CheckoutPage() {
           <OrderSummaryWidget
             onConfirmOrder={handleConfirmOrder}
             isSubmitting={isSubmitting}
+            pointsDiscountAmount={pointsDiscountAmount}
           />
         </div>
       </div>
     </div>
   );
 }
+

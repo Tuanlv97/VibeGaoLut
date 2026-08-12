@@ -13,7 +13,11 @@ import { ReviewRepository } from './infrastructure/repositories/review.repositor
 import { BlogPostRepository } from './infrastructure/repositories/blog-post.repository';
 import { QuestionRepository } from './infrastructure/repositories/question.repository';
 import { AdminUserRepository } from './infrastructure/repositories/admin-user.repository';
+import { CustomerTypeOrmRepository } from './infrastructure/repositories/customer.repository';
+import { CustomerAddressTypeOrmRepository } from './infrastructure/repositories/customer-address.repository';
+import { CustomerPointTransactionTypeOrmRepository } from './infrastructure/repositories/customer-point-transaction.repository';
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
+import { CustomerJwtStrategy } from './infrastructure/auth/customer-jwt.strategy';
 
 // ORM Entities
 import { CategoryOrmEntity } from './infrastructure/database/entities/category.orm-entity';
@@ -24,6 +28,9 @@ import { ReviewOrmEntity } from './infrastructure/database/entities/review.orm-e
 import { BlogPostOrmEntity } from './infrastructure/database/entities/blog-post.orm-entity';
 import { QuestionOrmEntity, QuestionAnswerOrmEntity } from './infrastructure/database/entities/question.orm-entity';
 import { AdminUserOrmEntity } from './infrastructure/database/entities/admin-user.orm-entity';
+import { CustomerOrmEntity } from './infrastructure/database/entities/customer.orm-entity';
+import { CustomerAddressOrmEntity } from './infrastructure/database/entities/customer-address.orm-entity';
+import { CustomerPointTransactionOrmEntity } from './infrastructure/database/entities/customer-point-transaction.orm-entity';
 
 // Use Cases - Catalog
 import { GetProductsUseCase } from './application/use-cases/catalog/get-products.use-case';
@@ -35,6 +42,14 @@ import { GetCategoriesUseCase } from './application/use-cases/catalog/get-catego
 import { CreateOrderUseCase } from './application/use-cases/commerce/create-order.use-case';
 import { TrackOrderUseCase } from './application/use-cases/commerce/track-order.use-case';
 import { CreateReviewUseCase } from './application/use-cases/commerce/create-review.use-case';
+
+// Use Cases - Customer & Profile
+import { RegisterCustomerUseCase } from './application/use-cases/customer-auth/register-customer.use-case';
+import { LoginCustomerUseCase } from './application/use-cases/customer-auth/login-customer.use-case';
+import { GetCustomerProfileUseCase } from './application/use-cases/customer-profile/get-customer-profile.use-case';
+import { ManageCustomerAddressesUseCase } from './application/use-cases/customer-profile/manage-customer-addresses.use-case';
+import { GetCustomerOrdersUseCase } from './application/use-cases/customer-profile/get-customer-orders.use-case';
+import { GetCustomerPointsHistoryUseCase } from './application/use-cases/customer-profile/get-customer-points-history.use-case';
 
 // Use Cases - Content
 import { GetBlogPostsUseCase } from './application/use-cases/content/get-blog-posts.use-case';
@@ -65,6 +80,8 @@ import { QuestionController } from './presentation/controllers/question.controll
 import { AdminController } from './presentation/controllers/admin.controller';
 import { AdminAuthController } from './presentation/controllers/admin-auth.controller';
 import { AdminUserController } from './presentation/controllers/admin-user.controller';
+import { CustomerAuthController } from './presentation/controllers/customer-auth.controller';
+import { CustomerProfileController } from './presentation/controllers/customer-profile.controller';
 
 import { MediaModule } from './infrastructure/media/media.module';
 
@@ -78,6 +95,9 @@ const ormEntities = [
   QuestionOrmEntity,
   QuestionAnswerOrmEntity,
   AdminUserOrmEntity,
+  CustomerOrmEntity,
+  CustomerAddressOrmEntity,
+  CustomerPointTransactionOrmEntity,
 ];
 
 @Module({
@@ -120,10 +140,13 @@ const ormEntities = [
     AdminController,
     AdminAuthController,
     AdminUserController,
+    CustomerAuthController,
+    CustomerProfileController,
   ],
   providers: [
     SeederService,
     JwtStrategy,
+    CustomerJwtStrategy,
 
     // Repositories
     { provide: 'IProductRepository', useClass: ProductRepository },
@@ -133,6 +156,17 @@ const ormEntities = [
     { provide: 'IBlogPostRepository', useClass: BlogPostRepository },
     { provide: 'IQuestionRepository', useClass: QuestionRepository },
     { provide: 'IAdminUserRepository', useClass: AdminUserRepository },
+    { provide: 'ICustomerRepository', useClass: CustomerTypeOrmRepository },
+    { provide: 'ICustomerAddressRepository', useClass: CustomerAddressTypeOrmRepository },
+    { provide: 'ICustomerPointTransactionRepository', useClass: CustomerPointTransactionTypeOrmRepository },
+
+    // Customer Use Cases
+    RegisterCustomerUseCase,
+    LoginCustomerUseCase,
+    GetCustomerProfileUseCase,
+    ManageCustomerAddressesUseCase,
+    GetCustomerOrdersUseCase,
+    GetCustomerPointsHistoryUseCase,
 
     // Catalog Use Cases
     {
@@ -159,9 +193,18 @@ const ormEntities = [
     // Commerce Use Cases
     {
       provide: 'CreateOrderUseCase',
-      useFactory: (orderRepo: OrderRepository, prodRepo: ProductRepository) =>
-        new CreateOrderUseCase(orderRepo, prodRepo),
-      inject: ['IOrderRepository', 'IProductRepository'],
+      useFactory: (
+        orderRepo: OrderRepository,
+        prodRepo: ProductRepository,
+        custRepo: CustomerTypeOrmRepository,
+        txRepo: CustomerPointTransactionTypeOrmRepository,
+      ) => new CreateOrderUseCase(orderRepo, prodRepo, custRepo, txRepo),
+      inject: [
+        'IOrderRepository',
+        'IProductRepository',
+        'ICustomerRepository',
+        'ICustomerPointTransactionRepository',
+      ],
     },
     {
       provide: 'TrackOrderUseCase',
@@ -229,8 +272,16 @@ const ormEntities = [
     },
     {
       provide: 'UpdateOrderStatusUseCase',
-      useFactory: (orderRepo: OrderRepository) => new UpdateOrderStatusUseCase(orderRepo),
-      inject: ['IOrderRepository'],
+      useFactory: (
+        orderRepo: OrderRepository,
+        custRepo: CustomerTypeOrmRepository,
+        txRepo: CustomerPointTransactionTypeOrmRepository,
+      ) => new UpdateOrderStatusUseCase(orderRepo, custRepo, txRepo),
+      inject: [
+        'IOrderRepository',
+        'ICustomerRepository',
+        'ICustomerPointTransactionRepository',
+      ],
     },
     {
       provide: 'ManageBlogUseCase',

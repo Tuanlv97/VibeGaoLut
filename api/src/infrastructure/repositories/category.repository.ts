@@ -7,6 +7,8 @@ import { CategoryOrmEntity } from '../database/entities/category.orm-entity';
 import { CategoryMapper } from '../database/mappers/category.mapper';
 import { SeederService } from '../database/seeds/seeder.service';
 
+import { ProductOrmEntity } from '../database/entities/product.orm-entity';
+
 @Injectable()
 export class CategoryRepository implements ICategoryRepository, OnModuleInit {
   private inMemoryCategories: Category[] = [];
@@ -16,6 +18,9 @@ export class CategoryRepository implements ICategoryRepository, OnModuleInit {
     @Optional()
     @InjectRepository(CategoryOrmEntity)
     private readonly typeOrmRepo?: Repository<CategoryOrmEntity>,
+    @Optional()
+    @InjectRepository(ProductOrmEntity)
+    private readonly productTypeOrmRepo?: Repository<ProductOrmEntity>,
   ) {
     if (seederService) {
       this.inMemoryCategories = [...seederService.getCategories()];
@@ -23,11 +28,16 @@ export class CategoryRepository implements ICategoryRepository, OnModuleInit {
   }
 
   async onModuleInit() {
-    this.inMemoryCategories = [];
-    if (this.typeOrmRepo) {
+    this.inMemoryCategories = this.seederService ? [...this.seederService.getCategories()] : [];
+    if (this.typeOrmRepo && this.seederService) {
       try {
-        const seedIds = ['cat_gao_ngu_coc', 'cat_tra_herbal', 'cat_dau_bot', 'cat_healthy_snacks'];
-        await this.typeOrmRepo.delete(seedIds);
+        const count = await this.typeOrmRepo.count();
+        if (count === 0) {
+          const categories = this.seederService.getCategories();
+          for (const cat of categories) {
+            await this.typeOrmRepo.save(CategoryMapper.toOrm(cat));
+          }
+        }
       } catch {
         // Fallback gracefully if DB table not ready
       }
@@ -35,13 +45,33 @@ export class CategoryRepository implements ICategoryRepository, OnModuleInit {
   }
 
   async findAll(): Promise<Category[]> {
+    let categories: Category[] = [];
     if (this.typeOrmRepo) {
       try {
         const list = await this.typeOrmRepo.find({ where: { isActive: true } });
-        if (list.length > 0) return list.map(CategoryMapper.toDomain);
+        if (list.length > 0) {
+          categories = list.map(CategoryMapper.toDomain);
+        }
       } catch {}
     }
-    return this.inMemoryCategories.filter((c) => c.isActive);
+    if (categories.length === 0) {
+      categories = this.inMemoryCategories.filter((c) => c.isActive);
+    }
+
+    const allProducts = this.seederService ? this.seederService.getProducts() : [];
+    for (const cat of categories) {
+      if (this.productTypeOrmRepo) {
+        try {
+          cat.productCount = await this.productTypeOrmRepo.count({ where: { categoryId: cat.id } });
+        } catch {
+          cat.productCount = allProducts.filter((p) => p.categoryId === cat.id).length;
+        }
+      } else {
+        cat.productCount = allProducts.filter((p) => p.categoryId === cat.id).length;
+      }
+    }
+
+    return categories;
   }
 
   async findBySlug(slug: string): Promise<Category | null> {

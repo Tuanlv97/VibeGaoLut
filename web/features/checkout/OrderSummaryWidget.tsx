@@ -9,20 +9,21 @@ import { Button } from '@/components/ui/Button';
 interface OrderSummaryWidgetProps {
   onConfirmOrder: () => void;
   isSubmitting?: boolean;
+  pointsDiscountAmount?: number;
 }
 
 export const OrderSummaryWidget: React.FC<OrderSummaryWidgetProps> = ({
   onConfirmOrder,
   isSubmitting = false,
+  pointsDiscountAmount = 0,
 }) => {
   const items = useCartStore((s) => s.items);
   const getSubtotal = useCartStore((s) => s.getSubtotal);
   const getShippingFee = useCartStore((s) => s.getShippingFee);
-  const getGrandTotal = useCartStore((s) => s.getGrandTotal);
 
   const subtotal = getSubtotal();
   const shippingFee = getShippingFee();
-  const grandTotal = getGrandTotal();
+  const grandTotal = Math.max(0, subtotal + shippingFee - pointsDiscountAmount);
 
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 space-y-5 sticky top-24 shadow-xs">
@@ -63,6 +64,15 @@ export const OrderSummaryWidget: React.FC<OrderSummaryWidgetProps> = ({
             {shippingFee === 0 ? 'MIỄN PHÍ' : `${new Intl.NumberFormat('vi-VN').format(shippingFee)}đ`}
           </span>
         </div>
+
+        {pointsDiscountAmount > 0 && (
+          <div className="flex justify-between text-amber-700 font-medium">
+            <span>Giảm giá điểm tích lũy:</span>
+            <span className="font-mono font-semibold">
+              -{new Intl.NumberFormat('vi-VN').format(pointsDiscountAmount)}đ
+            </span>
+          </div>
+        )}
 
         <div className="border-t border-[#E2E8F0] pt-3 flex justify-between items-baseline">
           <span className="font-bold text-base text-[#1E293B]">Tổng cộng:</span>

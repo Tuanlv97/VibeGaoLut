@@ -7,6 +7,8 @@ import { ProductOrmEntity } from '../database/entities/product.orm-entity';
 import { ProductMapper } from '../database/mappers/product.mapper';
 import { SeederService } from '../database/seeds/seeder.service';
 
+import { CategoryOrmEntity } from '../database/entities/category.orm-entity';
+
 @Injectable()
 export class ProductRepository implements IProductRepository, OnModuleInit {
   private inMemoryProducts: Product[] = [];
@@ -16,6 +18,9 @@ export class ProductRepository implements IProductRepository, OnModuleInit {
     @Optional()
     @InjectRepository(ProductOrmEntity)
     private readonly typeOrmRepo?: Repository<ProductOrmEntity>,
+    @Optional()
+    @InjectRepository(CategoryOrmEntity)
+    private readonly categoryTypeOrmRepo?: Repository<CategoryOrmEntity>,
   ) {
     if (seederService) {
       this.inMemoryProducts = [...seederService.getProducts()];
@@ -23,37 +28,64 @@ export class ProductRepository implements IProductRepository, OnModuleInit {
   }
 
   async onModuleInit() {
-    this.inMemoryProducts = [];
-    if (this.typeOrmRepo) {
+    this.inMemoryProducts = this.seederService ? [...this.seederService.getProducts()] : [];
+    if (this.typeOrmRepo && this.seederService) {
       try {
-        const seedIds = ['prod_gao_lut_st25', 'prod_tra_gao_lut', 'prod_bot_san_day', 'prod_yen_mach'];
-        await this.typeOrmRepo.delete(seedIds);
+        const count = await this.typeOrmRepo.count();
+        if (count === 0) {
+          const products = this.seederService.getProducts();
+          for (const prod of products) {
+            await this.typeOrmRepo.save(ProductMapper.toOrm(prod));
+          }
+        }
       } catch {
         // Fallback gracefully if DB table not ready
       }
     }
   }
 
+  private async enrichProduct(p: Product): Promise<Product> {
+    p.rating = p.rating || 5;
+    p.reviewCount = p.reviewCount || 18;
+    const categories = this.seederService ? this.seederService.getCategories() : [];
+    if (this.categoryTypeOrmRepo) {
+      try {
+        const cat = await this.categoryTypeOrmRepo.findOne({ where: { id: p.categoryId } });
+        if (cat) {
+          p.categorySlug = cat.slug;
+          p.categoryName = cat.name;
+          return p;
+        }
+      } catch {}
+    }
+    const cat = categories.find((c) => c.id === p.categoryId || c.slug === p.categoryId);
+    if (cat) {
+      p.categorySlug = cat.slug;
+      p.categoryName = cat.name;
+    }
+    return p;
+  }
+
   async findById(id: string): Promise<Product | null> {
     if (this.typeOrmRepo) {
       try {
         const found = await this.typeOrmRepo.findOne({ where: { id } });
-        if (found) return ProductMapper.toDomain(found);
+        if (found) return this.enrichProduct(ProductMapper.toDomain(found));
       } catch {}
     }
     const found = this.inMemoryProducts.find((p) => p.id === id);
-    return found || null;
+    return found ? this.enrichProduct(found) : null;
   }
 
   async findBySlug(slug: string): Promise<Product | null> {
     if (this.typeOrmRepo) {
       try {
         const found = await this.typeOrmRepo.findOne({ where: { slug } });
-        if (found) return ProductMapper.toDomain(found);
+        if (found) return this.enrichProduct(ProductMapper.toDomain(found));
       } catch {}
     }
     const found = this.inMemoryProducts.find((p) => p.slug === slug);
-    return found || null;
+    return found ? this.enrichProduct(found) : null;
   }
 
   async findAll(filter?: ProductFilterOptions): Promise<{ items: Product[]; total: number }> {
@@ -62,7 +94,14 @@ export class ProductRepository implements IProductRepository, OnModuleInit {
         const where: FindOptionsWhere<ProductOrmEntity> = {};
 
         if (filter?.categoryId) {
-          where.categoryId = filter.categoryId;
+          let targetCatId = filter.categoryId;
+          if (this.categoryTypeOrmRepo) {
+            const cat = await this.categoryTypeOrmRepo.findOne({
+              where: [{ id: filter.categoryId }, { slug: filter.categoryId }],
+            });
+            if (cat) targetCatId = cat.id;
+          }
+          where.categoryId = targetCatId;
         }
 
         if (filter?.minPrice !== undefined && filter?.maxPrice !== undefined) {
@@ -97,8 +136,10 @@ export class ProductRepository implements IProductRepository, OnModuleInit {
           take: limit,
         });
 
+        const items = await Promise.all(list.map((item) => this.enrichProduct(ProductMapper.toDomain(item))));
+
         return {
-          items: list.map(ProductMapper.toDomain),
+          items,
           total,
         };
       } catch {}
@@ -107,7 +148,11 @@ export class ProductRepository implements IProductRepository, OnModuleInit {
     let result = [...this.inMemoryProducts];
 
     if (filter?.categoryId) {
-      result = result.filter((p) => p.categoryId === filter.categoryId);
+      let targetCatId = filter.categoryId;
+      const categories = this.seederService ? this.seederService.getCategories() : [];
+      const cat = categories.find((c) => c.id === filter.categoryId || c.slug === filter.categoryId);
+      if (cat) targetCatId = cat.id;
+      result = result.filter((p) => p.categoryId === targetCatId);
     }
 
     if (filter?.minPrice !== undefined) {
@@ -142,7 +187,9 @@ export class ProductRepository implements IProductRepository, OnModuleInit {
     const page = filter?.page || 1;
     const limit = filter?.limit || 20;
     const startIndex = (page - 1) * limit;
-    const paginatedItems = result.slice(startIndex, startIndex + limit);
+    const paginatedItems = await Promise.all(
+      result.slice(startIndex, startIndex + limit).map((p) => this.enrichProduct(p)),
+    );
 
     return { items: paginatedItems, total };
   }
