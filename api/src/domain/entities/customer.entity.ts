@@ -8,6 +8,7 @@ export class Customer {
     public email: string,
     public passwordHash: string,
     public loyaltyPoints: number = 0,
+    public goldBalance: number = 0,
     public isActive: boolean = true,
     public readonly createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),

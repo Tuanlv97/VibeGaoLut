@@ -21,6 +21,9 @@ export class CustomerOrmEntity {
   @Column({ type: 'int', default: 0 })
   loyaltyPoints: number;
 
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  goldBalance: number;
+
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 

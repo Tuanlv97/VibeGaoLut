@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { ProductGrid } from './ProductGrid';
 import { useProducts } from '@/lib/api/hooks';

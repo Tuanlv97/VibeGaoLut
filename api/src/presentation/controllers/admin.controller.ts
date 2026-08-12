@@ -25,6 +25,7 @@ import { ManageBlogUseCase } from '@application/use-cases/admin/manage-blog.use-
 import { ModerateQuestionUseCase } from '@application/use-cases/admin/moderate-question.use-case';
 import { GetBlogPostsUseCase } from '@application/use-cases/content/get-blog-posts.use-case';
 import { GetQuestionsUseCase } from '@application/use-cases/community/get-questions.use-case';
+import { ApproveTopupUseCase } from '@application/use-cases/admin/approve-topup.use-case';
 import {
   CreateProductDto,
   UpdateProductDto,
@@ -51,6 +52,7 @@ export class AdminController {
     @Inject('ModerateQuestionUseCase') private readonly moderateQuestionUseCase: ModerateQuestionUseCase,
     @Inject('GetBlogPostsUseCase') private readonly getBlogPostsUseCase: GetBlogPostsUseCase,
     @Inject('GetQuestionsUseCase') private readonly getQuestionsUseCase: GetQuestionsUseCase,
+    private readonly approveTopupUseCase: ApproveTopupUseCase,
   ) {}
 
   @Get('stats')
@@ -58,6 +60,18 @@ export class AdminController {
   @ApiResponse({ status: 200, description: 'KPI stats metrics object.' })
   async getStats() {
     return await this.getAdminStatsUseCase.execute();
+  }
+
+  @Get('wallet/topups')
+  @ApiOperation({ summary: 'Lấy danh sách yêu cầu nạp tiền VietQR đang chờ duyệt' })
+  async getPendingTopups() {
+    return await this.approveTopupUseCase.getPendingTopups();
+  }
+
+  @Patch('wallet/topups/:id/approve')
+  @ApiOperation({ summary: 'Duyệt hoặc từ chối yêu cầu nạp tiền VietQR' })
+  async approveTopup(@Param('id') id: string, @Body() body: { action: 'APPROVE' | 'REJECT' }) {
+    return await this.approveTopupUseCase.execute(id, body.action || 'APPROVE');
   }
 
   @Get('orders')

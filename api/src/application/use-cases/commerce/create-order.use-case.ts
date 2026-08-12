@@ -22,6 +22,7 @@ export interface CreateOrderInput {
   ward: string;
   addressDetail: string;
   items: CreateOrderItemInput[];
+  paymentMethod?: string;
   customerId?: string;
   usePoints?: boolean;
   pointsToUse?: number;
@@ -33,6 +34,7 @@ export class CreateOrderUseCase {
     private readonly productRepository: IProductRepository,
     private readonly customerRepository?: ICustomerRepository,
     private readonly transactionRepository?: ICustomerPointTransactionRepository,
+    private readonly walletRepository?: any,
   ) {}
 
   async execute(input: CreateOrderInput): Promise<Order> {
@@ -127,6 +129,43 @@ export class CreateOrderUseCase {
     }
 
     const totalAmount = Math.max(0, subtotal + shippingFee - pointsDiscountAmount);
+    const paymentMethod = input.paymentMethod || 'COD';
+    let initialOrderStatus = OrderStatus.PENDING;
+
+    // Handle GOLD_WALLET Payment
+    if (paymentMethod === 'GOLD_WALLET') {
+      if (!customerId || !this.customerRepository) {
+        throw new Error('Vui lòng đăng nhập để sử dụng thanh toán bằng Ví GOLD.');
+      }
+      const customer = await this.customerRepository.findById(customerId);
+      if (!customer) {
+        throw new Error('Không tìm thấy tài khoản khách hàng.');
+      }
+
+      const goldRequired = Math.ceil(totalAmount / 1000); // 1 GOLD = 1.000 VNĐ
+      if (customer.goldBalance < goldRequired) {
+        throw new Error(`Số dư Ví GOLD không đủ (${customer.goldBalance} GOLD). Bạn cần thêm ${goldRequired - customer.goldBalance} GOLD nữa để thanh toán.`);
+      }
+
+      customer.goldBalance -= goldRequired;
+      await this.customerRepository.save(customer);
+
+      if (this.walletRepository) {
+        await this.walletRepository.saveTransaction({
+          id: randomUUID(),
+          customerId: customer.id,
+          type: 'PAYMENT',
+          amountVnd: totalAmount,
+          goldAmount: -goldRequired,
+          balanceAfter: customer.goldBalance,
+          description: `Thanh toán đơn hàng ${orderNumber} bằng Ví GOLD`,
+          status: 'SUCCESS',
+          createdAt: new Date(),
+        });
+      }
+
+      initialOrderStatus = OrderStatus.PROCESSING;
+    }
 
     const order = new Order(
       orderId,
@@ -141,8 +180,8 @@ export class CreateOrderUseCase {
       subtotal,
       shippingFee,
       totalAmount,
-      'COD',
-      OrderStatus.PENDING,
+      paymentMethod,
+      initialOrderStatus,
       new Date(),
       orderItems,
       customerId,

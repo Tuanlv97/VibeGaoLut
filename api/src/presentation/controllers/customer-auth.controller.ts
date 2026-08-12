@@ -4,7 +4,7 @@ import { RegisterCustomerUseCase, RegisterCustomerDto } from '@application/use-c
 import { LoginCustomerUseCase, LoginCustomerDto } from '@application/use-cases/customer-auth/login-customer.use-case';
 
 @ApiTags('Customer Auth')
-@Controller('api/v1/customer/auth')
+@Controller('customer/auth')
 export class CustomerAuthController {
   constructor(
     private readonly registerCustomerUseCase: RegisterCustomerUseCase,

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { Award, Check, MapPin } from 'lucide-react';
 import { useCartStore } from '@/stores/cart-store';
 import { useCustomerAuthStore } from '@/stores/customer-auth-store';
@@ -14,13 +15,14 @@ import { useCreateOrder, saveLocalOrder } from '@/lib/api/hooks';
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const items = useCartStore((s) => s.items);
   const getSubtotal = useCartStore((s) => s.getSubtotal);
   const getShippingFee = useCartStore((s) => s.getShippingFee);
   const getGrandTotal = useCartStore((s) => s.getGrandTotal);
   const clearCart = useCartStore((s) => s.clearCart);
 
-  const { customer, token } = useCustomerAuthStore();
+  const { customer, token, updateCustomer } = useCustomerAuthStore();
   const { data: profile } = useCustomerProfile();
 
   const [formData, setFormData] = useState({
@@ -40,6 +42,7 @@ export default function CheckoutPage() {
   const [usePoints, setUsePoints] = useState<boolean>(false);
   const [pointsToUse, setPointsToUse] = useState<number>(0);
 
+  const [paymentMethod, setPaymentMethod] = useState<string>('COD');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -134,6 +137,7 @@ export default function CheckoutPage() {
         district: formData.district,
         ward: formData.ward,
         addressDetail: formData.addressDetail,
+        paymentMethod,
         items: items.map((item) => ({
           productId: item.id,
           quantity: item.quantity,
@@ -152,6 +156,16 @@ export default function CheckoutPage() {
 
       const orderNum = result.orderNumber || `GP-${Math.floor(100000 + Math.random() * 900000)}`;
       const total = result.totalAmount || calculatedGrandTotal;
+
+      if (paymentMethod === 'GOLD_WALLET') {
+        const goldPaid = Math.ceil(total / 1000);
+        if (customer?.goldBalance !== undefined) {
+          updateCustomer({ goldBalance: Math.max(0, customer.goldBalance - goldPaid) });
+        }
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['customer-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-wallet'] });
 
       router.push(
         `/orders/success?orderNumber=${orderNum}&name=${encodeURIComponent(
@@ -317,7 +331,12 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          <PaymentMethodSelector />
+          <PaymentMethodSelector
+            selectedMethod={paymentMethod}
+            onChange={setPaymentMethod}
+            goldBalance={customer?.goldBalance || profile?.goldBalance || 0}
+            totalAmountGold={Math.ceil(Math.max(0, subtotal + getShippingFee() - pointsDiscountAmount) / 1000)}
+          />
         </div>
 
         <div className="lg:col-span-1">

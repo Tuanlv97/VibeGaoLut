@@ -1,21 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User, Lock, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Lock, ArrowRight, CheckCircle, AlertCircle, LogOut } from 'lucide-react';
 import { fetchAPI } from '@/lib/api/client';
 import { useCustomerAuthStore, CustomerUser } from '@/stores/customer-auth-store';
 
 export default function CustomerLoginPage() {
   const router = useRouter();
-  const setAuth = useCustomerAuthStore((s) => s.setAuth);
+  const { token, customer, setAuth, logout } = useCustomerAuthStore();
 
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (token && customer && !success) {
+      router.replace('/profile');
+    }
+  }, [token, customer, success, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +63,27 @@ export default function CustomerLoginPage() {
             Trải nghiệm tích điểm, lưu địa chỉ giao hàng và theo dõi đơn hàng dễ dàng.
           </p>
         </div>
+
+        {customer && token && (
+          <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 space-y-2 text-sm">
+            <div className="font-semibold flex items-center gap-1.5">
+              <span>Bạn đang đăng nhập với tài khoản:</span>
+              <span className="text-[#2D5A27]">{customer.fullName} ({customer.email || customer.phone})</span>
+            </div>
+            <div className="flex items-center gap-3 pt-1">
+              <Link href="/profile" className="text-xs font-bold text-[#2D5A27] hover:underline">
+                → Chuyển đến Trang cá nhân
+              </Link>
+              <button
+                type="button"
+                onClick={() => logout()}
+                className="text-xs font-bold text-rose-700 hover:underline flex items-center gap-1"
+              >
+                <LogOut className="w-3.5 h-3.5" /> Đăng xuất tài khoản này
+              </button>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 flex items-center gap-3 text-sm">

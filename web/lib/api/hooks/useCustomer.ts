@@ -19,6 +19,7 @@ export interface CustomerProfileData {
   phone: string;
   email: string;
   loyaltyPoints: number;
+  goldBalance: number;
   isActive: boolean;
   createdAt: string;
   addresses: CustomerAddressItem[];
@@ -53,6 +54,7 @@ export function useCustomerProfile() {
         email: data.email,
         phone: data.phone,
         loyaltyPoints: data.loyaltyPoints,
+        goldBalance: data.goldBalance,
       });
       return data;
     },

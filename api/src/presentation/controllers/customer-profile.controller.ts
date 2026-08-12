@@ -19,7 +19,7 @@ import { GetCustomerPointsHistoryUseCase } from '@application/use-cases/customer
 @ApiTags('Customer Profile')
 @ApiBearerAuth()
 @UseGuards(CustomerJwtAuthGuard)
-@Controller('api/v1/customer')
+@Controller('customer')
 export class CustomerProfileController {
   constructor(
     private readonly getProfileUseCase: GetCustomerProfileUseCase,

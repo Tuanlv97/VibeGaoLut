@@ -85,6 +85,13 @@ import { CustomerProfileController } from './presentation/controllers/customer-p
 
 import { MediaModule } from './infrastructure/media/media.module';
 
+import { GoldTransactionOrmEntity } from './infrastructure/database/entities/gold-transaction.orm-entity';
+import { CustomerWalletTypeOrmRepository } from './infrastructure/repositories/customer-wallet.repository';
+import { GenerateTopupQrUseCase } from './application/use-cases/customer-wallet/generate-topup-qr.use-case';
+import { GetGoldWalletUseCase } from './application/use-cases/customer-wallet/get-gold-wallet.use-case';
+import { ApproveTopupUseCase } from './application/use-cases/admin/approve-topup.use-case';
+import { CustomerWalletController } from './presentation/controllers/customer-wallet.controller';
+
 const ormEntities = [
   CategoryOrmEntity,
   ProductOrmEntity,
@@ -98,6 +105,7 @@ const ormEntities = [
   CustomerOrmEntity,
   CustomerAddressOrmEntity,
   CustomerPointTransactionOrmEntity,
+  GoldTransactionOrmEntity,
 ];
 
 @Module({
@@ -142,6 +150,7 @@ const ormEntities = [
     AdminUserController,
     CustomerAuthController,
     CustomerProfileController,
+    CustomerWalletController,
   ],
   providers: [
     SeederService,
@@ -159,6 +168,7 @@ const ormEntities = [
     { provide: 'ICustomerRepository', useClass: CustomerTypeOrmRepository },
     { provide: 'ICustomerAddressRepository', useClass: CustomerAddressTypeOrmRepository },
     { provide: 'ICustomerPointTransactionRepository', useClass: CustomerPointTransactionTypeOrmRepository },
+    { provide: 'ICustomerWalletRepository', useClass: CustomerWalletTypeOrmRepository },
 
     // Customer Use Cases
     RegisterCustomerUseCase,
@@ -167,6 +177,9 @@ const ormEntities = [
     ManageCustomerAddressesUseCase,
     GetCustomerOrdersUseCase,
     GetCustomerPointsHistoryUseCase,
+    GenerateTopupQrUseCase,
+    GetGoldWalletUseCase,
+    ApproveTopupUseCase,
 
     // Catalog Use Cases
     {
@@ -198,12 +211,14 @@ const ormEntities = [
         prodRepo: ProductRepository,
         custRepo: CustomerTypeOrmRepository,
         txRepo: CustomerPointTransactionTypeOrmRepository,
-      ) => new CreateOrderUseCase(orderRepo, prodRepo, custRepo, txRepo),
+        walletRepo: CustomerWalletTypeOrmRepository,
+      ) => new CreateOrderUseCase(orderRepo, prodRepo, custRepo, txRepo, walletRepo),
       inject: [
         'IOrderRepository',
         'IProductRepository',
         'ICustomerRepository',
         'ICustomerPointTransactionRepository',
+        'ICustomerWalletRepository',
       ],
     },
     {

@@ -51,6 +51,7 @@ export class RegisterCustomerUseCase {
       email,
       passwordHash,
       0,
+      0,
       true,
       new Date(),
       new Date(),

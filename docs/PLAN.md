@@ -654,8 +654,24 @@ PHASE 12: Production Deployment & Infrastructure Setup         [COMPLETED] 🟢
   - [x] 1. Update `app/checkout/page.tsx`: Thêm khối "Dùng điểm tích lũy" (mặc định Unchecked `usePoints = false`). Khi tích chọn -> chọn số điểm muốn trừ, tính giảm giá realtime.
   - [x] 2. Tạo `web/features/customer/LoyaltyPointsCard.tsx` hiển thị số dư & bảng lịch sử điểm trong `profile/page.tsx`.
   - [x] 3. Update `OrderDetailsView.tsx` hiển thị điểm đã dùng (-X đ) & điểm nhận được khi giao hàng thành công (+Y đ).
-* **Description**: Hoàn thiện giao diện tích điểm và đổi điểm trên Web App.
-* **Dependency**: TASK-P14-01
+---
+
+### PHASE 15 — GOLD WALLET & VIETQR TOP-UP SYSTEM 🟢 [COMPLETED]
+
+#### TASK-P15-01
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Wallet & Payment Engine
+* **Feature**: GOLD Wallet, VietQR Top-up & Checkout Payment Integration
+* **Task**: Triển khai hệ thống Ví GOLD, Nạp tiền bằng VietQR động và Đặt hàng thanh toán bằng điểm GOLD
+* **Sub-tasks**:
+  - [x] 1. Thêm `goldBalance` vào Domain Entity Customer, ORM Entity & Mappers.
+  - [x] 2. Định nghĩa `GoldTransaction` domain entity, ORM entity & `ICustomerWalletRepository` lưu vết biến động tài khoản GOLD.
+  - [x] 3. Implement `GenerateTopupQrUseCase`: Tự động tạo link mã VietQR ngân hàng (`https://img.vietqr.io/image/...`) với thông tin tài khoản và cú pháp `GP NAP <SĐT>`.
+  - [x] 4. Implement `ApproveTopupUseCase`: Cho phép Admin duyệt hoặc từ chối yêu cầu nạp tiền VietQR và tự động cộng điểm GOLD vào ví khách hàng.
+  - [x] 5. Cập nhật `CreateOrderUseCase`: Hỗ trợ phương thức thanh toán `GOLD_WALLET`, kiểm tra số dư GOLD khả dụng và tự động khấu trừ điểm khi đặt hàng thành công.
+  - [x] 6. Xây dựng UI Frontend: `TopupQrModal` (Modal hiển thị mã VietQR & nút copy cú pháp), `GoldWalletCard` (Khối ví GOLD & bảng lịch sử giao dịch), `AdminWalletTopupPage` (`/admin/wallet` cho phép Admin 1-click duyệt nạp GOLD), cập nhật `Navbar` (Badge GOLD) và `PaymentMethodSelector` tại Checkout.
+* **Description**: Hiện thực hóa hoàn chỉnh tính năng Nạp tiền quy đổi GOLD qua VietQR và Thanh toán linh hoạt bằng Ví GOLD.
+* **Dependency**: TASK-P14-02
 * **Priority**: HIGH
 
 ---

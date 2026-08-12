@@ -13,6 +13,7 @@ export class CustomerMapper {
       ormEntity.email,
       ormEntity.passwordHash,
       ormEntity.loyaltyPoints || 0,
+      Number(ormEntity.goldBalance) || 0,
       ormEntity.isActive,
       new Date(ormEntity.createdAt),
       new Date(ormEntity.updatedAt),
@@ -28,6 +29,7 @@ export class CustomerMapper {
     ormEntity.email = domainEntity.email;
     ormEntity.passwordHash = domainEntity.passwordHash;
     ormEntity.loyaltyPoints = domainEntity.loyaltyPoints;
+    ormEntity.goldBalance = domainEntity.goldBalance;
     ormEntity.isActive = domainEntity.isActive;
     ormEntity.createdAt = domainEntity.createdAt;
     ormEntity.updatedAt = domainEntity.updatedAt;

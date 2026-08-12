@@ -7,6 +7,7 @@ export interface CustomerUser {
   email: string;
   phone: string;
   loyaltyPoints: number;
+  goldBalance?: number;
 }
 
 interface CustomerAuthState {

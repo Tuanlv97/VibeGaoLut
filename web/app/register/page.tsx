@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { UserPlus, User, Phone, Mail, Lock, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
@@ -9,7 +9,7 @@ import { useCustomerAuthStore, CustomerUser } from '@/stores/customer-auth-store
 
 export default function CustomerRegisterPage() {
   const router = useRouter();
-  const setAuth = useCustomerAuthStore((s) => s.setAuth);
+  const { token, customer, setAuth } = useCustomerAuthStore();
 
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -18,6 +18,12 @@ export default function CustomerRegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (token && customer && !success) {
+      router.replace('/profile');
+    }
+  }, [token, customer, success, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

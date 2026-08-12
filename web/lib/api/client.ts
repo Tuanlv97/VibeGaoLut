@@ -50,6 +50,14 @@ export async function fetchAPI<T>(
     });
 
     if (!response.ok) {
+      if (response.status === 401 && typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem('greenpantry_customer_auth');
+        } catch {
+          // Ignore storage clear error
+        }
+      }
+
       let errorMessage = `HTTP Error ${response.status}`;
       try {
         const errorData = await response.json();
@@ -57,6 +65,14 @@ export async function fetchAPI<T>(
           errorMessage = errorData.message;
         } else if (Array.isArray(errorData.message)) {
           errorMessage = errorData.message.join(', ');
+        } else if (typeof errorData.message === 'object' && errorData.message !== null) {
+          if (typeof errorData.message.message === 'string') {
+            errorMessage = errorData.message.message;
+          } else if (Array.isArray(errorData.message.message)) {
+            errorMessage = errorData.message.message.join(', ');
+          }
+        } else if (typeof errorData.error === 'string') {
+          errorMessage = errorData.error;
         }
       } catch {
         // Fallback to default errorMessage

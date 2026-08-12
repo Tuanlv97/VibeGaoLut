@@ -18,6 +18,7 @@ import {
   Home,
   CheckCircle,
   AlertCircle,
+  Coins,
 } from 'lucide-react';
 import { useCustomerAuthStore } from '@/stores/customer-auth-store';
 import {
@@ -29,11 +30,12 @@ import {
   CustomerAddressItem,
 } from '@/lib/api/hooks/useCustomer';
 import LoyaltyPointsCard from '@/features/customer/LoyaltyPointsCard';
+import { GoldWalletCard } from '@/features/customer/GoldWalletCard';
 
 export default function CustomerProfilePage() {
   const router = useRouter();
   const { token, customer, logout } = useCustomerAuthStore();
-  const [activeTab, setActiveTab] = useState<'profile' | 'addresses' | 'orders' | 'points'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'wallet' | 'addresses' | 'orders' | 'points'>('wallet');
 
   const { data: profile, isLoading: isProfileLoading, refetch: refetchProfile } = useCustomerProfile();
   const { data: orders, isLoading: isOrdersLoading } = useCustomerOrders();
@@ -170,6 +172,16 @@ export default function CustomerProfilePage() {
         {/* Tab Controls */}
         <div className="flex flex-wrap border-b border-[#E2D9CC] gap-2">
           <button
+            onClick={() => setActiveTab('wallet')}
+            className={`py-3 px-5 font-medium text-sm rounded-t-xl border-b-2 transition-colors flex items-center gap-2 ${
+              activeTab === 'wallet'
+                ? 'border-[#2D5A27] text-[#2D5A27] bg-white font-semibold shadow-sm'
+                : 'border-transparent text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Coins className="w-4 h-4 text-amber-500" /> Ví GOLD & Nạp Tiền
+          </button>
+          <button
             onClick={() => setActiveTab('profile')}
             className={`py-3 px-5 font-medium text-sm rounded-t-xl border-b-2 transition-colors flex items-center gap-2 ${
               activeTab === 'profile'
@@ -212,6 +224,8 @@ export default function CustomerProfilePage() {
         </div>
 
         {/* Tab Contents */}
+        {activeTab === 'wallet' && <GoldWalletCard />}
+
         {activeTab === 'profile' && (
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#E2D9CC] shadow-sm space-y-6">
             <h2 className="text-lg font-bold text-[#1E293B]">Thông Tin Tài Khoản</h2>
