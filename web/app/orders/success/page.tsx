@@ -11,6 +11,8 @@ function OrderSuccessContent() {
   const customerName = searchParams.get('name') || 'Nguyễn Văn An';
   const phone = searchParams.get('phone') || '0912345678';
   const totalAmount = Number(searchParams.get('total')) || 240000;
+  const paymentMethod = searchParams.get('paymentMethod') || 'COD';
+  const status = searchParams.get('status') || 'PENDING';
 
   return (
     <OrderSuccessCard
@@ -18,6 +20,8 @@ function OrderSuccessContent() {
       customerName={customerName}
       phone={phone}
       totalAmount={totalAmount}
+      paymentMethod={paymentMethod}
+      status={status}
     />
   );
 }

@@ -17,17 +17,28 @@ interface GuestAddressFormProps {
   };
   onChange: (field: string, value: string) => void;
   errors: Record<string, string>;
+  isLoggedIn?: boolean;
+  customerName?: string;
 }
 
 export const GuestAddressForm: React.FC<GuestAddressFormProps> = ({
   formData,
   onChange,
   errors,
+  isLoggedIn = false,
+  customerName,
 }) => {
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 space-y-4">
-      <h2 className="font-bold text-lg text-[#1E293B] border-b border-[#E2E8F0] pb-3">
-        1. Thông Tin Nhận Hàng (Guest Checkout)
+      <h2 className="font-bold text-lg text-[#1E293B] border-b border-[#E2E8F0] pb-3 flex items-center justify-between">
+        <span>
+          1. Thông Tin Nhận Hàng {isLoggedIn ? `(Tài Khoản: ${customerName || formData.fullName || 'Thành Viên'})` : '(Khách Vãng Lai)'}
+        </span>
+        {isLoggedIn && (
+          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+            Đã đăng nhập
+          </span>
+        )}
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -60,22 +71,13 @@ export const GuestAddressForm: React.FC<GuestAddressFormProps> = ({
         required
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
           label="Tỉnh / Thành Phố"
           placeholder="Ví dụ: Hà Nội"
           value={formData.province}
           onChange={(e) => onChange('province', e.target.value)}
           error={errors.province}
-          required
-        />
-
-        <Input
-          label="Quận / Huyện"
-          placeholder="Ví dụ: Cầu Giấy"
-          value={formData.district}
-          onChange={(e) => onChange('district', e.target.value)}
-          error={errors.district}
           required
         />
 

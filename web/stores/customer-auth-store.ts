@@ -24,10 +24,17 @@ export const useCustomerAuthStore = create<CustomerAuthState>()(
       token: null,
       customer: null,
       setAuth: (token, customer) => set({ token, customer }),
-      updateCustomer: (customer) =>
-        set((state) => ({
-          customer: state.customer ? { ...state.customer, ...customer } : null,
-        })),
+      updateCustomer: (customerData) =>
+        set((state) => {
+          if (!state.customer) return { customer: null };
+          const updated = { ...state.customer };
+          (Object.keys(customerData) as Array<keyof CustomerUser>).forEach((key) => {
+            if (customerData[key] !== undefined) {
+              (updated as any)[key] = customerData[key];
+            }
+          });
+          return { customer: updated };
+        }),
       logout: () => set({ token: null, customer: null }),
     }),
     {

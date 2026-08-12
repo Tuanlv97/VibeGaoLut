@@ -47,6 +47,17 @@ export function AdminOrderTable({
     }
   };
 
+  const getPaymentMethodBadge = (method?: string) => {
+    switch (method) {
+      case 'GOLD_WALLET':
+        return <span className="bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 rounded text-[11px] font-bold">🪙 Ví GOLD</span>;
+      case 'BANK_TRANSFER':
+        return <span className="bg-blue-100 text-blue-800 border border-blue-300 px-2 py-0.5 rounded text-[11px] font-bold">🏦 VietQR</span>;
+      default:
+        return <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded text-[11px] font-bold">💵 COD</span>;
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Filter Tabs */}
@@ -77,8 +88,8 @@ export function AdminOrderTable({
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs font-semibold uppercase tracking-wider">
                 <th className="py-3.5 px-6">Mã Đơn Hàng</th>
-                <th className="py-3.5 px-4">Khách Hàng (Guest)</th>
-                <th className="py-3.5 px-4">Tổng Tiền (COD)</th>
+                <th className="py-3.5 px-4">Khách Hàng</th>
+                <th className="py-3.5 px-4">Tổng Tiền / PTTT</th>
                 <th className="py-3.5 px-4">Trạng Thái Hiện Tại</th>
                 <th className="py-3.5 px-6 text-right">Chuyển Trạng Thái / Thao Tác</th>
               </tr>
@@ -103,8 +114,9 @@ export function AdminOrderTable({
                       <p className="font-semibold text-slate-800">{order.customerName}</p>
                       <p className="text-xs text-slate-500">{order.customerPhone} • {order.province}</p>
                     </td>
-                    <td className="py-4 px-4 font-bold text-emerald-700">
-                      {order.totalAmount?.toLocaleString('vi-VN')}đ
+                    <td className="py-4 px-4">
+                      <p className="font-bold text-emerald-700">{order.totalAmount?.toLocaleString('vi-VN')}đ</p>
+                      <div className="mt-1">{getPaymentMethodBadge(order.paymentMethod)}</div>
                     </td>
                     <td className="py-4 px-4">{getStatusBadge(order.status)}</td>
                     <td className="py-4 px-6 text-right space-x-2">

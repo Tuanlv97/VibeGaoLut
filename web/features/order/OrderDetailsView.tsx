@@ -85,7 +85,7 @@ export const OrderDetailsView: React.FC<OrderDetailsViewProps> = ({ order }) => 
             <div className="flex items-start gap-1.5 pt-1 text-[#64748B] leading-relaxed">
               <MapPin className="w-4 h-4 shrink-0 text-[#2D5A27] mt-0.5" />
               <span>
-                {order.addressDetail}, {order.ward}, {order.district}, {order.province}
+                {order.addressDetail}, {order.ward}{order.district ? `, ${order.district}` : ''}, {order.province}
               </span>
             </div>
           </div>

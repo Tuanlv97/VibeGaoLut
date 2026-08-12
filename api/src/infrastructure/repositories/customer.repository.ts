@@ -61,20 +61,30 @@ export class CustomerTypeOrmRepository implements ICustomerRepository {
   }
 
   async save(customer: Customer): Promise<Customer> {
-    if (this.typeOrmRepo) {
-      try {
-        const orm = CustomerMapper.toOrm(customer);
-        const saved = await this.typeOrmRepo.save(orm);
-        return CustomerMapper.toDomain(saved);
-      } catch {}
-    }
-
     const index = this.inMemoryCustomers.findIndex((c) => c.id === customer.id);
     if (index >= 0) {
       this.inMemoryCustomers[index] = customer;
     } else {
       this.inMemoryCustomers.push(customer);
     }
+
+    if (this.typeOrmRepo) {
+      try {
+        await this.typeOrmRepo.update(
+          { id: customer.id },
+          {
+            goldBalance: customer.goldBalance,
+            loyaltyPoints: customer.loyaltyPoints,
+          },
+        );
+        const orm = CustomerMapper.toOrm(customer);
+        const saved = await this.typeOrmRepo.save(orm);
+        return CustomerMapper.toDomain(saved);
+      } catch (err) {
+        console.error('Error saving customer in TypeORM:', err);
+      }
+    }
+
     return customer;
   }
 

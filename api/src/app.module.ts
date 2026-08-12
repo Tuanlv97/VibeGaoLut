@@ -291,11 +291,13 @@ const ormEntities = [
         orderRepo: OrderRepository,
         custRepo: CustomerTypeOrmRepository,
         txRepo: CustomerPointTransactionTypeOrmRepository,
-      ) => new UpdateOrderStatusUseCase(orderRepo, custRepo, txRepo),
+        walletRepo: CustomerWalletTypeOrmRepository,
+      ) => new UpdateOrderStatusUseCase(orderRepo, custRepo, txRepo, walletRepo),
       inject: [
         'IOrderRepository',
         'ICustomerRepository',
         'ICustomerPointTransactionRepository',
+        'ICustomerWalletRepository',
       ],
     },
     {

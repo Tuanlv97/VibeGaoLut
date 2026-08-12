@@ -49,7 +49,7 @@ export default function CustomerRegisterPage() {
       setAuth(res.accessToken, res.customer);
       setSuccess(true);
       setTimeout(() => {
-        router.push('/profile');
+        router.push('/profile?tab=addresses&add=1');
       }, 1000);
     } catch (err: any) {
       setError(err.message || 'Đăng ký không thành công. Vui lòng kiểm tra lại.');

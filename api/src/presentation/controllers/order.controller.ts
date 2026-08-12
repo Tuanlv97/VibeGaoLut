@@ -16,7 +16,7 @@ export class OrderController {
   ) {}
 
   @Post()
-  @Throttle({ default: { limit: 5, ttl: 60000 } }) // Max 5 checkout requests per minute
+  @Throttle({ default: { limit: 30, ttl: 60000 } }) // Max 30 checkout requests per minute
   @ApiOperation({ summary: 'Guest Checkout tạo đơn hàng mới' })
   @ApiResponse({ status: 201, description: 'Đơn hàng tạo thành công (Tính toán lại giá 100% từ backend)' })
   @ApiResponse({ status: 400, description: 'Lỗi validate dữ liệu hoặc hết tồn kho' })

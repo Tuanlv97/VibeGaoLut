@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { Award, Check, MapPin } from 'lucide-react';
+import { Award, Check, MapPin, AlertCircle } from 'lucide-react';
 import { useCartStore } from '@/stores/cart-store';
 import { useCustomerAuthStore } from '@/stores/customer-auth-store';
 import { useCustomerProfile, CustomerAddressItem } from '@/lib/api/hooks/useCustomer';
@@ -48,26 +48,27 @@ export default function CheckoutPage() {
 
   const createOrderMutation = useCreateOrder();
 
-  // Auto-fill from customer profile or default address
+  // Auto-fill from customer profile, customer auth store, or default address
   useEffect(() => {
-    if (profile) {
-      const defaultAddr = profile.addresses.find((a) => a.isDefault) || profile.addresses[0];
+    const userObj = profile || customer;
+    if (userObj) {
+      const defaultAddr = profile?.addresses?.find((a) => a.isDefault) || profile?.addresses?.[0];
       setFormData((prev) => ({
         ...prev,
-        fullName: prev.fullName || defaultAddr?.recipientName || profile.fullName || '',
-        phone: prev.phone || defaultAddr?.phone || profile.phone || '',
-        email: prev.email || profile.email || '',
-        province: defaultAddr?.province || prev.province,
-        district: defaultAddr?.district || prev.district,
-        ward: defaultAddr?.ward || prev.ward,
-        addressDetail: defaultAddr?.addressDetail || prev.addressDetail,
+        fullName: prev.fullName || defaultAddr?.recipientName || userObj.fullName || '',
+        phone: prev.phone || defaultAddr?.phone || userObj.phone || '',
+        email: prev.email || userObj.email || '',
+        province: defaultAddr?.province || prev.province || 'Hà Nội',
+        district: defaultAddr?.district || prev.district || 'Cầu Giấy',
+        ward: defaultAddr?.ward || prev.ward || 'Dịch Vọng',
+        addressDetail: defaultAddr?.addressDetail || prev.addressDetail || '',
       }));
 
       if (defaultAddr) {
         setSelectedAddressId(defaultAddr.id);
       }
     }
-  }, [profile]);
+  }, [profile, customer]);
 
   if (items.length === 0) {
     return (
@@ -160,20 +161,39 @@ export default function CheckoutPage() {
       if (paymentMethod === 'GOLD_WALLET') {
         const goldPaid = Math.ceil(total / 1000);
         if (customer?.goldBalance !== undefined) {
-          updateCustomer({ goldBalance: Math.max(0, customer.goldBalance - goldPaid) });
+          const newBalance = Math.max(0, customer.goldBalance - goldPaid);
+          updateCustomer({ goldBalance: newBalance });
+          queryClient.setQueryData(['customer-profile', token], (old: any) =>
+            old ? { ...old, goldBalance: newBalance } : old
+          );
         }
       }
 
       queryClient.invalidateQueries({ queryKey: ['customer-profile'] });
       queryClient.invalidateQueries({ queryKey: ['customer-wallet'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-orders'] });
+
+      const finalPaymentMethod = result.paymentMethod || paymentMethod;
+      const finalStatus = result.status || (paymentMethod === 'GOLD_WALLET' ? 'PROCESSING' : 'PENDING');
 
       router.push(
         `/orders/success?orderNumber=${orderNum}&name=${encodeURIComponent(
           formData.fullName
-        )}&phone=${encodeURIComponent(formData.phone)}&total=${total}`
+        )}&phone=${encodeURIComponent(formData.phone)}&total=${total}&paymentMethod=${encodeURIComponent(
+          finalPaymentMethod
+        )}&status=${encodeURIComponent(finalStatus)}`
       );
     } catch (err: any) {
-      // Fallback if API server is offline
+      setIsSubmitting(false);
+      const errorMessage = err?.message || 'Đặt hàng không thành công. Vui lòng thử lại.';
+
+      // If backend API returned a specific validation or balance error, show it to the user
+      if (errorMessage && !errorMessage.includes('Failed to fetch') && !errorMessage.includes('NetworkError')) {
+        setErrors((prev) => ({ ...prev, submit: errorMessage }));
+        return;
+      }
+
+      // Fallback only if API server is completely offline
       const generatedOrderNumber = `GP-${Math.floor(100000 + Math.random() * 900000)}`;
 
       const fallbackOrder = {
@@ -189,8 +209,8 @@ export default function CheckoutPage() {
         subtotal,
         shippingFee,
         totalAmount: calculatedGrandTotal,
-        paymentMethod: 'COD',
-        status: 'PENDING',
+        paymentMethod,
+        status: paymentMethod === 'GOLD_WALLET' ? 'PROCESSING' : 'PENDING',
         createdAt: new Date().toISOString(),
         items: items.map((i) => ({
           id: i.id,
@@ -206,14 +226,22 @@ export default function CheckoutPage() {
         pointsDiscountAmount,
       };
 
+      if (paymentMethod === 'GOLD_WALLET') {
+        const goldPaid = Math.ceil(calculatedGrandTotal / 1000);
+        if (customer?.goldBalance !== undefined) {
+          updateCustomer({ goldBalance: Math.max(0, customer.goldBalance - goldPaid) });
+        }
+      }
+
       saveLocalOrder(fallbackOrder);
       clearCart();
-      setIsSubmitting(false);
 
       router.push(
         `/orders/success?orderNumber=${generatedOrderNumber}&name=${encodeURIComponent(
           formData.fullName
-        )}&phone=${encodeURIComponent(formData.phone)}&total=${calculatedGrandTotal}`
+        )}&phone=${encodeURIComponent(formData.phone)}&total=${calculatedGrandTotal}&paymentMethod=${encodeURIComponent(
+          paymentMethod
+        )}&status=${encodeURIComponent(paymentMethod === 'GOLD_WALLET' ? 'PROCESSING' : 'PENDING')}`
       );
     }
   };
@@ -231,6 +259,13 @@ export default function CheckoutPage() {
       <h1 className="text-3xl font-bold font-display text-[#1E293B]">
         {token ? 'Thanh Toán Đơn Hàng' : 'Guest Checkout Thanh Toán COD'}
       </h1>
+
+      {errors.submit && (
+        <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 font-medium text-sm flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
+          <span>{errors.submit}</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-2 space-y-6">
@@ -257,7 +292,7 @@ export default function CheckoutPage() {
                       {selectedAddressId === addr.id && <Check className="w-4 h-4 text-[#2D5A27]" />}
                     </div>
                     <div className="text-slate-600 line-clamp-2">
-                      {addr.addressDetail}, {addr.ward}, {addr.district}, {addr.province}
+                      {addr.addressDetail}, {addr.ward}{addr.district ? `, ${addr.district}` : ''}, {addr.province}
                     </div>
                   </button>
                 ))}
@@ -269,6 +304,8 @@ export default function CheckoutPage() {
             formData={formData}
             onChange={handleChange}
             errors={errors}
+            isLoggedIn={Boolean(token)}
+            customerName={profile?.fullName || customer?.fullName}
           />
 
           {/* Loyalty Points Opt-In Block for Logged-in Customer */}

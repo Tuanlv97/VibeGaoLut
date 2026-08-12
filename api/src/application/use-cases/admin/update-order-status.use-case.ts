@@ -12,6 +12,7 @@ export class UpdateOrderStatusUseCase {
     private readonly orderRepository: IOrderRepository,
     private readonly customerRepository?: ICustomerRepository,
     private readonly transactionRepository?: ICustomerPointTransactionRepository,
+    private readonly walletRepository?: any,
   ) {}
 
   async execute(orderId: string, newStatus: OrderStatus): Promise<Order> {
@@ -52,26 +53,49 @@ export class UpdateOrderStatusUseCase {
       }
     }
 
-    // Handle point refunding when order is CANCELLED
-    if (newStatus === OrderStatus.CANCELLED && oldStatus !== OrderStatus.CANCELLED && order.customerId && order.pointsUsed > 0 && this.customerRepository) {
+    // Handle point refunding & GOLD refunding when order is CANCELLED
+    if (newStatus === OrderStatus.CANCELLED && oldStatus !== OrderStatus.CANCELLED && order.customerId && this.customerRepository) {
       const customer = await this.customerRepository.findById(order.customerId);
       if (customer) {
-        customer.loyaltyPoints += order.pointsUsed;
-        await this.customerRepository.save(customer);
-
-        if (this.transactionRepository) {
-          const tx = new CustomerPointTransaction(
-            randomUUID(),
-            customer.id,
-            order.id,
-            PointTransactionType.REFUNDED,
-            order.pointsUsed,
-            customer.loyaltyPoints,
-            `Hoàn +${order.pointsUsed} điểm từ đơn hàng bị hủy ${order.orderNumber}`,
-            new Date(),
-          );
-          await this.transactionRepository.save(tx);
+        // 1. Refund loyalty points
+        if (order.pointsUsed > 0) {
+          customer.loyaltyPoints += order.pointsUsed;
+          if (this.transactionRepository) {
+            const tx = new CustomerPointTransaction(
+              randomUUID(),
+              customer.id,
+              order.id,
+              PointTransactionType.REFUNDED,
+              order.pointsUsed,
+              customer.loyaltyPoints,
+              `Hoàn +${order.pointsUsed} điểm từ đơn hàng bị hủy ${order.orderNumber}`,
+              new Date(),
+            );
+            await this.transactionRepository.save(tx);
+          }
         }
+
+        // 2. Refund GOLD if order was paid with GOLD_WALLET
+        if (order.paymentMethod === 'GOLD_WALLET') {
+          const goldToRefund = Math.ceil(order.totalAmount / 1000);
+          customer.goldBalance += goldToRefund;
+
+          if (this.walletRepository) {
+            await this.walletRepository.saveTransaction({
+              id: randomUUID(),
+              customerId: customer.id,
+              type: 'REFUND',
+              amountVnd: order.totalAmount,
+              goldAmount: goldToRefund,
+              balanceAfter: customer.goldBalance,
+              description: `Hoàn +${goldToRefund} GOLD từ đơn hàng bị hủy ${order.orderNumber}`,
+              status: 'SUCCESS',
+              createdAt: new Date(),
+            });
+          }
+        }
+
+        await this.customerRepository.save(customer);
       }
     }
 

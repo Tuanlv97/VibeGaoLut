@@ -28,7 +28,7 @@ export function OrderDetailsModal({
             <p><span className="font-semibold">Thanh toán:</span> {order.paymentMethod || 'COD'}</p>
           </div>
           <p className="text-xs text-slate-600 pt-1 border-t border-slate-200">
-            <span className="font-semibold">Địa chỉ giao hàng:</span> {order.addressDetail}, {order.ward}, {order.district}, {order.province}
+            <span className="font-semibold">Địa chỉ giao hàng:</span> {order.addressDetail}, {order.ward}{order.district ? `, ${order.district}` : ''}, {order.province}
           </p>
         </div>
 

@@ -89,6 +89,7 @@ export class RegisterCustomerUseCase {
         email: saved.email,
         phone: saved.phone,
         loyaltyPoints: saved.loyaltyPoints,
+        goldBalance: saved.goldBalance || 0,
       },
     };
   }

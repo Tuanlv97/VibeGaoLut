@@ -7,7 +7,7 @@ export interface CreateAddressDto {
   recipientName: string;
   phone: string;
   province: string;
-  district: string;
+  district?: string;
   ward: string;
   addressDetail: string;
   isDefault?: boolean;
@@ -23,7 +23,7 @@ export class ManageCustomerAddressesUseCase {
   ) {}
 
   async create(customerId: string, dto: CreateAddressDto): Promise<CustomerAddress> {
-    if (!dto.recipientName || !dto.phone || !dto.province || !dto.district || !dto.ward || !dto.addressDetail) {
+    if (!dto.recipientName || !dto.phone || !dto.province || !dto.ward || !dto.addressDetail) {
       throw new BadRequestException('Vui lòng điền đầy đủ thông tin địa chỉ giao hàng.');
     }
 
@@ -41,7 +41,7 @@ export class ManageCustomerAddressesUseCase {
       dto.recipientName.trim(),
       dto.phone.trim(),
       dto.province.trim(),
-      dto.district.trim(),
+      dto.district ? dto.district.trim() : '',
       dto.ward.trim(),
       dto.addressDetail.trim(),
       shouldBeDefault,

@@ -670,6 +670,8 @@ PHASE 12: Production Deployment & Infrastructure Setup         [COMPLETED] 🟢
   - [x] 4. Implement `ApproveTopupUseCase`: Cho phép Admin duyệt hoặc từ chối yêu cầu nạp tiền VietQR và tự động cộng điểm GOLD vào ví khách hàng.
   - [x] 5. Cập nhật `CreateOrderUseCase`: Hỗ trợ phương thức thanh toán `GOLD_WALLET`, kiểm tra số dư GOLD khả dụng và tự động khấu trừ điểm khi đặt hàng thành công.
   - [x] 6. Xây dựng UI Frontend: `TopupQrModal` (Modal hiển thị mã VietQR & nút copy cú pháp), `GoldWalletCard` (Khối ví GOLD & bảng lịch sử giao dịch), `AdminWalletTopupPage` (`/admin/wallet` cho phép Admin 1-click duyệt nạp GOLD), cập nhật `Navbar` (Badge GOLD) và `PaymentMethodSelector` tại Checkout.
+  - [x] 7. Sửa lỗi sync số dư GOLD: Bổ sung goldBalance vào GetCustomerProfileUseCase/Login/Register và bảo vệ Zustand auth store không bị ghi đè bởi undefined.
+  - [x] 8. Fix GOLD payment & Order linking: Thêm paymentMethod vào CreateOrderDto (tránh bị NestJS ValidationPipe tước bỏ), auto-link customerId theo sĐT/email, gộp đơn hàng theo sĐT trong profile, tự động hoàn GOLD khi Admin Hủy đơn hàng và cập nhật UI bảng Admin.
 * **Description**: Hiện thực hóa hoàn chỉnh tính năng Nạp tiền quy đổi GOLD qua VietQR và Thanh toán linh hoạt bằng Ví GOLD.
 * **Dependency**: TASK-P14-02
 * **Priority**: HIGH

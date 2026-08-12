@@ -6,6 +6,7 @@ import { ICustomerPointTransactionRepository } from '@domain/repositories/custom
 import { Order, OrderItem } from '@domain/entities/order.entity';
 import { OrderStatus } from '@domain/enums/order-status.enum';
 import { LoyaltyPointCalculator } from '@domain/services/loyalty-point.calculator';
+import { Customer } from '@domain/entities/customer.entity';
 import { CustomerPointTransaction, PointTransactionType } from '@domain/entities/customer-point-transaction.entity';
 
 export interface CreateOrderItemInput {
@@ -18,7 +19,7 @@ export interface CreateOrderInput {
   customerPhone: string;
   customerEmail: string;
   province: string;
-  district: string;
+  district?: string;
   ward: string;
   addressDetail: string;
   items: CreateOrderItemInput[];
@@ -88,43 +89,54 @@ export class CreateOrderUseCase {
 
     let pointsUsed = 0;
     let pointsDiscountAmount = 0;
-    let customerId = input.customerId || null;
+    let customer: Customer | null = null;
+
+    if (this.customerRepository) {
+      if (input.customerId) {
+        customer = await this.customerRepository.findById(input.customerId);
+      }
+      if (!customer && input.customerPhone) {
+        customer = await this.customerRepository.findByPhone(input.customerPhone);
+      }
+      if (!customer && input.customerEmail) {
+        customer = await this.customerRepository.findByEmail(input.customerEmail);
+      }
+    }
+
+    const customerId = customer?.id || input.customerId || null;
 
     // Loyalty Points Redemption (OPT-IN only: usePoints must be true and pointsToUse > 0)
-    if (input.usePoints && input.pointsToUse && input.pointsToUse > 0 && customerId && this.customerRepository) {
-      const customer = await this.customerRepository.findById(customerId);
-      if (customer) {
-        const validation = LoyaltyPointCalculator.validateRedemption(
-          input.pointsToUse,
-          customer.loyaltyPoints,
-          subtotal,
+    if (input.usePoints && input.pointsToUse && input.pointsToUse > 0 && customer && this.customerRepository) {
+      const validation = LoyaltyPointCalculator.validateRedemption(
+        input.pointsToUse,
+        customer.loyaltyPoints,
+        subtotal,
+      );
+      if (!validation.isValid) {
+        throw new Error(validation.message || 'Không thể đổi điểm tích lũy.');
+      }
+
+      pointsUsed = input.pointsToUse;
+      pointsDiscountAmount = LoyaltyPointCalculator.calculatePointsDiscountAmount(pointsUsed);
+
+      // Deduct points from customer balance
+      const newBalance = customer.loyaltyPoints - pointsUsed;
+      customer.loyaltyPoints = newBalance;
+      await this.customerRepository.save(customer);
+
+      // Record point transaction ledger
+      if (this.transactionRepository) {
+        const transaction = new CustomerPointTransaction(
+          randomUUID(),
+          customer.id,
+          orderId,
+          PointTransactionType.REDEEMED,
+          -pointsUsed,
+          newBalance,
+          `Dùng ${pointsUsed} điểm giảm giá ${pointsDiscountAmount.toLocaleString('vi-VN')}đ cho đơn hàng ${orderNumber}`,
+          new Date(),
         );
-        if (!validation.isValid) {
-          throw new Error(validation.message || 'Không thể đổi điểm tích lũy.');
-        }
-
-        pointsUsed = input.pointsToUse;
-        pointsDiscountAmount = LoyaltyPointCalculator.calculatePointsDiscountAmount(pointsUsed);
-
-        // Deduct points from customer balance
-        const newBalance = customer.loyaltyPoints - pointsUsed;
-        customer.loyaltyPoints = newBalance;
-        await this.customerRepository.save(customer);
-
-        // Record point transaction ledger
-        if (this.transactionRepository) {
-          const transaction = new CustomerPointTransaction(
-            randomUUID(),
-            customer.id,
-            orderId,
-            PointTransactionType.REDEEMED,
-            -pointsUsed,
-            newBalance,
-            `Dùng ${pointsUsed} điểm giảm giá ${pointsDiscountAmount.toLocaleString('vi-VN')}đ cho đơn hàng ${orderNumber}`,
-            new Date(),
-          );
-          await this.transactionRepository.save(transaction);
-        }
+        await this.transactionRepository.save(transaction);
       }
     }
 
@@ -134,12 +146,8 @@ export class CreateOrderUseCase {
 
     // Handle GOLD_WALLET Payment
     if (paymentMethod === 'GOLD_WALLET') {
-      if (!customerId || !this.customerRepository) {
+      if (!customer || !this.customerRepository) {
         throw new Error('Vui lòng đăng nhập để sử dụng thanh toán bằng Ví GOLD.');
-      }
-      const customer = await this.customerRepository.findById(customerId);
-      if (!customer) {
-        throw new Error('Không tìm thấy tài khoản khách hàng.');
       }
 
       const goldRequired = Math.ceil(totalAmount / 1000); // 1 GOLD = 1.000 VNĐ
@@ -174,7 +182,7 @@ export class CreateOrderUseCase {
       input.customerPhone,
       input.customerEmail,
       input.province,
-      input.district,
+      input.district || '',
       input.ward,
       input.addressDetail,
       subtotal,

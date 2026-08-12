@@ -54,6 +54,7 @@ export class LoginCustomerUseCase {
         email: customer.email,
         phone: customer.phone,
         loyaltyPoints: customer.loyaltyPoints,
+        goldBalance: customer.goldBalance || 0,
       },
     };
   }

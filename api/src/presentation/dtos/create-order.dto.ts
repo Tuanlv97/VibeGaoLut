@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsEmail, Matches, IsArray, ValidateNested, ArrayMinSize, IsInt, Min } from 'class-validator';
+import { IsNotEmpty, IsString, IsEmail, Matches, IsArray, ValidateNested, ArrayMinSize, IsInt, Min, IsOptional, IsBoolean, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateOrderItemDto {
@@ -36,10 +36,10 @@ export class CreateOrderDto {
   @IsString()
   province: string;
 
-  @ApiProperty({ example: 'Cầu Giấy', description: 'District' })
-  @IsNotEmpty()
+  @ApiProperty({ example: 'Cầu Giấy', required: false, description: 'District (Optional)' })
+  @IsOptional()
   @IsString()
-  district: string;
+  district?: string;
 
   @ApiProperty({ example: 'Dịch Vọng', description: 'Ward' })
   @IsNotEmpty()
@@ -58,12 +58,23 @@ export class CreateOrderDto {
   @Type(() => CreateOrderItemDto)
   items: CreateOrderItemDto[];
 
+  @ApiProperty({ required: false, description: 'Payment method (COD, GOLD_WALLET, BANK_TRANSFER)' })
+  @IsOptional()
+  @IsString()
+  paymentMethod?: string;
+
   @ApiProperty({ required: false, description: 'Customer UUID if logged in' })
+  @IsOptional()
+  @IsString()
   customerId?: string;
 
   @ApiProperty({ required: false, description: 'Whether customer explicitly opted to redeem points' })
+  @IsOptional()
+  @IsBoolean()
   usePoints?: boolean;
 
   @ApiProperty({ required: false, description: 'Amount of points to redeem' })
+  @IsOptional()
+  @IsNumber()
   pointsToUse?: number;
 }

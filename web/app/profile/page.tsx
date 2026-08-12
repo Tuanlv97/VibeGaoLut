@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   User,
   MapPin,
@@ -32,8 +32,12 @@ import {
 import LoyaltyPointsCard from '@/features/customer/LoyaltyPointsCard';
 import { GoldWalletCard } from '@/features/customer/GoldWalletCard';
 
-export default function CustomerProfilePage() {
+function CustomerProfileContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const addParam = searchParams.get('add');
+
   const { token, customer, logout } = useCustomerAuthStore();
   const [activeTab, setActiveTab] = useState<'profile' | 'wallet' | 'addresses' | 'orders' | 'points'>('wallet');
 
@@ -62,6 +66,15 @@ export default function CustomerProfilePage() {
       router.push('/login');
     }
   }, [token, router]);
+
+  useEffect(() => {
+    if (tabParam === 'addresses' || tabParam === 'profile' || tabParam === 'wallet' || tabParam === 'orders' || tabParam === 'points') {
+      setActiveTab(tabParam);
+    }
+    if (addParam === '1') {
+      handleOpenAddAddress();
+    }
+  }, [tabParam, addParam]);
 
   if (!token || isProfileLoading) {
     return (
@@ -295,7 +308,7 @@ export default function CustomerProfilePage() {
                     </div>
 
                     <div className="text-slate-700 text-sm">
-                      {addr.addressDetail}, {addr.ward}, {addr.district}, {addr.province}
+                      {addr.addressDetail}, {addr.ward}{addr.district ? `, ${addr.district}` : ''}, {addr.province}
                     </div>
 
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
@@ -384,7 +397,7 @@ export default function CustomerProfilePage() {
 
                     <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-sm gap-2">
                       <div className="text-xs text-slate-500 space-y-0.5">
-                        <div>Địa chỉ: {ord.addressDetail}, {ord.ward}, {ord.district}, {ord.province}</div>
+                        <div>Địa chỉ: {ord.addressDetail}, {ord.ward}{ord.district ? `, ${ord.district}` : ''}, {ord.province}</div>
                         {ord.pointsUsed > 0 && (
                           <div className="text-amber-600 font-medium">
                             Đã dùng {ord.pointsUsed} điểm (-{ord.pointsDiscountAmount?.toLocaleString('vi-VN')}đ)
@@ -445,9 +458,9 @@ export default function CustomerProfilePage() {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">Tỉnh/Thành</label>
+                  <label className="block font-medium text-slate-700 mb-1">Tỉnh / Thành Phố</label>
                   <input
                     type="text"
                     required
@@ -457,17 +470,7 @@ export default function CustomerProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">Quận/Huyện</label>
-                  <input
-                    type="text"
-                    required
-                    value={addressForm.district}
-                    onChange={(e) => setAddressForm({ ...addressForm, district: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2D5A27]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium text-slate-700 mb-1">Phường/Xã</label>
+                  <label className="block font-medium text-slate-700 mb-1">Phường / Xã</label>
                   <input
                     type="text"
                     required
@@ -519,5 +522,19 @@ export default function CustomerProfilePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CustomerProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[70vh] flex items-center justify-center bg-[#F9F6F0]">
+          <div className="text-center text-slate-500">Đang tải thông tin cá nhân...</div>
+        </div>
+      }
+    >
+      <CustomerProfileContent />
+    </Suspense>
   );
 }

@@ -64,10 +64,49 @@ export function useCustomerProfile() {
 
 export function useCustomerOrders() {
   const token = useCustomerAuthStore((s) => s.token);
+  const customer = useCustomerAuthStore((s) => s.customer);
 
   return useQuery<any[]>({
-    queryKey: ['customer-orders', token],
-    queryFn: () => fetchAPI<any[]>('/customer/orders'),
+    queryKey: ['customer-orders', token, customer?.phone, customer?.email],
+    queryFn: async () => {
+      let remoteOrders: any[] = [];
+      try {
+        remoteOrders = await fetchAPI<any[]>('/customer/orders');
+      } catch {}
+
+      let localOrders: any[] = [];
+      if (typeof window !== 'undefined') {
+        try {
+          const raw = localStorage.getItem('greenpantry_local_orders');
+          if (raw) localOrders = JSON.parse(raw);
+        } catch {}
+      }
+
+      const orderMap = new Map<string, any>();
+      (remoteOrders || []).forEach((o) => {
+        if (o) orderMap.set(o.orderNumber || o.id, o);
+      });
+
+      localOrders.forEach((loc) => {
+        if (loc) {
+          const isMatch =
+            (customer?.id && loc.customerId === customer.id) ||
+            (customer?.phone && loc.customerPhone?.trim() === customer.phone.trim()) ||
+            (customer?.email && loc.customerEmail?.trim().toLowerCase() === customer.email.trim().toLowerCase());
+          
+          if (isMatch) {
+            const key = loc.orderNumber || loc.id;
+            if (!orderMap.has(key)) {
+              orderMap.set(key, loc);
+            }
+          }
+        }
+      });
+
+      return Array.from(orderMap.values()).sort(
+        (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
+      );
+    },
     enabled: !!token,
   });
 }

@@ -11,6 +11,8 @@ interface OrderSuccessCardProps {
   customerName: string;
   phone: string;
   totalAmount: number;
+  paymentMethod?: string;
+  status?: string;
 }
 
 export const OrderSuccessCard: React.FC<OrderSuccessCardProps> = ({
@@ -18,6 +20,8 @@ export const OrderSuccessCard: React.FC<OrderSuccessCardProps> = ({
   customerName,
   phone,
   totalAmount,
+  paymentMethod = 'COD',
+  status = 'PENDING',
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -25,6 +29,32 @@ export const OrderSuccessCard: React.FC<OrderSuccessCardProps> = ({
     navigator.clipboard.writeText(orderNumber);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const renderPaymentMethodLabel = () => {
+    switch (paymentMethod) {
+      case 'GOLD_WALLET':
+        return <strong className="text-amber-800 font-bold bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-lg flex items-center gap-1 text-xs">🪙 Thanh toán bằng Ví GOLD</strong>;
+      case 'BANK_TRANSFER':
+        return <strong className="text-blue-800 font-bold bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-lg flex items-center gap-1 text-xs">🏦 Chuyển khoản VietQR</strong>;
+      default:
+        return <strong className="text-[#166534] font-medium text-xs">💵 COD (Thanh toán khi nhận hàng)</strong>;
+    }
+  };
+
+  const renderStatusBadge = () => {
+    switch (status) {
+      case 'PROCESSING':
+        return <Badge variant="success">🟣 ĐÃ XÁC NHẬN - ĐANG ĐÓNG GÓI</Badge>;
+      case 'CONFIRMED':
+        return <Badge variant="sage">🔵 ĐÃ XÁC NHẬN</Badge>;
+      case 'SHIPPED':
+        return <Badge variant="sage">🚚 ĐANG GIAO HÀNG</Badge>;
+      case 'DELIVERED':
+        return <Badge variant="success">🟢 ĐÃ GIAO THÀNH CÔNG</Badge>;
+      default:
+        return <Badge variant="warning">🟡 ĐÃ TIẾP NHẬN (PENDING)</Badge>;
+    }
   };
 
   return (
@@ -72,11 +102,11 @@ export const OrderSuccessCard: React.FC<OrderSuccessCardProps> = ({
           </div>
           <div className="flex justify-between items-center gap-2">
             <span>Hình thức thanh toán:</span>
-            <strong className="text-[#166534] font-medium">COD (Thanh toán khi nhận hàng)</strong>
+            {renderPaymentMethodLabel()}
           </div>
           <div className="flex justify-between items-center gap-2">
             <span>Trạng thái ban đầu:</span>
-            <Badge variant="warning">ĐÃ TIẾP NHẬN (PENDING)</Badge>
+            {renderStatusBadge()}
           </div>
           <div className="border-t border-[#E2E8F0] pt-2 mt-1 flex justify-between items-center gap-2">
             <span className="font-semibold text-[#1E293B]">Tổng số tiền:</span>

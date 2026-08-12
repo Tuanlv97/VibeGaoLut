@@ -25,6 +25,7 @@ export class GetCustomerProfileUseCase {
       phone: customer.phone,
       email: customer.email,
       loyaltyPoints: customer.loyaltyPoints,
+      goldBalance: customer.goldBalance || 0,
       isActive: customer.isActive,
       createdAt: customer.createdAt,
       addresses: addresses.map((a) => ({
