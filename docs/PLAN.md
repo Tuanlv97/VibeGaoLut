@@ -1446,6 +1446,7 @@ PHASE 12: Production Deployment & Infrastructure Setup         [COMPLETED] 🟢
 * `AdminProductTable.tsx` (`Client Component`): Bảng dữ liệu quản lý sản phẩm với thao tác Sửa, Xóa và bật/tắt cờ Sản Phẩm Mới.
 * `ProductForm.tsx` (`Client Component`): Form nhập thông tin sản phẩm (Tên, giá, tồn kho, thành phần, ảnh, cờ New Arrival).
 * `AdminOrderTable.tsx` (`Client Component`): Bảng dữ liệu quản lý đơn hàng với dropdown chuyển trạng thái nhanh (`PENDING` -> `DELIVERED`).
+* `InventoryManagement.tsx` (`Client Component`): Giao diện quản lý kho hàng, theo dõi báo cáo tồn kho thực tế, cảnh báo sắp hết hàng và lập phiếu nhập kho bổ sung.
 
 ---
 
@@ -1463,6 +1464,7 @@ PHASE 12: Production Deployment & Infrastructure Setup         [COMPLETED] 🟢
 | `web/app/orders/track/page.tsx` | Client Component (`'use client'`) | Nhập thông tin tra cứu động và hiển thị kết quả từ API Query. |
 | `web/app/admin/page.tsx` | Client Component (`'use client'`) | Dashboard Admin tương tác dữ liệu biến đổi từ REST APIs. |
 | `web/app/admin/products/page.tsx` | Client Component (`'use client'`) | Phục vụ các thao tác CRUD sản phẩm trực tiếp. |
+| `web/app/admin/inventory/page.tsx` | Client Component (`'use client'`) | Quản lý kho hàng, nhập kho bổ sung và xem nhật ký biến động kho. |
 | `web/app/admin/orders/page.tsx` | Client Component (`'use client'`) | Duyệt và chuyển trạng thái đơn hàng realtime. |
 | `web/app/admin/blog/page.tsx` | Client Component (`'use client'`) | Quản lý bài viết blog và đính kèm sản phẩm. |
 | `web/app/admin/questions/page.tsx` | Client Component (`'use client'`) | Duyệt và nhập câu trả lời Q&A từ cộng đồng. |

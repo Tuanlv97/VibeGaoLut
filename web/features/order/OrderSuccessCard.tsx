@@ -114,6 +114,20 @@ export const OrderSuccessCard: React.FC<OrderSuccessCardProps> = ({
               {new Intl.NumberFormat('vi-VN').format(totalAmount)}đ
             </strong>
           </div>
+
+          {totalAmount >= 10000 && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-900 mt-2 flex items-center justify-between">
+              <span className="font-medium">🎁 Điểm thưởng dự kiến:</span>
+              <span className="font-bold text-emerald-700">
+                +{Math.floor(totalAmount / 10000)} điểm{' '}
+                {Math.floor(Math.floor(totalAmount / 10000) / 10) > 0 && (
+                  <span className="text-amber-700">
+                    (+{Math.floor(Math.floor(totalAmount / 10000) / 10)} GOLD)
+                  </span>
+                )}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

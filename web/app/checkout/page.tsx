@@ -12,6 +12,8 @@ import { GuestAddressForm } from '@/features/checkout/GuestAddressForm';
 import { PaymentMethodSelector } from '@/features/checkout/PaymentMethodSelector';
 import { OrderSummaryWidget } from '@/features/checkout/OrderSummaryWidget';
 import { useCreateOrder, saveLocalOrder } from '@/lib/api/hooks';
+import { deductMockStock } from '@/lib/mock-data';
+
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -41,6 +43,10 @@ export default function CheckoutPage() {
   // Loyalty Points Opt-In State (DEFAULT IS UNCHECKED / FALSE)
   const [usePoints, setUsePoints] = useState<boolean>(false);
   const [pointsToUse, setPointsToUse] = useState<number>(0);
+
+  // GOLD Balance Opt-In State (DEFAULT IS UNCHECKED / FALSE)
+  const [useGold, setUseGold] = useState<boolean>(false);
+  const [goldToUse, setGoldToUse] = useState<number>(0);
 
   const [paymentMethod, setPaymentMethod] = useState<string>('COD');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -118,16 +124,21 @@ export default function CheckoutPage() {
   };
 
   const availablePoints = profile?.loyaltyPoints || customer?.loyaltyPoints || 0;
+  const availableGold = profile?.goldBalance !== undefined ? profile.goldBalance : (customer?.goldBalance || 0);
+
   const subtotal = getSubtotal();
   const maxRedeemablePoints = Math.min(availablePoints, Math.floor(subtotal / 1000) * 10);
+  const maxRedeemableGold = Math.min(availableGold, Math.floor(subtotal / 1000));
+
   const pointsDiscountAmount = usePoints && pointsToUse > 0 ? pointsToUse * 100 : 0;
+  const goldDiscountAmount = useGold && goldToUse > 0 ? goldToUse * 1000 : 0;
 
   const handleConfirmOrder = async () => {
     if (!validate()) return;
 
     setIsSubmitting(true);
     const shippingFee = getShippingFee();
-    const calculatedGrandTotal = Math.max(0, subtotal + shippingFee - pointsDiscountAmount);
+    const calculatedGrandTotal = Math.max(0, subtotal + shippingFee - pointsDiscountAmount - goldDiscountAmount);
 
     try {
       const orderPayload: any = {
@@ -149,9 +160,18 @@ export default function CheckoutPage() {
         orderPayload.customerId = profile?.id || customer?.id;
         orderPayload.usePoints = usePoints;
         orderPayload.pointsToUse = usePoints ? pointsToUse : 0;
+        orderPayload.goldToUse = useGold ? goldToUse : 0;
       }
 
       const result = await createOrderMutation.mutateAsync(orderPayload);
+      
+      // Deduct stock in mock data and invalidate product queries
+      items.forEach((item) => {
+        deductMockStock(item.id, item.quantity);
+      });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
+
       clearCart();
       setIsSubmitting(false);
 
@@ -231,7 +251,16 @@ export default function CheckoutPage() {
         if (customer?.goldBalance !== undefined) {
           updateCustomer({ goldBalance: Math.max(0, customer.goldBalance - goldPaid) });
         }
+      } else if (useGold && goldToUse > 0 && customer?.goldBalance !== undefined) {
+        updateCustomer({ goldBalance: Math.max(0, customer.goldBalance - goldToUse) });
       }
+
+      // Deduct stock in mock data and invalidate product queries
+      items.forEach((item) => {
+        deductMockStock(item.id, item.quantity);
+      });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
 
       saveLocalOrder(fallbackOrder);
       clearCart();
@@ -368,11 +397,71 @@ export default function CheckoutPage() {
             </div>
           )}
 
+          {/* GOLD Balance Opt-In Block for Logged-in Customer */}
+          {token && availableGold > 0 && (
+            <div className="bg-white border border-amber-200 rounded-xl p-5 space-y-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-700">🪙</div>
+                  <h3 className="font-bold text-sm text-[#1E293B]">Đổi Số Dư Ví GOLD Giảm Giá</h3>
+                </div>
+                <span className="text-xs text-amber-800 font-bold bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+                  Số dư: {availableGold} GOLD
+                </span>
+              </div>
+
+              {/* OPT-IN CHECKBOX: UNCHECKED BY DEFAULT */}
+              <label className="flex items-center gap-3 p-3 bg-amber-50/40 border border-amber-200/80 rounded-xl cursor-pointer hover:bg-amber-50 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={useGold}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setUseGold(checked);
+                    if (checked && goldToUse === 0) {
+                      setGoldToUse(Math.min(maxRedeemableGold, 1));
+                    }
+                  }}
+                  className="w-4 h-4 text-amber-600 rounded focus:ring-amber-500"
+                />
+                <div className="text-sm font-medium text-amber-950">
+                  Sử dụng số dư Ví GOLD để giảm trừ trực tiếp tiền đơn hàng (1 GOLD = 1.000đ)
+                </div>
+              </label>
+
+              {useGold && (
+                <div className="p-4 bg-amber-50/70 rounded-xl border border-amber-200 space-y-3">
+                  <div className="flex items-center justify-between text-xs text-slate-700">
+                    <span>Chọn số GOLD muốn dùng (1 GOLD = 1.000đ):</span>
+                    <span className="font-bold text-amber-800">
+                      Dùng {goldToUse} GOLD (-{(goldToUse * 1000).toLocaleString('vi-VN')}đ)
+                    </span>
+                  </div>
+
+                  <input
+                    type="range"
+                    min="1"
+                    max={maxRedeemableGold}
+                    step="1"
+                    value={goldToUse}
+                    onChange={(e) => setGoldToUse(Number(e.target.value))}
+                    className="w-full accent-amber-600 cursor-pointer"
+                  />
+
+                  <div className="flex justify-between text-[11px] text-slate-500">
+                    <span>1 GOLD (1.000đ)</span>
+                    <span>Tối đa {maxRedeemableGold} GOLD ({(maxRedeemableGold * 1000).toLocaleString('vi-VN')}đ)</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <PaymentMethodSelector
             selectedMethod={paymentMethod}
             onChange={setPaymentMethod}
             goldBalance={customer?.goldBalance || profile?.goldBalance || 0}
-            totalAmountGold={Math.ceil(Math.max(0, subtotal + getShippingFee() - pointsDiscountAmount) / 1000)}
+            totalAmountGold={Math.ceil(Math.max(0, subtotal + getShippingFee() - pointsDiscountAmount - goldDiscountAmount) / 1000)}
           />
         </div>
 
@@ -381,6 +470,7 @@ export default function CheckoutPage() {
             onConfirmOrder={handleConfirmOrder}
             isSubmitting={isSubmitting}
             pointsDiscountAmount={pointsDiscountAmount}
+            goldDiscountAmount={goldDiscountAmount}
           />
         </div>
       </div>

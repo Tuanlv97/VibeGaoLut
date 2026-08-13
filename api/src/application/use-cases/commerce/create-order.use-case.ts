@@ -27,7 +27,11 @@ export interface CreateOrderInput {
   customerId?: string;
   usePoints?: boolean;
   pointsToUse?: number;
+  goldToUse?: number;
 }
+
+import { IStockMovementRepository } from '@domain/repositories/stock-movement.repository.interface';
+import { StockMovement } from '@domain/entities/stock-movement.entity';
 
 export class CreateOrderUseCase {
   constructor(
@@ -36,6 +40,7 @@ export class CreateOrderUseCase {
     private readonly customerRepository?: ICustomerRepository,
     private readonly transactionRepository?: ICustomerPointTransactionRepository,
     private readonly walletRepository?: any,
+    private readonly stockMovementRepository?: IStockMovementRepository,
   ) {}
 
   async execute(input: CreateOrderInput): Promise<Order> {
@@ -63,11 +68,32 @@ export class CreateOrderUseCase {
       }
 
       if (!product.hasSufficientStock(itemInput.quantity)) {
-        throw new Error(`Sản phẩm "${product.name}" không đủ số lượng trong kho.`);
+        throw new Error(`Sản phẩm "${product.name}" không đủ số lượng trong kho. Hiện chỉ còn ${product.stockQuantity} túi (bạn chọn ${itemInput.quantity} túi).`);
       }
 
       product.decreaseStock(itemInput.quantity);
       await this.productRepository.save(product);
+
+      // Record OUTWARD stock movement
+      if (this.stockMovementRepository) {
+        try {
+          const movement = new StockMovement(
+            randomUUID(),
+            product.id,
+            product.name,
+            'OUTWARD',
+            itemInput.quantity,
+            0,
+            'Guest Checkout',
+            `Xuất kho bán cho đơn hàng #${orderNumber}`,
+            input.customerName || 'Khách hàng',
+            new Date(),
+          );
+          await this.stockMovementRepository.save(movement);
+        } catch {
+          // Ignore log failure
+        }
+      }
 
       const itemSubtotal = product.price * itemInput.quantity;
       subtotal += itemSubtotal;
@@ -89,6 +115,8 @@ export class CreateOrderUseCase {
 
     let pointsUsed = 0;
     let pointsDiscountAmount = 0;
+    let goldUsed = 0;
+    let goldDiscountAmount = 0;
     let customer: Customer | null = null;
 
     if (this.customerRepository) {
@@ -140,7 +168,34 @@ export class CreateOrderUseCase {
       }
     }
 
-    const totalAmount = Math.max(0, subtotal + shippingFee - pointsDiscountAmount);
+    // GOLD Balance Discount (OPT-IN: goldToUse > 0)
+    if (input.goldToUse && input.goldToUse > 0 && customer && this.customerRepository) {
+      if (input.goldToUse > customer.goldBalance) {
+        throw new Error(`Số GOLD sử dụng (${input.goldToUse} GOLD) vượt quá số dư hiện có (${customer.goldBalance} GOLD).`);
+      }
+
+      goldUsed = input.goldToUse;
+      goldDiscountAmount = goldUsed * 1000; // 1 GOLD = 1.000 VNĐ
+
+      customer.goldBalance -= goldUsed;
+      await this.customerRepository.save(customer);
+
+      if (this.walletRepository) {
+        await this.walletRepository.saveTransaction({
+          id: randomUUID(),
+          customerId: customer.id,
+          type: 'REDEEM',
+          amountVnd: goldDiscountAmount,
+          goldAmount: -goldUsed,
+          balanceAfter: customer.goldBalance,
+          description: `Dùng ${goldUsed} GOLD giảm giá ${goldDiscountAmount.toLocaleString('vi-VN')}đ cho đơn hàng ${orderNumber}`,
+          status: 'SUCCESS',
+          createdAt: new Date(),
+        });
+      }
+    }
+
+    const totalAmount = Math.max(0, subtotal + shippingFee - pointsDiscountAmount - goldDiscountAmount);
     const paymentMethod = input.paymentMethod || 'COD';
     let initialOrderStatus = OrderStatus.PENDING;
 
@@ -175,6 +230,8 @@ export class CreateOrderUseCase {
       initialOrderStatus = OrderStatus.PROCESSING;
     }
 
+    const pointsEarned = LoyaltyPointCalculator.calculatePointsEarned(subtotal);
+
     const order = new Order(
       orderId,
       orderNumber,
@@ -195,9 +252,10 @@ export class CreateOrderUseCase {
       customerId,
       pointsUsed,
       pointsDiscountAmount,
-      0,
+      pointsEarned,
     );
 
     return this.orderRepository.save(order);
   }
 }
+

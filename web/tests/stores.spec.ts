@@ -62,6 +62,25 @@ describe('Zustand Client Stores Unit Tests', () => {
       store.updateQuantity('prod_1', 0);
       expect(useCartStore.getState().items.length).toBe(0);
     });
+
+    it('should throw error when adding quantity exceeding stockQuantity (e.g. stock=3, choose 5)', () => {
+      const store = useCartStore.getState();
+
+      expect(() => {
+        store.addItem(
+          {
+            id: 'prod_stock_test',
+            name: 'Túi Gạo Thử Nghiệm',
+            price: 50000,
+            weightUnit: '1kg',
+            image: '/img.jpg',
+            slug: 'tui-gao-thu-nghiem',
+            stockQuantity: 3,
+          },
+          5
+        );
+      }).toThrow('Số lượng không đủ! Sản phẩm "Túi Gạo Thử Nghiệm" hiện chỉ còn 3 túi trong kho.');
+    });
   });
 
   describe('useTodoStore', () => {

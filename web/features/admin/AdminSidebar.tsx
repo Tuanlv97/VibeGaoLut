@@ -17,6 +17,7 @@ export function AdminSidebar() {
     { label: 'Tổng Quan', href: '/admin', icon: '📊' },
     { label: 'Duyệt Nạp GOLD', href: '/admin/wallet', icon: '🪙' },
     { label: 'Sản Phẩm', href: '/admin/products', icon: '🌾' },
+    { label: 'Quản Lý Kho Hàng', href: '/admin/inventory', icon: '🏬' },
     { label: 'Đơn Hàng', href: '/admin/orders', icon: '📦' },
     { label: 'Bài Viết Blog', href: '/admin/blog', icon: '📝' },
     { label: 'Hỏi Đáp Q&A', href: '/admin/questions', icon: '💬' },

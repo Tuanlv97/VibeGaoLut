@@ -92,6 +92,11 @@ import { GetGoldWalletUseCase } from './application/use-cases/customer-wallet/ge
 import { ApproveTopupUseCase } from './application/use-cases/admin/approve-topup.use-case';
 import { CustomerWalletController } from './presentation/controllers/customer-wallet.controller';
 
+import { StockMovementOrmEntity } from './infrastructure/database/entities/stock-movement.orm-entity';
+import { StockMovementRepository } from './infrastructure/repositories/stock-movement.repository';
+import { ImportInventoryUseCase } from './application/use-cases/admin/import-inventory.use-case';
+import { GetInventoryLogsUseCase } from './application/use-cases/admin/get-inventory-logs.use-case';
+
 const ormEntities = [
   CategoryOrmEntity,
   ProductOrmEntity,
@@ -106,6 +111,7 @@ const ormEntities = [
   CustomerAddressOrmEntity,
   CustomerPointTransactionOrmEntity,
   GoldTransactionOrmEntity,
+  StockMovementOrmEntity,
 ];
 
 @Module({
@@ -169,6 +175,21 @@ const ormEntities = [
     { provide: 'ICustomerAddressRepository', useClass: CustomerAddressTypeOrmRepository },
     { provide: 'ICustomerPointTransactionRepository', useClass: CustomerPointTransactionTypeOrmRepository },
     { provide: 'ICustomerWalletRepository', useClass: CustomerWalletTypeOrmRepository },
+    { provide: 'IStockMovementRepository', useClass: StockMovementRepository },
+
+    // Inventory Use Cases
+    {
+      provide: ImportInventoryUseCase,
+      useFactory: (prodRepo: ProductRepository, stockRepo: StockMovementRepository) =>
+        new ImportInventoryUseCase(prodRepo, stockRepo),
+      inject: ['IProductRepository', 'IStockMovementRepository'],
+    },
+    {
+      provide: GetInventoryLogsUseCase,
+      useFactory: (prodRepo: ProductRepository, stockRepo: StockMovementRepository) =>
+        new GetInventoryLogsUseCase(prodRepo, stockRepo),
+      inject: ['IProductRepository', 'IStockMovementRepository'],
+    },
 
     // Customer Use Cases
     RegisterCustomerUseCase,
@@ -212,13 +233,15 @@ const ormEntities = [
         custRepo: CustomerTypeOrmRepository,
         txRepo: CustomerPointTransactionTypeOrmRepository,
         walletRepo: CustomerWalletTypeOrmRepository,
-      ) => new CreateOrderUseCase(orderRepo, prodRepo, custRepo, txRepo, walletRepo),
+        stockRepo: StockMovementRepository,
+      ) => new CreateOrderUseCase(orderRepo, prodRepo, custRepo, txRepo, walletRepo, stockRepo),
       inject: [
         'IOrderRepository',
         'IProductRepository',
         'ICustomerRepository',
         'ICustomerPointTransactionRepository',
         'ICustomerWalletRepository',
+        'IStockMovementRepository',
       ],
     },
     {
@@ -292,12 +315,16 @@ const ormEntities = [
         custRepo: CustomerTypeOrmRepository,
         txRepo: CustomerPointTransactionTypeOrmRepository,
         walletRepo: CustomerWalletTypeOrmRepository,
-      ) => new UpdateOrderStatusUseCase(orderRepo, custRepo, txRepo, walletRepo),
+        prodRepo: ProductRepository,
+        stockRepo: StockMovementRepository,
+      ) => new UpdateOrderStatusUseCase(orderRepo, custRepo, txRepo, walletRepo, prodRepo, stockRepo),
       inject: [
         'IOrderRepository',
         'ICustomerRepository',
         'ICustomerPointTransactionRepository',
         'ICustomerWalletRepository',
+        'IProductRepository',
+        'IStockMovementRepository',
       ],
     },
     {

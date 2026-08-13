@@ -395,3 +395,22 @@ export const MOCK_BLOG_POSTS: BlogPost[] = [];
 export const MOCK_QUESTIONS: Question[] = [];
 
 export const MOCK_REVIEWS: Review[] = [];
+
+export function deductMockStock(productId: string, quantity: number): void {
+  const prod = MOCK_PRODUCTS.find(
+    (p) => p.id === productId || p.slug === productId || p.name === productId
+  );
+  if (prod) {
+    prod.stockQuantity = Math.max(0, prod.stockQuantity - quantity);
+  }
+}
+
+export function restockMockStock(productId: string, quantity: number): void {
+  const prod = MOCK_PRODUCTS.find(
+    (p) => p.id === productId || p.slug === productId || p.name === productId
+  );
+  if (prod) {
+    prod.stockQuantity += quantity;
+  }
+}
+

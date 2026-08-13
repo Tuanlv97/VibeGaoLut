@@ -26,6 +26,8 @@ import { ModerateQuestionUseCase } from '@application/use-cases/admin/moderate-q
 import { GetBlogPostsUseCase } from '@application/use-cases/content/get-blog-posts.use-case';
 import { GetQuestionsUseCase } from '@application/use-cases/community/get-questions.use-case';
 import { ApproveTopupUseCase } from '@application/use-cases/admin/approve-topup.use-case';
+import { ImportInventoryUseCase } from '@application/use-cases/admin/import-inventory.use-case';
+import { GetInventoryLogsUseCase } from '@application/use-cases/admin/get-inventory-logs.use-case';
 import {
   CreateProductDto,
   UpdateProductDto,
@@ -34,6 +36,7 @@ import {
   UpdateBlogPostDto,
   ModerateQuestionStatusDto,
   AnswerQuestionDto,
+  ImportInventoryDto,
 } from '../dtos/admin.dto';
 
 @ApiTags('Admin')
@@ -53,6 +56,8 @@ export class AdminController {
     @Inject('GetBlogPostsUseCase') private readonly getBlogPostsUseCase: GetBlogPostsUseCase,
     @Inject('GetQuestionsUseCase') private readonly getQuestionsUseCase: GetQuestionsUseCase,
     private readonly approveTopupUseCase: ApproveTopupUseCase,
+    private readonly importInventoryUseCase?: ImportInventoryUseCase,
+    private readonly getInventoryLogsUseCase?: GetInventoryLogsUseCase,
   ) {}
 
   @Get('stats')
@@ -164,4 +169,25 @@ export class AdminController {
       dto.approve ?? true,
     );
   }
+
+  @Post('inventory/import')
+  @ApiOperation({ summary: 'Nhập hàng vào kho (Thêm số lượng tồn kho & tạo log phiếu nhập)' })
+  @ApiResponse({ status: 201, description: 'Nhập kho thành công.' })
+  async importInventory(@Body() dto: ImportInventoryDto) {
+    if (!this.importInventoryUseCase) {
+      throw new Error('ImportInventoryUseCase chưa được cấu hình.');
+    }
+    return await this.importInventoryUseCase.execute(dto);
+  }
+
+  @Get('inventory/report')
+  @ApiOperation({ summary: 'Lấy báo cáo tổng quan kho hàng, lịch sử biến động và danh sách cảnh báo tồn kho' })
+  @ApiResponse({ status: 200, description: 'Báo cáo kho hàng.' })
+  async getInventoryReport() {
+    if (!this.getInventoryLogsUseCase) {
+      throw new Error('GetInventoryLogsUseCase chưa được cấu hình.');
+    }
+    return await this.getInventoryLogsUseCase.execute();
+  }
 }
+

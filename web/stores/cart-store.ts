@@ -12,6 +12,7 @@ export interface CartItem {
   image: string;
   slug: string;
   quantity: number;
+  stockQuantity?: number;
 }
 
 interface CartState {
@@ -32,11 +33,24 @@ export const useCartStore = create<CartState>()(
       items: [],
 
       addItem: (product, quantity = 1) => {
+        const existingItem = get().items.find((i) => i.id === product.id);
+        const currentQty = existingItem ? existingItem.quantity : 0;
+        const requestedTotal = currentQty + quantity;
+
+        if (product.stockQuantity !== undefined && requestedTotal > product.stockQuantity) {
+          throw new Error(
+            `Số lượng không đủ! Sản phẩm "${product.name}" hiện chỉ còn ${product.stockQuantity} túi trong kho.`
+          );
+        }
+
         set((state) => {
           const existingIndex = state.items.findIndex((i) => i.id === product.id);
           if (existingIndex > -1) {
             const updated = [...state.items];
             updated[existingIndex].quantity += quantity;
+            if (product.stockQuantity !== undefined) {
+              updated[existingIndex].stockQuantity = product.stockQuantity;
+            }
             return { items: updated };
           }
           return { items: [...state.items, { ...product, quantity }] };
@@ -54,6 +68,18 @@ export const useCartStore = create<CartState>()(
           get().removeItem(productId);
           return;
         }
+
+        const existingItem = get().items.find((i) => i.id === productId);
+        if (
+          existingItem &&
+          existingItem.stockQuantity !== undefined &&
+          quantity > existingItem.stockQuantity
+        ) {
+          throw new Error(
+            `Số lượng không đủ! Sản phẩm "${existingItem.name}" hiện chỉ còn ${existingItem.stockQuantity} túi trong kho.`
+          );
+        }
+
         set((state) => ({
           items: state.items.map((i) =>
             i.id === productId ? { ...i, quantity } : i

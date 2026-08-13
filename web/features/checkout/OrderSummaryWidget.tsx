@@ -2,28 +2,35 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Award, Coins } from 'lucide-react';
 import { useCartStore } from '@/stores/cart-store';
+import { useCustomerAuthStore } from '@/stores/customer-auth-store';
 import { Button } from '@/components/ui/Button';
 
 interface OrderSummaryWidgetProps {
   onConfirmOrder: () => void;
   isSubmitting?: boolean;
   pointsDiscountAmount?: number;
+  goldDiscountAmount?: number;
 }
 
 export const OrderSummaryWidget: React.FC<OrderSummaryWidgetProps> = ({
   onConfirmOrder,
   isSubmitting = false,
   pointsDiscountAmount = 0,
+  goldDiscountAmount = 0,
 }) => {
   const items = useCartStore((s) => s.items);
   const getSubtotal = useCartStore((s) => s.getSubtotal);
   const getShippingFee = useCartStore((s) => s.getShippingFee);
+  const { customer } = useCustomerAuthStore();
 
   const subtotal = getSubtotal();
   const shippingFee = getShippingFee();
-  const grandTotal = Math.max(0, subtotal + shippingFee - pointsDiscountAmount);
+  const grandTotal = Math.max(0, subtotal + shippingFee - pointsDiscountAmount - goldDiscountAmount);
+
+  const earnedPoints = Math.floor(subtotal / 10000);
+  const earnedGold = Math.floor(earnedPoints / 10);
 
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 space-y-5 sticky top-24 shadow-xs">
@@ -50,6 +57,26 @@ export const OrderSummaryWidget: React.FC<OrderSummaryWidgetProps> = ({
         ))}
       </div>
 
+      {/* Earned Points & GOLD Callout for Logged In Customer */}
+      {customer && earnedPoints > 0 && (
+        <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-xl space-y-1 text-xs text-amber-900">
+          <div className="flex items-center gap-1.5 font-bold text-amber-800">
+            <Award className="w-4 h-4 text-amber-600" />
+            <span>Tích Điểm & Ví GOLD Thưởng</span>
+          </div>
+          <p className="text-[11px] leading-relaxed text-amber-950/80">
+            Hoàn tất đơn hàng này bạn sẽ tích được{' '}
+            <strong className="text-emerald-700">+{earnedPoints} điểm</strong>
+            {earnedGold > 0 && (
+              <span>
+                {' '}(tương đương <strong className="text-amber-700">+{earnedGold} GOLD</strong>)
+              </span>
+            )}{' '}
+            khi giao hàng thành công!
+          </p>
+        </div>
+      )}
+
       <div className="border-t border-[#E2E8F0] pt-3 space-y-2 text-sm">
         <div className="flex justify-between text-[#64748B]">
           <span>Tạm tính:</span>
@@ -70,6 +97,15 @@ export const OrderSummaryWidget: React.FC<OrderSummaryWidgetProps> = ({
             <span>Giảm giá điểm tích lũy:</span>
             <span className="font-mono font-semibold">
               -{new Intl.NumberFormat('vi-VN').format(pointsDiscountAmount)}đ
+            </span>
+          </div>
+        )}
+
+        {goldDiscountAmount > 0 && (
+          <div className="flex justify-between text-amber-800 font-medium">
+            <span>Giảm giá từ Ví GOLD:</span>
+            <span className="font-mono font-semibold text-amber-700">
+              -{new Intl.NumberFormat('vi-VN').format(goldDiscountAmount)}đ
             </span>
           </div>
         )}

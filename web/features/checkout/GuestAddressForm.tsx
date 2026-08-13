@@ -35,8 +35,8 @@ export const GuestAddressForm: React.FC<GuestAddressFormProps> = ({
           1. Thông Tin Nhận Hàng {isLoggedIn ? `(Tài Khoản: ${customerName || formData.fullName || 'Thành Viên'})` : '(Khách Vãng Lai)'}
         </span>
         {isLoggedIn && (
-          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
-            Đã đăng nhập
+          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full flex items-center gap-1">
+            ✨ Đã đăng nhập • Tích 10k = 1đ
           </span>
         )}
       </h2>

@@ -26,19 +26,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     setImgSrc(raw.startsWith('http') ? raw : DEFAULT_IMAGE);
   }, [product.images]);
 
+  const [cardError, setCardError] = React.useState<string | null>(null);
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      compareAtPrice: product.compareAtPrice,
-      weightUnit: product.weightUnit,
-      image: imgSrc,
-      slug: product.slug,
-    });
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
+    setCardError(null);
+    try {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        compareAtPrice: product.compareAtPrice,
+        weightUnit: product.weightUnit,
+        image: imgSrc,
+        slug: product.slug,
+        stockQuantity: product.stockQuantity,
+      });
+      setAdded(true);
+      setTimeout(() => setAdded(false), 1500);
+    } catch (err: any) {
+      alert(err.message || 'Không thể thêm vào giỏ hàng.');
+    }
   };
 
   const formattedPrice = new Intl.NumberFormat('vi-VN', {

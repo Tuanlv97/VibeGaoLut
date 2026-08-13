@@ -269,3 +269,35 @@ export class AnswerQuestionDto {
   @IsBoolean()
   approve?: boolean;
 }
+
+export class ImportInventoryDto {
+  @ApiProperty({ description: 'Product ID' })
+  @IsString()
+  productId: string;
+
+  @ApiProperty({ description: 'Quantity to import' })
+  @IsNumber()
+  @Min(1)
+  quantity: number;
+
+  @ApiPropertyOptional({ description: 'Unit cost price in VND' })
+  @IsOptional()
+  @IsNumber()
+  unitCost?: number;
+
+  @ApiPropertyOptional({ description: 'Supplier name' })
+  @IsOptional()
+  @IsString()
+  supplier?: string;
+
+  @ApiPropertyOptional({ description: 'Notes' })
+  @IsOptional()
+  @IsString()
+  note?: string;
+
+  @ApiPropertyOptional({ description: 'Name of staff/admin performing stock inward' })
+  @IsOptional()
+  @IsString()
+  createdByName?: string;
+}
+

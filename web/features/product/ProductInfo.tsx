@@ -30,26 +30,49 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
       }).format(product.compareAtPrice)
     : null;
 
+  const [stockError, setStockError] = useState<string | null>(null);
+
   const handleAddToCart = () => {
-    addItem(
-      {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        compareAtPrice: product.compareAtPrice,
-        weightUnit: product.weightUnit,
-        image: product.images[0],
-        slug: product.slug,
-      },
-      quantity
-    );
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+    setStockError(null);
+    if (product.stockQuantity <= 0) {
+      setStockError('Sản phẩm hiện tại đã hết hàng trong kho.');
+      return;
+    }
+    if (quantity > product.stockQuantity) {
+      setStockError(`Số lượng không đủ! Sản phẩm hiện chỉ còn ${product.stockQuantity} túi trong kho.`);
+      return;
+    }
+
+    try {
+      addItem(
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          compareAtPrice: product.compareAtPrice,
+          weightUnit: product.weightUnit,
+          image: product.images[0],
+          slug: product.slug,
+          stockQuantity: product.stockQuantity,
+        },
+        quantity
+      );
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch (err: any) {
+      setStockError(err.message || 'Không thể thêm vào giỏ hàng.');
+    }
   };
 
   const handleBuyNow = () => {
+    if (quantity > product.stockQuantity) {
+      setStockError(`Số lượng không đủ! Sản phẩm hiện chỉ còn ${product.stockQuantity} túi trong kho.`);
+      return;
+    }
     handleAddToCart();
-    router.push('/checkout');
+    if (!stockError && product.stockQuantity >= quantity) {
+      router.push('/checkout');
+    }
   };
 
   return (
@@ -102,7 +125,10 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
           <span className="text-sm font-semibold text-[#1E293B]">Số lượng:</span>
           <div className="flex items-center border border-[#E2E8F0] rounded-lg bg-white">
             <button
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              onClick={() => {
+                setStockError(null);
+                setQuantity(Math.max(1, quantity - 1));
+              }}
               className="px-3 py-1.5 text-sm font-bold text-[#64748B] hover:bg-[#F9F6F0] rounded-l-lg"
             >
               -
@@ -111,7 +137,14 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
               {quantity}
             </span>
             <button
-              onClick={() => setQuantity(quantity + 1)}
+              onClick={() => {
+                setStockError(null);
+                if (product.stockQuantity > 0 && quantity >= product.stockQuantity) {
+                  setStockError(`Số lượng không đủ! Sản phẩm hiện chỉ còn ${product.stockQuantity} túi trong kho.`);
+                  return;
+                }
+                setQuantity(quantity + 1);
+              }}
               className="px-3 py-1.5 text-sm font-bold text-[#64748B] hover:bg-[#F9F6F0] rounded-r-lg"
             >
               +
@@ -119,25 +152,39 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
           </div>
         </div>
 
+        {/* Stock Alert Message */}
+        {stockError && (
+          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-lg flex items-center gap-2">
+            <span>⚠️</span>
+            <span>{stockError}</span>
+          </div>
+        )}
+
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
             variant="outline"
             size="lg"
             onClick={handleAddToCart}
+            disabled={product.stockQuantity <= 0}
             className="flex-1"
           >
             {added ? <Check className="w-5 h-5" /> : <ShoppingBag className="w-5 h-5" />}
-            {added ? 'Đã Thêm Vào Giỏ!' : 'Thêm Vào Giỏ Hàng'}
+            {product.stockQuantity <= 0
+              ? 'Tạm Hết Hàng'
+              : added
+              ? 'Đã Thêm Vào Giỏ!'
+              : 'Thêm Vào Giỏ Hàng'}
           </Button>
 
           <Button
             variant="primary"
             size="lg"
             onClick={handleBuyNow}
+            disabled={product.stockQuantity <= 0}
             className="flex-1 bg-[#C86D51] hover:bg-[#b35b40]"
           >
             <Zap className="w-5 h-5" />
-            Mua Ngay (COD)
+            {product.stockQuantity <= 0 ? 'Tạm Hết Hàng' : 'Mua Ngay (COD)'}
           </Button>
         </div>
       </div>
