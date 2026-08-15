@@ -101,6 +101,9 @@ import { GetInventoryLogsUseCase } from './application/use-cases/admin/get-inven
 import { AdministrativeUnitOrmEntity } from './infrastructure/database/entities/administrative-unit.orm-entity';
 import { AdministrativeUnitController } from './presentation/controllers/administrative-unit.controller';
 
+import { ChatbotController } from './presentation/controllers/chatbot.controller';
+import { QueryChatbotUseCase } from './application/use-cases/chatbot/query-chatbot.use-case';
+
 const ormEntities = [
   CategoryOrmEntity,
   ProductOrmEntity,
@@ -163,11 +166,19 @@ const ormEntities = [
     CustomerProfileController,
     CustomerWalletController,
     AdministrativeUnitController,
+    ChatbotController,
   ],
   providers: [
     SeederService,
     JwtStrategy,
     CustomerJwtStrategy,
+
+    {
+      provide: 'QueryChatbotUseCase',
+      useFactory: (prodRepo: ProductRepository, blogRepo: BlogPostRepository) =>
+        new QueryChatbotUseCase(prodRepo, blogRepo),
+      inject: ['IProductRepository', 'IBlogPostRepository'],
+    },
 
     // Repositories
     { provide: 'IProductRepository', useClass: ProductRepository },

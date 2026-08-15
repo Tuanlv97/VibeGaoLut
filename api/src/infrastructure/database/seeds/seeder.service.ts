@@ -300,7 +300,53 @@ export class SeederService {
     ),
   ];
 
-  private readonly blogPosts: BlogPost[] = [];
+  private readonly blogPosts: BlogPost[] = [
+    new BlogPost(
+      'b1000000-0000-4000-8000-000000000001',
+      'c1000000-0000-4000-8000-000000000001',
+      'Thực đơn Eat Clean 7 ngày với Gạo lứt đỏ ST25 và Yến mạch giúp giảm mỡ bụng tự nhiên',
+      'thuc-don-eat-clean-7-ngay-gao-lut-yen-mach-giam-mo',
+      'Hướng dẫn xây dựng thực đơn Eat Clean chuẩn dưỡng sinh 7 ngày giúp no lâu, không tích mỡ thừa và hỗ trợ vóc dáng thon gọn.',
+      'Ăn giảm cân không có nghĩa là nhịn ăn khắt nghiệt. Phương pháp Eat Clean dưỡng sinh tập trung sử dụng thực phẩm nguyên bản giàu xơ như Gạo lứt đỏ ST25 nguyên cám và Yến mạch cán tươi. Nhờ chỉ số đường huyết GI thấp và lượng chất xơ dồi dào, bạn sẽ luôn cảm thấy no lâu, dồi dào năng lượng mà vẫn đốt cháy mỡ thừa tự nhiên.',
+      'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1000&q=80',
+      'Chuyên gia Dinh dưỡng Minh Anh',
+      6,
+      true,
+      new Date('2026-08-01T08:00:00Z'),
+      new Date(),
+      ['f1000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000002'],
+    ),
+    new BlogPost(
+      'b1000000-0000-4000-8000-000000000002',
+      'c1000000-0000-4000-8000-000000000001',
+      '5 Lợi ích vượt trội của Gạo lứt đỏ ST25 nguyên cám trong việc hỗ trợ giảm cân và giữ dáng',
+      '5-loi-ich-gao-lut-do-st25-giam-can',
+      'Khám phá lý do tại sao Gạo lứt đỏ ST25 được coi là giải pháp vàng cho người ăn kiêng, tiểu đường và muốn kiểm soát cân nặng.',
+      'Gạo lứt đỏ ST25 nguyên cám chứa lượng Anthocyanin chống oxy hóa cực cao cùng chất xơ hòa tan gấp 3 lần gạo trắng. Việc ăn gạo lứt thay thế cơm trắng giúp kiểm soát đường huyết sau ăn, làm chậm quá trình hấp thu tinh bột và hỗ trợ duy trì cân nặng lý tưởng.',
+      'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=1000&q=80',
+      'Lương y Bùi Quốc Phương',
+      5,
+      true,
+      new Date('2026-08-05T09:00:00Z'),
+      new Date(),
+      ['f1000000-0000-4000-8000-000000000001'],
+    ),
+    new BlogPost(
+      'b3000000-0000-4000-8000-000000000001',
+      'c3000000-0000-4000-8000-000000000003',
+      'Bí quyết uống Trà Gạo Lứt Đậu Đỏ sao tay thanh lọc cơ thể và hỗ trợ giảm mỡ an toàn',
+      'bi-quyet-uong-tra-gao-lut-dau-do-giam-can',
+      'Trà gạo lứt đậu đỏ không chỉ thơm ngon mà còn là thức uống thanh nhiệt, mát gan và hỗ trợ tiêu mỡ vô cùng hiệu quả.',
+      'Thay vì sử dụng các loại nước ngọt chứa đường tổng hợp, thói quen hãm 50g Trà gạo lứt đậu đỏ búp ổi với 1.5 lít nước ấm uống hằng ngày giúp kích thích hệ trao đổi chất, đẩy nhanh quá trình tiêu mỡ và giữ cho làn da luôn mịn màng.',
+      'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=1000&q=80',
+      'Dược sĩ Thu Trang',
+      4,
+      false,
+      new Date('2026-08-08T10:00:00Z'),
+      new Date(),
+      ['f3000000-0000-4000-8000-000000000001'],
+    ),
+  ];
 
   private readonly questions: Question[] = [];
 

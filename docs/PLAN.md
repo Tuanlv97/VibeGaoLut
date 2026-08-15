@@ -48,6 +48,9 @@ PHASE 11: Comprehensive Testing (Unit, Integration, E2E)       [COMPLETED] 🟢
    │
    ▼
 PHASE 12: Production Deployment & Infrastructure Setup         [COMPLETED] 🟢
+   │
+   ▼
+PHASE 17: Support Floating Dock & Vector Search AI Chatbot Widget [IN_PROGRESS] 🟡
 ```
 
 ---
@@ -1504,6 +1507,34 @@ PHASE 12: Production Deployment & Infrastructure Setup         [COMPLETED] 🟢
   - [x] 3. Phát triển REST API Endpoints trong `AdministrativeUnitController` (`/administrative-units/provinces`, `/administrative-units/children/:parentId`).
   - [x] 4. Xây dựng Component `AdministrativeSelects.tsx` dạng Cascading Dropdown 2 Cấp tự động nạp danh sách Phường/Xã theo Tỉnh/TP đã chọn.
   - [x] 5. Quy định Quy tắc Tối cao số 2 trong `PLAN.md`: Tất cả thiết kế bảng/chức năng tương lai bắt buộc đọc/ghi dữ liệu Tiếng Việt UTF-8 hiển thị chuẩn xác 100%.
+
+---
+
+### PHASE 17 — SUPPORT FLOATING DOCK & VECTOR SEARCH AI CHATBOT WIDGET 🟢 [COMPLETED]
+
+#### TASK-P17-01
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Customer Support & AI Integration
+* **Feature**: Vector Search RAG Chatbot Backend Engine
+* **Task**: Xây dựng NestJS REST API Module Chatbot hỗ trợ tìm kiếm Vector (RAG) trên PostgreSQL
+* **Sub-tasks**:
+  - [x] 1. Khai báo DTOs & Interfaces cho Chatbot Query (`ChatbotQueryDto`, `ChatbotResponseDto`).
+  - [x] 2. Thiết kế Service Vector Search RAG tra cứu tri thức Dinh dưỡng, Sản phẩm Gạo lứt/Ngũ cốc, Bài viết Blog & FAQ.
+  - [x] 3. Phát triển Controller `POST /api/v1/chatbot/query` phản hồi câu trả lời tự nhiên kèm danh sách Product Cards & Blog Cards gợi ý.
+* **Description**: Cung cấp API backend thông minh cho phép Chatbot xử lý ngữ nghĩa câu hỏi người dùng và trả về thông tin tư vấn kèm sản phẩm thực tế.
+* **Dependency**: None
+* **Priority**: HIGH
+
+#### TASK-P17-02
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Frontend UI Engineering
+* **Feature**: Floating Support Dock & AI Assistant Drawer (`SCR-19`)
+* **Task**: Xây dựng React Components cho Social Support Dock bên trái và Vector AI Chatbot Widget bên phải
+* **Sub-tasks**:
+  - [x] 1. Xây dựng Component `SocialSupportDock.tsx` hiển thị bên trái với nút Zalo OA, Facebook Messenger và Hotline 24/7.
+  - [x] 2. Xây dựng Component `VectorAIChatbotWidget.tsx` hiển thị bên phải với cửa sổ Chatbot AI bo góc `rounded-2xl`, quick prompts, tin nhắn RAG và card sản phẩm nhúng.
+  - [x] 3. Nhúng `SupportFloatingWrapper` vào `layout.tsx` hiển thị toàn hệ thống.
+
 
 
 
