@@ -154,7 +154,7 @@ export const Navbar: React.FC = () => {
                 </span>
                 <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs whitespace-nowrap shrink-0">
                   <Coins className="w-3.5 h-3.5 text-amber-500" />
-                  {customer?.goldBalance || 0}d
+                  {customer?.goldBalance || 0} GOLD
                 </span>
               </button>
 

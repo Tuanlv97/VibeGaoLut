@@ -15,6 +15,8 @@ import { GetCustomerProfileUseCase } from '@application/use-cases/customer-profi
 import { ManageCustomerAddressesUseCase, CreateAddressDto, UpdateAddressDto } from '@application/use-cases/customer-profile/manage-customer-addresses.use-case';
 import { GetCustomerOrdersUseCase } from '@application/use-cases/customer-profile/get-customer-orders.use-case';
 import { GetCustomerPointsHistoryUseCase } from '@application/use-cases/customer-profile/get-customer-points-history.use-case';
+import { UpdateOrderAddressUseCase } from '@application/use-cases/customer-profile/update-order-address.use-case';
+import { UpdateOrderAddressDto } from '../dtos/update-order-address.dto';
 
 @ApiTags('Customer Profile')
 @ApiBearerAuth()
@@ -26,6 +28,7 @@ export class CustomerProfileController {
     private readonly manageAddressesUseCase: ManageCustomerAddressesUseCase,
     private readonly getOrdersUseCase: GetCustomerOrdersUseCase,
     private readonly getPointsHistoryUseCase: GetCustomerPointsHistoryUseCase,
+    private readonly updateOrderAddressUseCase: UpdateOrderAddressUseCase,
   ) {}
 
   @Get('profile')
@@ -61,6 +64,26 @@ export class CustomerProfileController {
   @ApiOperation({ summary: 'Lấy danh sách đơn hàng của khách hàng' })
   async getOrders(@Request() req: any) {
     return this.getOrdersUseCase.execute(req.user.customerId);
+  }
+
+  @Put('orders/:id/address')
+  @ApiOperation({ summary: 'Cập nhật địa chỉ nhận hàng của đơn hàng (PENDING / PROCESSING)' })
+  async updateOrderAddress(
+    @Request() req: any,
+    @Param('id') orderId: string,
+    @Body() dto: UpdateOrderAddressDto,
+  ) {
+    return this.updateOrderAddressUseCase.execute({
+      orderId,
+      customerId: req.user.customerId,
+      customerName: dto.customerName,
+      customerPhone: dto.customerPhone,
+      province: dto.province,
+      district: dto.district,
+      ward: dto.ward,
+      addressDetail: dto.addressDetail,
+      updateDefaultAddress: dto.updateDefaultAddress,
+    });
   }
 
   @Get('points/history')

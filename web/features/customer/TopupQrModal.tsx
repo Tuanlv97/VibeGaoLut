@@ -41,7 +41,11 @@ export function TopupQrModal({ isOpen, onClose, onSuccess }: TopupQrModalProps) 
       });
       setQrData(res);
     } catch (err: any) {
-      setError(err.message || 'Không thể tạo mã nạp tiền. Vui lòng thử lại.');
+      if (err.message?.includes('Quyền truy cập') || err.statusCode === 401) {
+        setError('Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại tài khoản Khách Hàng.');
+      } else {
+        setError(err.message || 'Không thể tạo mã nạp tiền. Vui lòng thử lại.');
+      }
     } finally {
       setLoading(false);
     }
@@ -98,7 +102,7 @@ export function TopupQrModal({ isOpen, onClose, onSuccess }: TopupQrModalProps) 
                         : 'border-slate-200 hover:border-slate-300 text-slate-700'
                     }`}
                   >
-                    {val.toLocaleString('vi-VN')} đ
+                    {val.toLocaleString('en-US')} đ
                     <span className="block text-[11px] font-normal text-amber-600">
                       = {Math.floor(val / 1000)} GOLD
                     </span>
@@ -108,11 +112,13 @@ export function TopupQrModal({ isOpen, onClose, onSuccess }: TopupQrModalProps) 
 
               <div className="relative mt-2">
                 <input
-                  type="number"
-                  min="10000"
-                  step="10000"
-                  value={amount}
-                  onChange={(e) => setAmount(Number(e.target.value))}
+                  type="text"
+                  inputMode="numeric"
+                  value={amount ? amount.toLocaleString('en-US') : ''}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/[^0-9]/g, '');
+                    setAmount(raw ? parseInt(raw, 10) : 0);
+                  }}
                   placeholder="Nhập số tiền khác..."
                   className="w-full pl-4 pr-16 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#2D5A27]"
                 />
@@ -125,7 +131,7 @@ export function TopupQrModal({ isOpen, onClose, onSuccess }: TopupQrModalProps) 
                 <ShieldCheck className="w-4 h-4 text-amber-600" /> Quy đổi điểm GOLD:
               </div>
               <p>• <strong>1.000 VNĐ = 1 GOLD</strong> (Tỷ lệ 1:1.000)</p>
-              <p>• Số tiền nạp: <strong>{amount.toLocaleString('vi-VN')} VNĐ</strong> ➔ Nhận <strong>{Math.floor(amount / 1000)} GOLD</strong></p>
+              <p>• Số tiền nạp: <strong>{amount.toLocaleString('en-US')} VNĐ</strong> ➔ Nhận <strong>{Math.floor(amount / 1000)} GOLD</strong></p>
               <p>• GOLD được dùng để mua hàng trực tiếp mà không cần chuyển khoản mỗi lần.</p>
             </div>
 

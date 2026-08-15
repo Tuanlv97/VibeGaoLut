@@ -4,6 +4,8 @@ import React from 'react';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 
+import { AdministrativeSelects } from '@/components/checkout/AdministrativeSelects';
+
 interface GuestAddressFormProps {
   formData: {
     fullName: string;
@@ -19,6 +21,9 @@ interface GuestAddressFormProps {
   errors: Record<string, string>;
   isLoggedIn?: boolean;
   customerName?: string;
+  hasNoAddress?: boolean;
+  saveAsDefault?: boolean;
+  onToggleSaveAsDefault?: (val: boolean) => void;
 }
 
 export const GuestAddressForm: React.FC<GuestAddressFormProps> = ({
@@ -27,6 +32,9 @@ export const GuestAddressForm: React.FC<GuestAddressFormProps> = ({
   errors,
   isLoggedIn = false,
   customerName,
+  hasNoAddress = false,
+  saveAsDefault = false,
+  onToggleSaveAsDefault,
 }) => {
   return (
     <div className="bg-white border border-[#E2E8F0] rounded-xl p-6 space-y-4">
@@ -40,6 +48,18 @@ export const GuestAddressForm: React.FC<GuestAddressFormProps> = ({
           </span>
         )}
       </h2>
+
+      {isLoggedIn && hasNoAddress && (
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-start gap-2.5 shadow-sm">
+          <span className="text-base flex-shrink-0">📌</span>
+          <div className="space-y-0.5">
+            <span className="font-bold block text-sm text-[#2D5A27]">Tài Khoản Chưa Có Địa Chỉ Nhận Hàng</span>
+            <span>
+              Vui lòng nhập thông tin giao hàng bên dưới. Hệ thống sẽ <strong>tự động lưu</strong> địa chỉ này làm địa chỉ mặc định để tự động fill cho các lần mua hàng tiếp theo của bạn!
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
@@ -71,25 +91,13 @@ export const GuestAddressForm: React.FC<GuestAddressFormProps> = ({
         required
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Input
-          label="Tỉnh / Thành Phố"
-          placeholder="Ví dụ: Hà Nội"
-          value={formData.province}
-          onChange={(e) => onChange('province', e.target.value)}
-          error={errors.province}
-          required
-        />
-
-        <Input
-          label="Phường / Xã"
-          placeholder="Ví dụ: Dịch Vọng"
-          value={formData.ward}
-          onChange={(e) => onChange('ward', e.target.value)}
-          error={errors.ward}
-          required
-        />
-      </div>
+      <AdministrativeSelects
+        provinceValue={formData.province}
+        wardValue={formData.ward}
+        onChange={onChange}
+        errors={errors}
+        required
+      />
 
       <Textarea
         label="Địa Chỉ Cụ Thể (Số nhà, tên đường, tòa nhà)"
@@ -99,6 +107,18 @@ export const GuestAddressForm: React.FC<GuestAddressFormProps> = ({
         error={errors.addressDetail}
         required
       />
+
+      {isLoggedIn && !hasNoAddress && (
+        <label className="flex items-center gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-emerald-50/40 transition-colors text-xs text-slate-800 font-medium">
+          <input
+            type="checkbox"
+            checked={saveAsDefault}
+            onChange={(e) => onToggleSaveAsDefault?.(e.target.checked)}
+            className="w-4 h-4 text-[#2D5A27] rounded focus:ring-[#2D5A27]"
+          />
+          <span>💾 Lưu / Cập nhật địa chỉ này làm địa chỉ giao hàng mặc định cho tài khoản của tôi</span>
+        </label>
+      )}
 
       <Textarea
         label="Ghi Chú Đơn Hàng (Tùy chọn)"

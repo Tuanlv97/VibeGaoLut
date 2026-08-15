@@ -1,3 +1,6 @@
+import { useCustomerAuthStore } from '@/stores/customer-auth-store';
+import { useAdminAuthStore } from '@/stores/admin-auth-store';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
 
 export class APIError extends Error {
@@ -16,24 +19,21 @@ export async function fetchAPI<T>(
   let authHeader: Record<string, string> = {};
   if (typeof window !== 'undefined') {
     try {
-      const customerAuthStorage = localStorage.getItem('greenpantry_customer_auth');
-      const adminAuthStorage = localStorage.getItem('greenpantry_admin_auth');
+      let token: string | undefined | null;
 
-      let token: string | undefined;
-      if (customerAuthStorage) {
-        const parsed = JSON.parse(customerAuthStorage);
-        token = parsed?.state?.token;
-      }
-      if (!token && adminAuthStorage) {
-        const parsed = JSON.parse(adminAuthStorage);
-        token = parsed?.state?.token;
+      if (endpoint.startsWith('/customer')) {
+        token = useCustomerAuthStore.getState().token;
+      } else if (endpoint.startsWith('/admin')) {
+        token = useAdminAuthStore.getState().token;
+      } else {
+        token = useCustomerAuthStore.getState().token || useAdminAuthStore.getState().token;
       }
 
       if (token) {
         authHeader = { Authorization: `Bearer ${token}` };
       }
     } catch {
-      // Ignore JSON parse error
+      // Ignore
     }
   }
 
@@ -52,9 +52,13 @@ export async function fetchAPI<T>(
     if (!response.ok) {
       if (response.status === 401 && typeof window !== 'undefined') {
         try {
-          localStorage.removeItem('greenpantry_customer_auth');
+          if (endpoint.startsWith('/customer')) {
+            useCustomerAuthStore.getState().logout();
+          } else if (endpoint.startsWith('/admin')) {
+            useAdminAuthStore.getState().logout();
+          }
         } catch {
-          // Ignore storage clear error
+          // Ignore
         }
       }
 

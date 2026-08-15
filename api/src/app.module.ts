@@ -50,6 +50,7 @@ import { GetCustomerProfileUseCase } from './application/use-cases/customer-prof
 import { ManageCustomerAddressesUseCase } from './application/use-cases/customer-profile/manage-customer-addresses.use-case';
 import { GetCustomerOrdersUseCase } from './application/use-cases/customer-profile/get-customer-orders.use-case';
 import { GetCustomerPointsHistoryUseCase } from './application/use-cases/customer-profile/get-customer-points-history.use-case';
+import { UpdateOrderAddressUseCase } from './application/use-cases/customer-profile/update-order-address.use-case';
 
 // Use Cases - Content
 import { GetBlogPostsUseCase } from './application/use-cases/content/get-blog-posts.use-case';
@@ -97,6 +98,9 @@ import { StockMovementRepository } from './infrastructure/repositories/stock-mov
 import { ImportInventoryUseCase } from './application/use-cases/admin/import-inventory.use-case';
 import { GetInventoryLogsUseCase } from './application/use-cases/admin/get-inventory-logs.use-case';
 
+import { AdministrativeUnitOrmEntity } from './infrastructure/database/entities/administrative-unit.orm-entity';
+import { AdministrativeUnitController } from './presentation/controllers/administrative-unit.controller';
+
 const ormEntities = [
   CategoryOrmEntity,
   ProductOrmEntity,
@@ -112,6 +116,7 @@ const ormEntities = [
   CustomerPointTransactionOrmEntity,
   GoldTransactionOrmEntity,
   StockMovementOrmEntity,
+  AdministrativeUnitOrmEntity,
 ];
 
 @Module({
@@ -157,6 +162,7 @@ const ormEntities = [
     CustomerAuthController,
     CustomerProfileController,
     CustomerWalletController,
+    AdministrativeUnitController,
   ],
   providers: [
     SeederService,
@@ -198,6 +204,7 @@ const ormEntities = [
     ManageCustomerAddressesUseCase,
     GetCustomerOrdersUseCase,
     GetCustomerPointsHistoryUseCase,
+    UpdateOrderAddressUseCase,
     GenerateTopupQrUseCase,
     GetGoldWalletUseCase,
     ApproveTopupUseCase,
@@ -234,7 +241,8 @@ const ormEntities = [
         txRepo: CustomerPointTransactionTypeOrmRepository,
         walletRepo: CustomerWalletTypeOrmRepository,
         stockRepo: StockMovementRepository,
-      ) => new CreateOrderUseCase(orderRepo, prodRepo, custRepo, txRepo, walletRepo, stockRepo),
+        addrRepo: CustomerAddressTypeOrmRepository,
+      ) => new CreateOrderUseCase(orderRepo, prodRepo, custRepo, txRepo, walletRepo, stockRepo, addrRepo),
       inject: [
         'IOrderRepository',
         'IProductRepository',
@@ -242,6 +250,7 @@ const ormEntities = [
         'ICustomerPointTransactionRepository',
         'ICustomerWalletRepository',
         'IStockMovementRepository',
+        'ICustomerAddressRepository',
       ],
     },
     {

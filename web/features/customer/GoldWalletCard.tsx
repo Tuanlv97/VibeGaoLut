@@ -27,8 +27,8 @@ export function GoldWalletCard() {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async (showLoading = false) => {
+    if (showLoading) setLoading(true);
     try {
       const res = await fetchAPI<{ goldBalance: number; transactions: GoldTransactionItem[] }>('/customer/wallet/history');
       setGoldBalance(res.goldBalance);
@@ -37,12 +37,28 @@ export function GoldWalletCard() {
     } catch {
       // Fallback
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadData();
+    loadData(true);
+
+    // Auto reload when user switches back to this tab
+    const handleFocus = () => {
+      loadData(false);
+    };
+    window.addEventListener('focus', handleFocus);
+
+    // Auto poll every 4 seconds so topup approval updates automatically
+    const interval = setInterval(() => {
+      loadData(false);
+    }, 4000);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -75,7 +91,7 @@ export function GoldWalletCard() {
               Nạp GOLD Qua VietQR
             </button>
             <button
-              onClick={loadData}
+              onClick={() => loadData(true)}
               disabled={loading}
               className="p-3 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-2xl transition-all"
               title="Làm mới"

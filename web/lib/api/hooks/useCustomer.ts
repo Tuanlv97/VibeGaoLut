@@ -164,3 +164,30 @@ export function useDeleteCustomerAddress() {
     },
   });
 }
+
+export interface UpdateOrderAddressPayload {
+  orderId: string;
+  customerName: string;
+  customerPhone: string;
+  province: string;
+  district?: string;
+  ward: string;
+  addressDetail: string;
+  updateDefaultAddress?: boolean;
+}
+
+export function useUpdateOrderAddress() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ orderId, ...payload }: UpdateOrderAddressPayload) =>
+      fetchAPI<any>(`/customer/orders/${orderId}/address`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customer-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-profile'] });
+    },
+  });
+}

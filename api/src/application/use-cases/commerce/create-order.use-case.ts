@@ -9,6 +9,9 @@ import { LoyaltyPointCalculator } from '@domain/services/loyalty-point.calculato
 import { Customer } from '@domain/entities/customer.entity';
 import { CustomerPointTransaction, PointTransactionType } from '@domain/entities/customer-point-transaction.entity';
 
+import { ICustomerAddressRepository } from '@domain/repositories/customer-address.repository.interface';
+import { CustomerAddress } from '@domain/entities/customer-address.entity';
+
 export interface CreateOrderItemInput {
   productId: string;
   quantity: number;
@@ -28,6 +31,7 @@ export interface CreateOrderInput {
   usePoints?: boolean;
   pointsToUse?: number;
   goldToUse?: number;
+  saveAsDefaultAddress?: boolean;
 }
 
 import { IStockMovementRepository } from '@domain/repositories/stock-movement.repository.interface';
@@ -41,6 +45,7 @@ export class CreateOrderUseCase {
     private readonly transactionRepository?: ICustomerPointTransactionRepository,
     private readonly walletRepository?: any,
     private readonly stockMovementRepository?: IStockMovementRepository,
+    private readonly addressRepository?: ICustomerAddressRepository,
   ) {}
 
   async execute(input: CreateOrderInput): Promise<Order> {
@@ -254,6 +259,33 @@ export class CreateOrderUseCase {
       pointsDiscountAmount,
       pointsEarned,
     );
+
+    // Auto-save address if customer has NO saved address yet, or explicitly asked to save as default
+    if (customer && this.addressRepository) {
+      try {
+        const existingAddresses = await this.addressRepository.findByCustomerId(customer.id);
+        const hasNoAddress = existingAddresses.length === 0;
+
+        if (hasNoAddress || input.saveAsDefaultAddress) {
+          await this.addressRepository.unsetOthersDefault(customer.id);
+          const newAddress = new CustomerAddress(
+            randomUUID(),
+            customer.id,
+            input.customerName.trim(),
+            input.customerPhone.trim(),
+            input.province.trim(),
+            input.district ? input.district.trim() : '',
+            input.ward.trim(),
+            input.addressDetail.trim(),
+            true, // isDefault
+            new Date(),
+          );
+          await this.addressRepository.save(newAddress);
+        }
+      } catch {
+        // Ignore failure to ensure order creation is never blocked
+      }
+    }
 
     return this.orderRepository.save(order);
   }

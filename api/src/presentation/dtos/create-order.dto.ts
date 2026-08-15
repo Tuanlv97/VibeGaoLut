@@ -77,4 +77,9 @@ export class CreateOrderDto {
   @IsOptional()
   @IsNumber()
   pointsToUse?: number;
+
+  @ApiProperty({ required: false, description: 'Whether to save/update this address as default customer address' })
+  @IsOptional()
+  @IsBoolean()
+  saveAsDefaultAddress?: boolean;
 }

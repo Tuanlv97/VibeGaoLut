@@ -49,8 +49,11 @@ export default function CheckoutPage() {
   const [goldToUse, setGoldToUse] = useState<number>(0);
 
   const [paymentMethod, setPaymentMethod] = useState<string>('COD');
+  const [saveAsDefaultAddress, setSaveAsDefaultAddress] = useState<boolean>(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const hasNoAddress = Boolean(token && profile && (!profile.addresses || profile.addresses.length === 0));
 
   const createOrderMutation = useCreateOrder();
 
@@ -161,6 +164,7 @@ export default function CheckoutPage() {
         orderPayload.usePoints = usePoints;
         orderPayload.pointsToUse = usePoints ? pointsToUse : 0;
         orderPayload.goldToUse = useGold ? goldToUse : 0;
+        orderPayload.saveAsDefaultAddress = hasNoAddress || saveAsDefaultAddress;
       }
 
       const result = await createOrderMutation.mutateAsync(orderPayload);
@@ -335,6 +339,9 @@ export default function CheckoutPage() {
             errors={errors}
             isLoggedIn={Boolean(token)}
             customerName={profile?.fullName || customer?.fullName}
+            hasNoAddress={hasNoAddress}
+            saveAsDefault={saveAsDefaultAddress}
+            onToggleSaveAsDefault={setSaveAsDefaultAddress}
           />
 
           {/* Loyalty Points Opt-In Block for Logged-in Customer */}

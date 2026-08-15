@@ -1,12 +1,13 @@
 # MASTER DEVELOPMENT PLAN — GREENPANTRY (TASK TRACKING)
 
-> **QUY TẮC TỐI CAO: DESIGN TRƯỚC — CODE SAU.**
-> **TUYỆT ĐỐI KHÔNG VIẾT CODE FRONTEND / BACKEND / DATABASE TRƯỚC KHI BƯỚC GOOGLE STITCH DESIGN ĐƯỢC CHẤP THUẬN (APPROVED).**
+> **QUY TẮC TỐI CAO:**
+> 1. **DESIGN TRƯỚC — CODE SAU**: TUYỆT ĐỐI KHÔNG VIẾT CODE FRONTEND / BACKEND / DATABASE TRƯỚC KHI BƯỚC GOOGLE STITCH DESIGN ĐƯỢC CHẤP THUẬN (APPROVED).
+> 2. **BẢO TỒN ENCODING TIẾNG VIỆT (UTF-8)**: TOÀN BỘ CÁC THIẾT KẾ BẢNG DATABASE, MIGRATION, SEED DATA SQL VÀ CHỨC NĂNG MỚI BẮT BUỘC PHẢI HIỂN THỊ CHUẨN TIẾNG VIỆT CÓ DẤU (UTF-8 ENCODING). TUYỆT ĐỐI KHÔNG ĐỂ XẢY RA LỖI HỎNG FONT HOẶC DẤU HỎI (? / ??). KHI NẠP SEED SQL VÀO DOCKER POSTGRESQL BẮT BUỘC DÙNG `docker cp` HOẶC CẤU HÌNH UTF-8 ĐỂ ĐẢM BẢO DỮ LIỆU TIẾNG VIỆT ĐỌC ĐƯỢC 100%.
 
 - **Dự án**: GreenPantry Platform
 - **Tác giả**: Senior Solution Architect & Senior Product Manager
-- **Phiên bản**: 3.1.0 (Phase 11 Comprehensive Testing Completed)
-- **Trạng thái**: Phase 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 & 11 Completed 🟢 -> Phase 12 Pending ⚪
+- **Phiên bản**: 3.3.0 (Customer Delivery Address Auto-Save, Auto-Fill & Order Address Edit Completed)
+- **Trạng thái**: Phase 1 - Phase 16 Completed 🟢 (Fully Functional & Production Ready)
 
 ---
 
@@ -672,8 +673,23 @@ PHASE 12: Production Deployment & Infrastructure Setup         [COMPLETED] 🟢
   - [x] 6. Xây dựng UI Frontend: `TopupQrModal` (Modal hiển thị mã VietQR & nút copy cú pháp), `GoldWalletCard` (Khối ví GOLD & bảng lịch sử giao dịch), `AdminWalletTopupPage` (`/admin/wallet` cho phép Admin 1-click duyệt nạp GOLD), cập nhật `Navbar` (Badge GOLD) và `PaymentMethodSelector` tại Checkout.
   - [x] 7. Sửa lỗi sync số dư GOLD: Bổ sung goldBalance vào GetCustomerProfileUseCase/Login/Register và bảo vệ Zustand auth store không bị ghi đè bởi undefined.
   - [x] 8. Fix GOLD payment & Order linking: Thêm paymentMethod vào CreateOrderDto (tránh bị NestJS ValidationPipe tước bỏ), auto-link customerId theo sĐT/email, gộp đơn hàng theo sĐT trong profile, tự động hoàn GOLD khi Admin Hủy đơn hàng và cập nhật UI bảng Admin.
-* **Description**: Hiện thực hóa hoàn chỉnh tính năng Nạp tiền quy đổi GOLD qua VietQR và Thanh toán linh hoạt bằng Ví GOLD.
-* **Dependency**: TASK-P14-02
+---
+
+### PHASE 16 — CUSTOMER DELIVERY ADDRESS MANAGEMENT (CHECK, PROMPT, AUTO-SAVE, AUTO-FILL & ORDER ADDRESS EDIT) 🟢 [COMPLETED]
+
+#### TASK-P16-01
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Customer Delivery Address
+* **Feature**: Delivery Address Check, Prompt, Auto-Save, Auto-Fill & Edit Order Address
+* **Task**: Kiểm tra trạng thái địa chỉ tài khoản khách hàng, tự động nhắc nhở/bắt nhập, tự động lưu làm mặc định, tự động fill cho các đơn sau và hỗ trợ sửa địa chỉ đơn hàng PENDING/PROCESSING.
+* **Sub-tasks**:
+  - [x] 1. Cập nhật `CreateOrderDto` & `CreateOrderUseCase`: nhận cờ `saveAsDefaultAddress`, tự động lưu địa chỉ vào `customer_addresses` nếu khách hàng chưa có địa chỉ hoặc có tích chọn lưu mặc định khi đặt đơn thành công.
+  - [x] 2. Phát triển `UpdateOrderAddressUseCase`, `UpdateOrderAddressDto` & API `PUT /api/v1/customer/orders/:id/address` cho phép khách hàng chỉnh sửa địa chỉ đơn hàng ở trạng thái `PENDING` / `PROCESSING` (hỗ trợ đồng bộ vào Sổ địa chỉ mặc định).
+  - [x] 3. Đăng ký services trong `app.module.ts` và tạo hook `useUpdateOrderAddress` trên Frontend `web/lib/api/hooks/useCustomer.ts`.
+  - [x] 4. Cập nhật Frontend `GuestAddressForm.tsx` & `app/checkout/page.tsx`: Hiển thị Banner nhắc nhở tự động lưu khi chưa có địa chỉ, tự động fill địa chỉ mặc định khi mount, hiển thị checkbox lưu làm mặc định và làm mới cache profile khi mua thành công.
+  - [x] 5. Cập nhật `app/profile/page.tsx`: Thêm nút "Sửa địa chỉ nhận hàng" trên các đơn hàng PENDING/PROCESSING trong tab Lịch sử đơn hàng, tích hợp `EditOrderAddressModal` cho phép đổi tên, sĐT và địa chỉ nhận hàng trực tiếp.
+* **Description**: Hoàn thiện toàn bộ trải nghiệm Quản lý địa chỉ giao hàng thông minh cho tài khoản Khách hàng.
+* **Dependency**: TASK-P15-01
 * **Priority**: HIGH
 
 ---
@@ -1471,5 +1487,23 @@ PHASE 12: Production Deployment & Infrastructure Setup         [COMPLETED] 🟢
 | `web/components/ui/Navbar.tsx` | Client Component (`'use client'`) | Đọc số lượng sản phẩm từ `cart-store` để cập nhật badge số giỏ hàng realtime. |
 | `features/product/ProductCard.tsx` | Client Component (`'use client'`) | Chứa handler click nút "Thêm vào giỏ hàng" kích hoạt Zustand action. |
 | `features/blog/RelatedProductsWidget.tsx` | Client Component (`'use client'`) | Cho phép click "Thêm vào giỏ" ngay trong bài viết blog mà không cần chuyển trang. |
+| `components/checkout/AdministrativeSelects.tsx` | Client Component (`'use client'`) | Select Dropdown 2 Cấp (34 Tỉnh/TP ➔ Phường/Xã với parentId) hiển thị Tiếng Việt UTF-8 chuẩn. |
+
+---
+
+## 5. FEATURE ENHANCEMENT: ADMINISTRATIVE UNITS & UTF-8 ENCODING STANDARD 🟢 [COMPLETED]
+
+#### TASK-AU-01
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Database & System Localization
+* **Feature**: Administrative Units & UTF-8 Vietnamese Standard
+* **Task**: Lưu trữ Đơn Vị Hành Chính 2 Cấp theo parentId và Chuẩn hóa Encoding Tiếng Việt UTF-8
+* **Sub-tasks**:
+  - [x] 1. Thiết kế Bảng Database `administrative_units` với quan hệ tự tham chiếu `parentId` (2 cấp: PROVINCE ➔ WARD, loại bỏ Quận/Huyện).
+  - [x] 2. Nạp dữ liệu danh mục hành chính từ `ITExpressLocation.sql` vào file `02_seed_administrative_units.sql` và database (gồm 34 Tỉnh/Thành phố sáp nhập và 3.321 Phường/Xã trực thuộc, mã hóa UTF-8 Tiếng Việt có dấu chuẩn 100%).
+  - [x] 3. Phát triển REST API Endpoints trong `AdministrativeUnitController` (`/administrative-units/provinces`, `/administrative-units/children/:parentId`).
+  - [x] 4. Xây dựng Component `AdministrativeSelects.tsx` dạng Cascading Dropdown 2 Cấp tự động nạp danh sách Phường/Xã theo Tỉnh/TP đã chọn.
+  - [x] 5. Quy định Quy tắc Tối cao số 2 trong `PLAN.md`: Tất cả thiết kế bảng/chức năng tương lai bắt buộc đọc/ghi dữ liệu Tiếng Việt UTF-8 hiển thị chuẩn xác 100%.
+
 
 
