@@ -38,6 +38,7 @@ export const Navbar: React.FC = () => {
   };
 
   const isProductsActive = pathname.startsWith('/products') || pathname.startsWith('/categories');
+  const isComboActive = pathname.startsWith('/combos');
   const isNewActive = pathname === '/new-products';
   const isBlogActive = pathname.startsWith('/blog');
   const isQaActive = pathname.startsWith('/questions');
@@ -66,6 +67,21 @@ export const Navbar: React.FC = () => {
           >
             <span>Sản Phẩm</span>
             {isProductsActive && (
+              <span className="absolute -bottom-1.5 left-0 right-0 h-[3px] bg-[#2D5A27] rounded-full shadow-xs" />
+            )}
+          </Link>
+
+          <Link
+            href="/combos"
+            className={`relative py-1.5 transition-all flex items-center gap-1 whitespace-nowrap ${
+              isComboActive
+                ? 'text-[#2D5A27] font-bold'
+                : 'font-medium hover:text-[#2D5A27]'
+            }`}
+          >
+            <span>Combo Chay</span>
+            <span className="px-1.5 py-0.5 text-[10px] font-bold bg-[#C86D51] text-white rounded-full uppercase tracking-wider">Hot</span>
+            {isComboActive && (
               <span className="absolute -bottom-1.5 left-0 right-0 h-[3px] bg-[#2D5A27] rounded-full shadow-xs" />
             )}
           </Link>

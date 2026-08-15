@@ -10,6 +10,7 @@ import { AdminRole } from '@domain/enums/admin-role.enum';
 import { OrderStatus } from '@domain/enums/order-status.enum';
 import { ReviewStatus } from '@domain/enums/review-status.enum';
 import { QuestionStatus, QuestionType } from '@domain/enums/question.enum';
+import { Combo, ComboItem } from '@domain/entities/combo.entity';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -348,6 +349,120 @@ export class SeederService {
     ),
   ];
 
+  private readonly combos: Combo[] = [
+    new Combo(
+      'cb100000-0000-4000-8000-000000000001',
+      'Combo Chay Giảm Cân & Siết Mỡ',
+      'combo-chay-giam-can-siet-mo',
+      'WEIGHT_LOSS',
+      'Bộ giải pháp ăn chay giảm cân 7 ngày gồm Gạo lứt đỏ ST25, Yến mạch nổ hông, Đậu đen xanh lòng, Hạt chia và Trà gạo lứt detox. Giúp no lâu, tiêu mỡ bụng và giữ dáng thon gọn.',
+      'Combo Chay Giảm Cân & Siết Mỡ GreenPantry được thiết kế chuyên biệt dựa trên nguyên lý chỉ số đường huyết GI thấp và giàu chất xơ hòa tan. Tập trung đốt cháy mỡ thừa tự nhiên, thanh lọc cơ thể mà không gây mệt mỏi hay mất sức.',
+      420000,
+      349000,
+      71000,
+      'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1000&q=80',
+      [
+        { day: 1, title: 'Ngày 1: Tiêu mỡ & Khởi động', tasks: ['Sáng: 1 bát yến mạch ngâm sữa chua + 1 thìa hạt chia', 'Trưa: 1 bát cơm gạo lứt ST25 + Đậu hũ luộc + Salad rau', 'Tối: 1 ly trà gạo lứt đậu đỏ detox + Nộm rau mầm'] },
+        { day: 2, title: 'Ngày 2: Thanh lọc đường ruột', tasks: ['Sáng: 1 ly bột sắn dây hoa lài mát gan', 'Trưa: 1.5 bát cơm gạo lứt ST25 + Nấm xào + Rau luộc', 'Tối: 1 bát cháo yến mạch đậu đen xanh lòng'] },
+        { day: 3, title: 'Ngày 3: Siết mỡ tăng tốc', tasks: ['Sáng: Yến mạch cán tươi nấu với hạt chia', 'Trưa: 1 bát cơm gạo lứt ST25 + Đậu phụ kho tộ + Canh bí đỏ', 'Tối: Uống 500ml trà gạo lứt đậu đỏ búp ổi'] },
+        { day: 4, title: 'Ngày 4: Xả độc cơ thể', tasks: ['Sáng: 1 ly bột sắn dây ướp hoa lài nhẹ bụng', 'Trưa: 1 bát cơm gạo lứt đỏ ST25 + Nấm xào sả ớt', 'Tối: Salad ngũ sắc mix hạt chia'] },
+        { day: 5, title: 'Ngày 5: Phục hồi năng lượng', tasks: ['Sáng: Smoothie yến mạch chuối + Hạt chia', 'Trưa: 1.5 bát cơm gạo lứt ST25 + Canh rau ngót', 'Tối: Nước trà gạo lứt đậu đỏ nhẹ dạ'] },
+        { day: 6, title: 'Ngày 6: Đốt mỡ chuyên sâu', tasks: ['Sáng: Yến mạch nổ hông ngâm sữa chua', 'Trưa: Cơm gạo lứt ST25 + Đậu phụ rán ngố + Rau mầm', 'Tối: Súp yến mạch rau củ'] },
+        { day: 7, title: 'Ngày 7: Tổng kết & Duy trì', tasks: ['Sáng: 1 ly bột sắn dây hoa lài', 'Trưa: Cơm gạo lứt đỏ ST25 + Nấm đùi gà nướng', 'Tối: Trà thảo mộc gạo lứt đậu đỏ kết thúc tuần'] }
+      ],
+      true,
+      [
+        new ComboItem('cbi-1', 'cb100000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000001', 2, 85000),
+        new ComboItem('cbi-2', 'cb100000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000002', 1, 65000),
+        new ComboItem('cbi-3', 'cb100000-0000-4000-8000-000000000001', 'f3000000-0000-4000-8000-000000000001', 1, 95000),
+        new ComboItem('cbi-4', 'cb100000-0000-4000-8000-000000000001', 'f4000000-0000-4000-8000-000000000001', 1, 110000),
+      ]
+    ),
+    new Combo(
+      'cb200000-0000-4000-8000-000000000002',
+      'Combo Chay Tăng Cân & High-Protein',
+      'combo-chay-tang-can-high-protein',
+      'WEIGHT_GAIN',
+      'Giải pháp bổ sung Protein & Calo thuần chay cho người muốn tăng cân lành mạnh, dồi dào năng lượng với Bột ngũ cốc 25 loại hạt, Granola, Hạt điều sấy và Yến mạch.',
+      'Bộ Combo thiết kế cho người ăn chay bị gầy, mệt mỏi hoặc tập luyện gym/sports cần đạm thực vật. Giúp hấp thu dinh dưỡng tối đa, xây dựng cơ bắp săn chắc.',
+      580000,
+      489000,
+      91000,
+      'https://images.unsplash.com/photo-1509358271058-acd01cc9386a?auto=format&fit=crop&w=1000&q=80',
+      [
+        { day: 1, title: 'Ngày 1: Nạp Calo Chất Lượng', tasks: ['Sáng: 1 ly bột ngũ cốc High-Protein + 2 lát bánh mì yến mạch', 'Phụ sáng: 30g Granola nướng mật ong', 'Trưa: Cơm gạo lứt + Đậu phụ kho nấm', 'Tối: Smoothie hạt điều + Yến mạch'] },
+        { day: 2, title: 'Ngày 2: Tăng Cường Đạm Thực Vật', tasks: ['Sáng: Cháo yến mạch hạt điều ngậy béo', 'Phụ chiều: 1 ly bột ngũ cốc dinh dưỡng', 'Trưa: Cơm gạo lứt + Canh đậu phộng', 'Tối: Granola trộn sữa hạt'] }
+      ],
+      true,
+      [
+        new ComboItem('cbi-5', 'cb200000-0000-4000-8000-000000000002', 'f2000000-0000-4000-8000-000000000001', 1, 145000),
+        new ComboItem('cbi-6', 'cb200000-0000-4000-8000-000000000002', 'f2000000-0000-4000-8000-000000000002', 2, 165000),
+        new ComboItem('cbi-7', 'cb200000-0000-4000-8000-000000000002', 'f1000000-0000-4000-8000-000000000002', 1, 65000),
+      ]
+    ),
+    new Combo(
+      'cb300000-0000-4000-8000-000000000003',
+      'Combo Sức Khỏe Chay & Dưỡng Sinh Trẻ Hóa',
+      'combo-suc-khoe-chay-duong-sinh',
+      'HEALTH',
+      'Bộ thực dưỡng cao cấp gồm Trà hoa cúc San Tuyết, Trà gạo lứt đậu đỏ, Bột sắn dây ta ướp hoa lài và Gạo lứt ST25. An thần, bồi bổ tâm trí, trẻ hóa da.',
+      'Sự kết hợp hoàn hảo giữa đông y dưỡng sinh Ohsawa và thảo mộc tự nhiên. Phù hợp cho người ăn chay trường, người trung niên cần ngủ ngon, thanh nhiệt hạ hỏa.',
+      510000,
+      429000,
+      81000,
+      'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=1000&q=80',
+      [
+        { day: 1, title: 'Ngày 1: An Thần & Hạ Hỏa', tasks: ['Sáng: 1 ly bột sắn dây ướp hoa lài ấm', 'Trưa: Cơm gạo lứt dẻo thơm + Canh bí xanh nấm', 'Tối: 1 ấm Trà hoa cúc San Tuyết trước khi ngủ 30 phút'] }
+      ],
+      true,
+      [
+        new ComboItem('cbi-8', 'cb300000-0000-4000-8000-000000000003', 'f3000000-0000-4000-8000-000000000002', 1, 120000),
+        new ComboItem('cbi-9', 'cb300000-0000-4000-8000-000000000003', 'f3000000-0000-4000-8000-000000000001', 1, 95000),
+        new ComboItem('cbi-10', 'cb300000-0000-4000-8000-000000000003', 'f4000000-0000-4000-8000-000000000001', 1, 110000),
+        new ComboItem('cbi-11', 'cb300000-0000-4000-8000-000000000003', 'f1000000-0000-4000-8000-000000000001', 2, 85000),
+      ]
+    ),
+    new Combo(
+      'cb400000-0000-4000-8000-000000000004',
+      'Combo Chay Văn Phòng Nhanh & Gọn',
+      'combo-chay-van-phong-nhanh-gon',
+      'OFFICE',
+      'Gói thực phẩm chay ăn liền & pha uống siêu nhanh tại bàn làm việc: Granola nướng mật ong, Hạt điều sấy, Trà gạo lứt và Yến mạch cán tươi.',
+      'Tiện lợi, không tốn thời gian chế biến, cung cấp năng lượng tỉnh táo cả ngày làm việc mà không lo tích mỡ thừa.',
+      360000,
+      299000,
+      61000,
+      'https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=1000&q=80',
+      [],
+      true,
+      [
+        new ComboItem('cbi-12', 'cb400000-0000-4000-8000-000000000004', 'f2000000-0000-4000-8000-000000000002', 1, 165000),
+        new ComboItem('cbi-13', 'cb400000-0000-4000-8000-000000000004', 'f2000000-0000-4000-8000-000000000001', 1, 145000),
+        new ComboItem('cbi-14', 'cb400000-0000-4000-8000-000000000004', 'f1000000-0000-4000-8000-000000000002', 1, 65000),
+      ]
+    ),
+    new Combo(
+      'cb500000-0000-4000-8000-000000000005',
+      'Combo Chay Gia Đình & Bếp Xanh',
+      'combo-chay-gia-dinh-bep-xanh',
+      'FAMILY',
+      'Gói nhu yếu phẩm chay dinh dưỡng cho cả gia đình: Gạo lứt ST25 (3kg), Hạt điều, Yến mạch, Bột sắn dây và Trà thảo mộc dưỡng sinh.',
+      'Lựa chọn hoàn hảo cho các bữa ăn chay rằm, mùng một hoặc chế độ ăn xanh hàng tuần cho cả nhà.',
+      750000,
+      629000,
+      121000,
+      'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1000&q=80',
+      [],
+      true,
+      [
+        new ComboItem('cbi-15', 'cb500000-0000-4000-8000-000000000005', 'f1000000-0000-4000-8000-000000000001', 3, 85000),
+        new ComboItem('cbi-16', 'cb500000-0000-4000-8000-000000000005', 'f2000000-0000-4000-8000-000000000001', 2, 145000),
+        new ComboItem('cbi-17', 'cb500000-0000-4000-8000-000000000005', 'f4000000-0000-4000-8000-000000000001', 1, 110000),
+        new ComboItem('cbi-18', 'cb500000-0000-4000-8000-000000000005', 'f3000000-0000-4000-8000-000000000001', 1, 95000),
+      ]
+    ),
+  ];
+
   private readonly questions: Question[] = [];
 
   private readonly orders: Order[] = [];
@@ -383,6 +498,10 @@ export class SeederService {
 
   getProducts(): Product[] {
     return this.products;
+  }
+
+  getCombos(): Combo[] {
+    return this.combos;
   }
 
   getBlogPosts(): BlogPost[] {

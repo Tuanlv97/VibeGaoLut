@@ -396,21 +396,138 @@ export const MOCK_QUESTIONS: Question[] = [];
 
 export const MOCK_REVIEWS: Review[] = [];
 
-export function deductMockStock(productId: string, quantity: number): void {
-  const prod = MOCK_PRODUCTS.find(
-    (p) => p.id === productId || p.slug === productId || p.name === productId
-  );
-  if (prod) {
-    prod.stockQuantity = Math.max(0, prod.stockQuantity - quantity);
-  }
+export interface ComboItem {
+  id: string;
+  comboId: string;
+  productId: string;
+  quantity: number;
+  unitPrice: number;
+  productName?: string;
+  productImage?: string;
+  productSlug?: string;
 }
 
-export function restockMockStock(productId: string, quantity: number): void {
-  const prod = MOCK_PRODUCTS.find(
-    (p) => p.id === productId || p.slug === productId || p.name === productId
-  );
-  if (prod) {
-    prod.stockQuantity += quantity;
-  }
+export interface Combo {
+  id: string;
+  name: string;
+  slug: string;
+  comboType: 'WEIGHT_LOSS' | 'WEIGHT_GAIN' | 'HEALTH' | 'OFFICE' | 'FAMILY';
+  shortDescription: string;
+  fullDescription: string;
+  originalPrice: number;
+  comboPrice: number;
+  savingsAmount: number;
+  bannerUrl: string;
+  mealPlanJson?: { day: number; title: string; tasks: string[] }[];
+  isActive: boolean;
+  items: ComboItem[];
 }
+
+export const MOCK_COMBOS: Combo[] = [
+  {
+    id: 'cb100000-0000-4000-8000-000000000001',
+    name: 'Combo Chay Giảm Cân & Siết Mỡ',
+    slug: 'combo-chay-giam-can-siet-mo',
+    comboType: 'WEIGHT_LOSS',
+    shortDescription: 'Bộ giải pháp ăn chay giảm cân 7 ngày gồm Gạo lứt đỏ ST25, Yến mạch nổ hông, Đậu đen xanh lòng, Hạt chia và Trà gạo lứt detox. Giúp no lâu, tiêu mỡ bụng và giữ dáng thon gọn.',
+    fullDescription: 'Combo Chay Giảm Cân & Siết Mỡ GreenPantry được thiết kế chuyên biệt dựa trên nguyên lý chỉ số đường huyết GI thấp và giàu chất xơ hòa tan. Tập trung đốt cháy mỡ thừa tự nhiên, thanh lọc cơ thể mà không gây mệt mỏi hay mất sức.',
+    originalPrice: 420000,
+    comboPrice: 349000,
+    savingsAmount: 71000,
+    bannerUrl: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1000&q=80',
+    mealPlanJson: [
+      { day: 1, title: 'Ngày 1: Tiêu mỡ & Khởi động', tasks: ['Sáng: 1 bát yến mạch ngâm sữa chua + 1 thìa hạt chia', 'Trưa: 1 bát cơm gạo lứt ST25 + Đậu hũ luộc + Salad rau', 'Tối: 1 ly trà gạo lứt đậu đỏ detox + Nộm rau mầm'] },
+      { day: 2, title: 'Ngày 2: Thanh lọc đường ruột', tasks: ['Sáng: 1 ly bột sắn dây hoa lài mát gan', 'Trưa: 1.5 bát cơm gạo lứt ST25 + Nấm xào + Rau luộc', 'Tối: 1 bát cháo yến mạch đậu đen xanh lòng'] },
+      { day: 3, title: 'Ngày 3: Siết mỡ tăng tốc', tasks: ['Sáng: Yến mạch cán tươi nấu với hạt chia', 'Trưa: 1 bát cơm gạo lứt ST25 + Đậu phụ kho tộ + Canh bí đỏ', 'Tối: Uống 500ml trà gạo lứt đậu đỏ búp ổi'] },
+      { day: 4, title: 'Ngày 4: Xả độc cơ thể', tasks: ['Sáng: 1 ly bột sắn dây ướp hoa lài nhẹ bụng', 'Trưa: 1 bát cơm gạo lứt đỏ ST25 + Nấm xào sả ớt', 'Tối: Salad ngũ sắc mix hạt chia'] },
+      { day: 5, title: 'Ngày 5: Phục hồi năng lượng', tasks: ['Sáng: Smoothie yến mạch chuối + Hạt chia', 'Trưa: 1.5 bát cơm gạo lứt ST25 + Canh rau ngót', 'Tối: Nước trà gạo lứt đậu đỏ nhẹ dạ'] },
+      { day: 6, title: 'Ngày 6: Đốt mỡ chuyên sâu', tasks: ['Sáng: Yến mạch nổ hông ngâm sữa chua', 'Trưa: Cơm gạo lứt ST25 + Đậu phụ rán ngố + Rau mầm', 'Tối: Súp yến mạch rau củ'] },
+      { day: 7, title: 'Ngày 7: Tổng kết & Duy trì', tasks: ['Sáng: 1 ly bột sắn dây hoa lài', 'Trưa: Cơm gạo lứt đỏ ST25 + Nấm đùi gà nướng', 'Tối: Trà thảo mộc gạo lứt đậu đỏ kết thúc tuần'] }
+    ],
+    isActive: true,
+    items: [
+      { id: 'cbi-1', comboId: 'cb1', productId: 'f1000000-0000-4000-8000-000000000001', quantity: 2, unitPrice: 85000, productName: 'Gạo Lứt Đỏ ST25 Nguyên Cám 1kg', productImage: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=1000&q=80', productSlug: 'gao-lut-do-st25-nguyen-cam-1kg' },
+      { id: 'cbi-2', comboId: 'cb1', productId: 'f1000000-0000-4000-8000-000000000002', quantity: 1, unitPrice: 65000, productName: 'Yến Mạch Cán Tươi Nguyên Cám 500g', productImage: 'https://images.unsplash.com/photo-1517673400267-0251440c45dc?auto=format&fit=crop&w=1000&q=80', productSlug: 'yen-mach-can-tuoi-nguyen-cam-500g' },
+      { id: 'cbi-3', comboId: 'cb1', productId: 'f3000000-0000-4000-8000-000000000001', quantity: 1, unitPrice: 95000, productName: 'Trà Gạo Lứt Đậu Đỏ Thảo Mộc 500g', productImage: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=1000&q=80', productSlug: 'tra-gao-lut-dau-do-thao-moc-500g' },
+      { id: 'cbi-4', comboId: 'cb1', productId: 'f4000000-0000-4000-8000-000000000001', quantity: 1, unitPrice: 110000, productName: 'Bột Sắn Dây Ta Ướp Hoa Lài 500g', productImage: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=1000&q=80', productSlug: 'bot-san-day-ta-uop-hoa-lai-500g' }
+    ]
+  },
+  {
+    id: 'cb200000-0000-4000-8000-000000000002',
+    name: 'Combo Chay Tăng Cân & High-Protein',
+    slug: 'combo-chay-tang-can-high-protein',
+    comboType: 'WEIGHT_GAIN',
+    shortDescription: 'Giải pháp bổ sung Protein & Calo thuần chay cho người muốn tăng cân lành mạnh, dồi dào năng lượng với Bột ngũ cốc 25 loại hạt, Granola, Hạt điều sấy và Yến mạch.',
+    fullDescription: 'Bộ Combo thiết kế cho người ăn chay bị gầy, mệt mỏi hoặc tập luyện gym/sports cần đạm thực vật. Giúp hấp thu dinh dưỡng tối đa, xây dựng cơ bắp săn chắc.',
+    originalPrice: 580000,
+    comboPrice: 489000,
+    savingsAmount: 91000,
+    bannerUrl: 'https://images.unsplash.com/photo-1509358271058-acd01cc9386a?auto=format&fit=crop&w=1000&q=80',
+    mealPlanJson: [
+      { day: 1, title: 'Ngày 1: Nạp Calo Chất Lượng', tasks: ['Sáng: 1 ly bột ngũ cốc High-Protein + 2 lát bánh mì yến mạch', 'Phụ sáng: 30g Granola nướng mật ong', 'Trưa: Cơm gạo lứt + Đậu phụ kho nấm', 'Tối: Smoothie hạt điều + Yến mạch'] }
+    ],
+    isActive: true,
+    items: [
+      { id: 'cbi-5', comboId: 'cb2', productId: 'f2000000-0000-4000-8000-000000000001', quantity: 1, unitPrice: 145000, productName: 'Hạt Điều Sấy Nguyên Vị Bình Phước 500g', productImage: 'https://images.unsplash.com/photo-1509358271058-acd01cc9386a?auto=format&fit=crop&w=1000&q=80', productSlug: 'hat-dieu-say-nguyen-vi-binh-phuoc-500g' },
+      { id: 'cbi-6', comboId: 'cb2', productId: 'f2000000-0000-4000-8000-000000000002', quantity: 2, unitPrice: 165000, productName: 'Granola Nướng Mật Ong Siêu Hạt 500g', productImage: 'https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=1000&q=80', productSlug: 'granola-nuong-mat-ong-sieu-hat-500g' },
+      { id: 'cbi-7', comboId: 'cb2', productId: 'f1000000-0000-4000-8000-000000000002', quantity: 1, unitPrice: 65000, productName: 'Yến Mạch Cán Tươi Nguyên Cám 500g', productImage: 'https://images.unsplash.com/photo-1517673400267-0251440c45dc?auto=format&fit=crop&w=1000&q=80', productSlug: 'yen-mach-can-tuoi-nguyen-cam-500g' }
+    ]
+  },
+  {
+    id: 'cb300000-0000-4000-8000-000000000003',
+    name: 'Combo Sức Khỏe Chay & Dưỡng Sinh Trẻ Hóa',
+    slug: 'combo-suc-khoe-chay-duong-sinh',
+    comboType: 'HEALTH',
+    shortDescription: 'Bộ thực dưỡng cao cấp gồm Trà hoa cúc San Tuyết, Trà gạo lứt đậu đỏ, Bột sắn dây ta ướp hoa lài và Gạo lứt ST25. An thần, bồi bổ tâm trí, trẻ hóa da.',
+    fullDescription: 'Sự kết hợp hoàn hảo giữa đông y dưỡng sinh Ohsawa và thảo mộc tự nhiên. Phù hợp cho người ăn chay trường, người trung niên cần ngủ ngon, thanh nhiệt hạ hỏa.',
+    originalPrice: 510000,
+    comboPrice: 429000,
+    savingsAmount: 81000,
+    bannerUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=1000&q=80',
+    mealPlanJson: [
+      { day: 1, title: 'Ngày 1: An Thần & Hạ Hỏa', tasks: ['Sáng: 1 ly bột sắn dây ướp hoa lài ấm', 'Trưa: Cơm gạo lứt dẻo thơm + Canh bí xanh nấm', 'Tối: 1 ấm Trà hoa cúc San Tuyết trước khi ngủ 30 phút'] }
+    ],
+    isActive: true,
+    items: [
+      { id: 'cbi-8', comboId: 'cb3', productId: 'f3000000-0000-4000-8000-000000000002', quantity: 1, unitPrice: 120000, productName: 'Trà Hoa Cúc San Tuyết Nguyên Nụ 100g', productImage: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?auto=format&fit=crop&w=1000&q=80', productSlug: 'tra-hoa-cuc-san-tuyet-nguyen-nu-100g' },
+      { id: 'cbi-9', comboId: 'cb3', productId: 'f3000000-0000-4000-8000-000000000001', quantity: 1, unitPrice: 95000, productName: 'Trà Gạo Lứt Đậu Đỏ Thảo Mộc 500g', productImage: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=1000&q=80', productSlug: 'tra-gao-lut-dau-do-thao-moc-500g' },
+      { id: 'cbi-10', comboId: 'cb3', productId: 'f4000000-0000-4000-8000-000000000001', quantity: 1, unitPrice: 110000, productName: 'Bột Sắn Dây Ta Ướp Hoa Lài 500g', productImage: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=1000&q=80', productSlug: 'bot-san-day-ta-uop-hoa-lai-500g' },
+      { id: 'cbi-11', comboId: 'cb3', productId: 'f1000000-0000-4000-8000-000000000001', quantity: 2, unitPrice: 85000, productName: 'Gạo Lứt Đỏ ST25 Nguyên Cám 1kg', productImage: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=1000&q=80', productSlug: 'gao-lut-do-st25-nguyen-cam-1kg' }
+    ]
+  },
+  {
+    id: 'cb400000-0000-4000-8000-000000000004',
+    name: 'Combo Chay Văn Phòng Nhanh & Gọn',
+    slug: 'combo-chay-van-phong-nhanh-gon',
+    comboType: 'OFFICE',
+    shortDescription: 'Gói thực phẩm chay ăn liền & pha uống siêu nhanh tại bàn làm việc: Granola nướng mật ong, Hạt điều sấy, Trà gạo lứt và Yến mạch cán tươi.',
+    fullDescription: 'Tiện lợi, không tốn thời gian chế biến, cung cấp năng lượng tỉnh táo cả ngày làm việc mà không lo tích mỡ thừa.',
+    originalPrice: 360000,
+    comboPrice: 299000,
+    savingsAmount: 61000,
+    bannerUrl: 'https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=1000&q=80',
+    isActive: true,
+    items: [
+      { id: 'cbi-12', comboId: 'cb4', productId: 'f2000000-0000-4000-8000-000000000002', quantity: 1, unitPrice: 165000, productName: 'Granola Nướng Mật Ong Siêu Hạt 500g', productImage: 'https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?auto=format&fit=crop&w=1000&q=80', productSlug: 'granola-nuong-mat-ong-sieu-hat-500g' },
+      { id: 'cbi-13', comboId: 'cb4', productId: 'f2000000-0000-4000-8000-000000000001', quantity: 1, unitPrice: 145000, productName: 'Hạt Điều Sấy Nguyên Vị Bình Phước 500g', productImage: 'https://images.unsplash.com/photo-1509358271058-acd01cc9386a?auto=format&fit=crop&w=1000&q=80', productSlug: 'hat-dieu-say-nguyen-vi-binh-phuoc-500g' }
+    ]
+  },
+  {
+    id: 'cb500000-0000-4000-8000-000000000005',
+    name: 'Combo Chay Gia Đình & Bếp Xanh',
+    slug: 'combo-chay-gia-dinh-bep-xanh',
+    comboType: 'FAMILY',
+    shortDescription: 'Gói nhu yếu phẩm chay dinh dưỡng cho cả gia đình: Gạo lứt ST25 (3kg), Hạt điều, Yến mạch, Bột sắn dây và Trà thảo mộc dưỡng sinh.',
+    fullDescription: 'Lựa chọn hoàn hảo cho các bữa ăn chay rằm, mùng một hoặc chế độ ăn xanh hàng tuần cho cả nhà.',
+    originalPrice: 750000,
+    comboPrice: 629000,
+    savingsAmount: 121000,
+    bannerUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1000&q=80',
+    isActive: true,
+    items: [
+      { id: 'cbi-15', comboId: 'cb5', productId: 'f1000000-0000-4000-8000-000000000001', quantity: 3, unitPrice: 85000, productName: 'Gạo Lứt Đỏ ST25 Nguyên Cám 1kg', productImage: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=1000&q=80', productSlug: 'gao-lut-do-st25-nguyen-cam-1kg' },
+      { id: 'cbi-16', comboId: 'cb5', productId: 'f2000000-0000-4000-8000-000000000001', quantity: 2, unitPrice: 145000, productName: 'Hạt Điều Sấy Nguyên Vị Bình Phước 500g', productImage: 'https://images.unsplash.com/photo-1509358271058-acd01cc9386a?auto=format&fit=crop&w=1000&q=80', productSlug: 'hat-dieu-say-nguyen-vi-binh-phuoc-500g' }
+    ]
+  }
+];
 

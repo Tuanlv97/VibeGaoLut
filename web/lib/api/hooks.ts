@@ -7,10 +7,12 @@ import {
   Category,
   BlogPost,
   Question,
+  Combo,
   MOCK_PRODUCTS,
   MOCK_CATEGORIES,
   MOCK_BLOG_POSTS,
   MOCK_QUESTIONS,
+  MOCK_COMBOS,
 } from '@/lib/mock-data';
 
 export interface ProductsQueryParams {
@@ -533,15 +535,40 @@ export function useUpdateAdminUser() {
   });
 }
 
-// 29. Delete Admin User
-export function useDeleteAdminUser() {
-  return useMutation({
-    mutationFn: async (id: string) => {
-      return await fetchAPI<any>(`/admin/users/${id}`, {
-        method: 'DELETE',
-      });
+// 30. Combos List Hook
+export function useCombos(type?: string, search?: string) {
+  return useQuery({
+    queryKey: ['combos', type, search],
+    queryFn: async () => {
+      try {
+        const params = new URLSearchParams();
+        if (type) params.set('type', type);
+        if (search) params.set('search', search);
+        const res = await fetchAPI<Combo[]>(`/combos?${params.toString()}`);
+        return res && res.length > 0 ? res : MOCK_COMBOS;
+      } catch {
+        return MOCK_COMBOS;
+      }
     },
   });
 }
+
+// 31. Combo Detail Hook
+export function useComboDetail(slug: string) {
+  return useQuery({
+    queryKey: ['combo', slug],
+    queryFn: async () => {
+      try {
+        const res = await fetchAPI<Combo>(`/combos/${slug}`);
+        if (res) return res;
+      } catch {
+        // Fallback to mock combo
+      }
+      const mock = MOCK_COMBOS.find((c) => c.slug === slug || c.id === slug);
+      return mock || MOCK_COMBOS[0];
+    },
+  });
+}
+
 
 

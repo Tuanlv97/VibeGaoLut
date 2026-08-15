@@ -104,6 +104,13 @@ import { AdministrativeUnitController } from './presentation/controllers/adminis
 import { ChatbotController } from './presentation/controllers/chatbot.controller';
 import { QueryChatbotUseCase } from './application/use-cases/chatbot/query-chatbot.use-case';
 
+import { ComboOrmEntity } from './infrastructure/database/entities/combo.orm-entity';
+import { ComboItemOrmEntity } from './infrastructure/database/entities/combo-item.orm-entity';
+import { ComboTypeOrmRepository } from './infrastructure/repositories/combo.repository';
+import { GetCombosUseCase } from './application/use-cases/catalog/get-combos.use-case';
+import { GetComboDetailUseCase } from './application/use-cases/catalog/get-combo-detail.use-case';
+import { ComboController } from './presentation/controllers/combo.controller';
+
 const ormEntities = [
   CategoryOrmEntity,
   ProductOrmEntity,
@@ -120,6 +127,8 @@ const ormEntities = [
   GoldTransactionOrmEntity,
   StockMovementOrmEntity,
   AdministrativeUnitOrmEntity,
+  ComboOrmEntity,
+  ComboItemOrmEntity,
 ];
 
 @Module({
@@ -155,6 +164,7 @@ const ormEntities = [
   ],
   controllers: [
     ProductController,
+    ComboController,
     OrderController,
     ReviewController,
     BlogController,
@@ -182,6 +192,7 @@ const ormEntities = [
 
     // Repositories
     { provide: 'IProductRepository', useClass: ProductRepository },
+    { provide: 'IComboRepository', useClass: ComboTypeOrmRepository },
     { provide: 'ICategoryRepository', useClass: CategoryRepository },
     { provide: 'IOrderRepository', useClass: OrderRepository },
     { provide: 'IReviewRepository', useClass: ReviewRepository },
@@ -240,6 +251,16 @@ const ormEntities = [
       provide: 'GetCategoriesUseCase',
       useFactory: (repo: CategoryRepository) => new GetCategoriesUseCase(repo),
       inject: ['ICategoryRepository'],
+    },
+    {
+      provide: 'GetCombosUseCase',
+      useFactory: (repo: ComboTypeOrmRepository) => new GetCombosUseCase(repo),
+      inject: ['IComboRepository'],
+    },
+    {
+      provide: 'GetComboDetailUseCase',
+      useFactory: (repo: ComboTypeOrmRepository) => new GetComboDetailUseCase(repo),
+      inject: ['IComboRepository'],
     },
 
     // Commerce Use Cases
