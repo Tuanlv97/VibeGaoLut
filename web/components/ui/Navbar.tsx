@@ -13,6 +13,11 @@ export const Navbar: React.FC = () => {
   const [mounted, setMounted] = React.useState(false);
 
   const { customer, token, logout } = useCustomerAuthStore();
+  const totalCartCount = useCartStore((s) => s.getTotalCount());
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   React.useEffect(() => {
     setMounted(true);
@@ -22,13 +27,8 @@ export const Navbar: React.FC = () => {
     return null;
   }
 
-  const totalCartCount = useCartStore((s) => s.getTotalCount());
   const displayCartCount = mounted ? totalCartCount : 0;
   const isCustomerLoggedIn = mounted && !!token && !!customer;
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

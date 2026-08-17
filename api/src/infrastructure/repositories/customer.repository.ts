@@ -60,6 +60,58 @@ export class CustomerTypeOrmRepository implements ICustomerRepository {
     return found || null;
   }
 
+  async findAll(params?: { search?: string; status?: string }): Promise<Customer[]> {
+    let result: Customer[] = [];
+    if (this.typeOrmRepo) {
+      try {
+        const query = this.typeOrmRepo.createQueryBuilder('customer')
+          .leftJoinAndSelect('customer.addresses', 'addresses')
+          .orderBy('customer.createdAt', 'DESC');
+
+        if (params?.search) {
+          const searchLower = `%${params.search.toLowerCase()}%`;
+          query.andWhere(
+            '(LOWER(customer.fullName) LIKE :search OR customer.phone LIKE :search OR LOWER(customer.email) LIKE :search)',
+            { search: searchLower },
+          );
+        }
+
+        if (params?.status === 'active') {
+          query.andWhere('customer.isActive = :isActive', { isActive: true });
+        } else if (params?.status === 'inactive') {
+          query.andWhere('customer.isActive = :isActive', { isActive: false });
+        }
+
+        const found = await query.getMany();
+        if (found && found.length > 0) {
+          result = found.map((item) => CustomerMapper.toDomain(item));
+        }
+      } catch (err) {
+        console.error('Error fetching customers from TypeORM:', err);
+      }
+    }
+
+    if (result.length === 0) {
+      result = [...this.inMemoryCustomers];
+      if (params?.search) {
+        const s = params.search.toLowerCase();
+        result = result.filter(
+          (c) =>
+            c.fullName.toLowerCase().includes(s) ||
+            c.phone.includes(s) ||
+            c.email.toLowerCase().includes(s),
+        );
+      }
+      if (params?.status === 'active') {
+        result = result.filter((c) => c.isActive);
+      } else if (params?.status === 'inactive') {
+        result = result.filter((c) => !c.isActive);
+      }
+    }
+
+    return result;
+  }
+
   async save(customer: Customer): Promise<Customer> {
     const index = this.inMemoryCustomers.findIndex((c) => c.id === customer.id);
     if (index >= 0) {

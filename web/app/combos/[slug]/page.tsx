@@ -35,7 +35,7 @@ export default function ComboDetailPage() {
 
   const addItemToCart = useCartStore((s) => s.addItem);
   const addTodo = useTodoStore((s) => s.addTodo);
-  const { showToast } = useToast();
+  const toast = useToast();
 
   const [activeDay, setActiveDay] = useState<number>(1);
 
@@ -73,12 +73,12 @@ export default function ComboDetailPage() {
       );
     });
 
-    showToast(`Đã thêm toàn bộ ${combo.items.length} món trong "${combo.name}" vào Giỏ Hàng!`, 'success');
+    toast.success(`Đã thêm toàn bộ ${combo.items.length} món trong "${combo.name}" vào Giỏ Hàng!`);
   };
 
   const handleImportMealPlanToTodo = () => {
     if (!combo.mealPlanJson || combo.mealPlanJson.length === 0) {
-      showToast('Gói Combo này chưa có lịch trình thực đơn mẫu 7 ngày.', 'info');
+      toast.error('Gói Combo này chưa có lịch trình thực đơn mẫu 7 ngày.');
       return;
     }
 
@@ -94,7 +94,7 @@ export default function ComboDetailPage() {
       });
     });
 
-    showToast(`Đã nạp toàn bộ Thực đơn 7 ngày của "${combo.name}" vào trang Todo của bạn!`, 'success');
+    toast.success(`Đã nạp toàn bộ Thực đơn 7 ngày của "${combo.name}" vào trang Todo của bạn!`);
     router.push('/todo');
   };
 

@@ -19,6 +19,7 @@ export function AdminSidebar() {
     { label: 'Sản Phẩm', href: '/admin/products', icon: '🌾' },
     { label: 'Quản Lý Kho Hàng', href: '/admin/inventory', icon: '🏬' },
     { label: 'Đơn Hàng', href: '/admin/orders', icon: '📦' },
+    { label: 'Khách Hàng', href: '/admin/customers', icon: '👤' },
     { label: 'Bài Viết Blog', href: '/admin/blog', icon: '📝' },
     { label: 'Hỏi Đáp Q&A', href: '/admin/questions', icon: '💬' },
     ...(isSuperAdmin

@@ -58,21 +58,16 @@ export function useProducts(params?: ProductsQueryParams) {
   return useQuery({
     queryKey: ['products', params],
     queryFn: async () => {
-      try {
-        const queryStr = new URLSearchParams();
-        if (params?.categoryId) queryStr.set('categoryId', params.categoryId);
-        if (params?.minPrice) queryStr.set('minPrice', params.minPrice.toString());
-        if (params?.maxPrice) queryStr.set('maxPrice', params.maxPrice.toString());
-        if (params?.search) queryStr.set('search', params.search);
-        if (params?.sort) queryStr.set('sort', params.sort);
-        if (params?.page) queryStr.set('page', params.page.toString());
-        if (params?.limit) queryStr.set('limit', params.limit.toString());
+      const queryStr = new URLSearchParams();
+      if (params?.categoryId) queryStr.set('categoryId', params.categoryId);
+      if (params?.minPrice) queryStr.set('minPrice', params.minPrice.toString());
+      if (params?.maxPrice) queryStr.set('maxPrice', params.maxPrice.toString());
+      if (params?.search) queryStr.set('search', params.search);
+      if (params?.sort) queryStr.set('sort', params.sort);
+      if (params?.page) queryStr.set('page', params.page.toString());
+      if (params?.limit) queryStr.set('limit', params.limit.toString());
 
-        const res = await fetchAPI<{ items: any[]; total: number }>(`/products?${queryStr.toString()}`);
-        return res;
-      } catch {
-        return { items: [], total: 0 };
-      }
+      return await fetchAPI<{ items: any[]; total: number }>(`/products?${queryStr.toString()}`);
     },
   });
 }
@@ -82,11 +77,7 @@ export function useNewArrivals() {
   return useQuery({
     queryKey: ['products', 'new-arrivals'],
     queryFn: async () => {
-      try {
-        return await fetchAPI<any[]>('/products/new-arrivals');
-      } catch {
-        return [];
-      }
+      return await fetchAPI<any[]>('/products/new-arrivals');
     },
   });
 }
@@ -96,11 +87,7 @@ export function useProductDetail(slug: string) {
   return useQuery({
     queryKey: ['product', slug],
     queryFn: async () => {
-      try {
-        return await fetchAPI<any>(`/products/${slug}`);
-      } catch {
-        return null;
-      }
+      return await fetchAPI<any>(`/products/${slug}`);
     },
     enabled: Boolean(slug),
   });
@@ -111,11 +98,7 @@ export function useCategories() {
   return useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      try {
-        return await fetchAPI<any[]>('/categories');
-      } catch {
-        return [];
-      }
+      return await fetchAPI<any[]>('/categories');
     },
   });
 }
@@ -535,20 +518,27 @@ export function useUpdateAdminUser() {
   });
 }
 
+// 29. Delete Admin User
+export function useDeleteAdminUser() {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      return await fetchAPI<any>(`/admin/users/${id}`, {
+        method: 'DELETE',
+      });
+    },
+  });
+}
+
+
 // 30. Combos List Hook
 export function useCombos(type?: string, search?: string) {
   return useQuery({
     queryKey: ['combos', type, search],
     queryFn: async () => {
-      try {
-        const params = new URLSearchParams();
-        if (type) params.set('type', type);
-        if (search) params.set('search', search);
-        const res = await fetchAPI<Combo[]>(`/combos?${params.toString()}`);
-        return res && res.length > 0 ? res : MOCK_COMBOS;
-      } catch {
-        return MOCK_COMBOS;
-      }
+      const params = new URLSearchParams();
+      if (type) params.set('type', type);
+      if (search) params.set('search', search);
+      return await fetchAPI<Combo[]>(`/combos?${params.toString()}`);
     },
   });
 }
@@ -558,17 +548,42 @@ export function useComboDetail(slug: string) {
   return useQuery({
     queryKey: ['combo', slug],
     queryFn: async () => {
+      return await fetchAPI<Combo>(`/combos/${slug}`);
+    },
+    enabled: Boolean(slug),
+  });
+}
+
+// 32. Admin Customers List Hook
+export function useAdminCustomers(params?: { search?: string; status?: string }) {
+  return useQuery({
+    queryKey: ['admin', 'customers', params],
+    queryFn: async () => {
       try {
-        const res = await fetchAPI<Combo>(`/combos/${slug}`);
-        if (res) return res;
+        const queryStr = new URLSearchParams();
+        if (params?.search) queryStr.set('search', params.search);
+        if (params?.status) queryStr.set('status', params.status);
+        const res = await fetchAPI<any[]>(`/admin/customers?${queryStr.toString()}`);
+        return Array.isArray(res) ? res : [];
       } catch {
-        // Fallback to mock combo
+        return [];
       }
-      const mock = MOCK_COMBOS.find((c) => c.slug === slug || c.id === slug);
-      return mock || MOCK_COMBOS[0];
     },
   });
 }
+
+// 33. Update Customer Status Mutation
+export function useUpdateCustomerStatus() {
+  return useMutation({
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
+      return await fetchAPI<any>(`/admin/customers/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isActive }),
+      });
+    },
+  });
+}
+
 
 
 

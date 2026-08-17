@@ -16,7 +16,7 @@ export class ComboTypeOrmRepository implements IComboRepository {
   async findById(id: string): Promise<Combo | null> {
     const entity = await this.comboRepo.findOne({
       where: { id },
-      relations: ['items', 'items.product'],
+      relations: { items: { product: true } },
     });
     return entity ? ComboMapper.toDomain(entity) : null;
   }
@@ -24,7 +24,7 @@ export class ComboTypeOrmRepository implements IComboRepository {
   async findBySlug(slug: string): Promise<Combo | null> {
     const entity = await this.comboRepo.findOne({
       where: { slug },
-      relations: ['items', 'items.product'],
+      relations: { items: { product: true } },
     });
     return entity ? ComboMapper.toDomain(entity) : null;
   }

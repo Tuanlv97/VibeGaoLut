@@ -1533,7 +1533,22 @@ PHASE 17: Support Floating Dock & Vector Search AI Chatbot Widget [IN_PROGRESS] 
 * **Sub-tasks**:
   - [x] 1. Xây dựng Component `SocialSupportDock.tsx` hiển thị bên trái với nút Zalo OA, Facebook Messenger và Hotline 24/7.
   - [x] 2. Xây dựng Component `VectorAIChatbotWidget.tsx` hiển thị bên phải với cửa sổ Chatbot AI bo góc `rounded-2xl`, quick prompts, tin nhắn RAG và card sản phẩm nhúng.
-  - [x] 3. Nhúng `SupportFloatingWrapper` vào `layout.tsx` hiển thị toàn hệ thống.
+---
+
+### PHASE 18 — ADMIN CUSTOMER MANAGEMENT & CRM PORTAL 🟢 [COMPLETED]
+
+#### TASK-P18-01
+* **Status**: `COMPLETED` 🟢
+* **Epic**: Admin CRM & Customer Management
+* **Feature**: Admin Customers Portal (`/admin/customers`)
+* **Task**: Xây dựng trang Quản Lý & Chăm Sóc Khách Hàng (CRM) trong Admin Portal
+* **Sub-tasks**:
+  - [x] 1. Bổ sung mục menu **Khách Hàng** (`👤 /admin/customers`) trên thanh Admin Sidebar (`AdminSidebar.tsx`).
+  - [x] 2. Phát triển trang `/admin/customers` hiển thị KPI Stats (Tổng KH, KH hoạt động, Tổng tích điểm, Số dư ví GOLD), Thanh tìm kiếm & bộ lọc trạng thái.
+  - [x] 3. Xây dựng Drawer/Modal Chi tiết & Chăm sóc Khách hàng (CRM) với phím tắt gọi điện, Zalo, copy thông tin, lịch sử đơn hàng và form lưu nhật ký ghi chú chăm sóc KH.
+  - [x] 4. Phát triển REST API Backend NestJS (`GET /admin/customers`, `PATCH /admin/customers/:id/status`), Use Cases (`GetAdminCustomersUseCase`, `UpdateCustomerStatusUseCase`) và cập nhật `ICustomerRepository`.
+  - [x] 5. Kiểm thử biên dịch TypeScript (Web & API) đạt 100% không có lỗi.
+
 
 
 

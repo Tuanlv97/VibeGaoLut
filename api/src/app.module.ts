@@ -71,6 +71,8 @@ import { ManageBlogUseCase } from './application/use-cases/admin/manage-blog.use
 import { ModerateQuestionUseCase } from './application/use-cases/admin/moderate-question.use-case';
 import { LoginAdminUseCase } from './application/use-cases/admin-auth/login-admin.use-case';
 import { ManageAdminUsersUseCase } from './application/use-cases/admin-auth/manage-admin-users.use-case';
+import { GetAdminCustomersUseCase } from './application/use-cases/admin/get-admin-customers.use-case';
+import { UpdateCustomerStatusUseCase } from './application/use-cases/admin/update-customer-status.use-case';
 
 // Controllers
 import { ProductController } from './presentation/controllers/product.controller';
@@ -230,6 +232,17 @@ const ormEntities = [
     GenerateTopupQrUseCase,
     GetGoldWalletUseCase,
     ApproveTopupUseCase,
+    {
+      provide: GetAdminCustomersUseCase,
+      useFactory: (custRepo: CustomerTypeOrmRepository, orderRepo: OrderRepository) =>
+        new GetAdminCustomersUseCase(custRepo, orderRepo),
+      inject: ['ICustomerRepository', 'IOrderRepository'],
+    },
+    {
+      provide: UpdateCustomerStatusUseCase,
+      useFactory: (custRepo: CustomerTypeOrmRepository) => new UpdateCustomerStatusUseCase(custRepo),
+      inject: ['ICustomerRepository'],
+    },
 
     // Catalog Use Cases
     {

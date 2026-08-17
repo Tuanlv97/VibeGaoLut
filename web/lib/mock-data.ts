@@ -531,3 +531,18 @@ export const MOCK_COMBOS: Combo[] = [
   }
 ];
 
+export function deductMockStock(productId: string, quantity: number) {
+  const product = MOCK_PRODUCTS.find((p) => p.id === productId);
+  if (product && typeof product.stockQuantity === 'number') {
+    product.stockQuantity = Math.max(0, product.stockQuantity - quantity);
+  }
+}
+
+export function restockMockStock(productId: string, quantity: number) {
+  const product = MOCK_PRODUCTS.find((p) => p.id === productId);
+  if (product && typeof product.stockQuantity === 'number') {
+    product.stockQuantity += quantity;
+  }
+}
+
+

@@ -28,6 +28,8 @@ import { GetQuestionsUseCase } from '@application/use-cases/community/get-questi
 import { ApproveTopupUseCase } from '@application/use-cases/admin/approve-topup.use-case';
 import { ImportInventoryUseCase } from '@application/use-cases/admin/import-inventory.use-case';
 import { GetInventoryLogsUseCase } from '@application/use-cases/admin/get-inventory-logs.use-case';
+import { GetAdminCustomersUseCase } from '@application/use-cases/admin/get-admin-customers.use-case';
+import { UpdateCustomerStatusUseCase } from '@application/use-cases/admin/update-customer-status.use-case';
 import {
   CreateProductDto,
   UpdateProductDto,
@@ -58,7 +60,27 @@ export class AdminController {
     private readonly approveTopupUseCase: ApproveTopupUseCase,
     private readonly importInventoryUseCase?: ImportInventoryUseCase,
     private readonly getInventoryLogsUseCase?: GetInventoryLogsUseCase,
+    private readonly getAdminCustomersUseCase?: GetAdminCustomersUseCase,
+    private readonly updateCustomerStatusUseCase?: UpdateCustomerStatusUseCase,
   ) {}
+
+  @Get('customers')
+  @ApiOperation({ summary: 'Lấy danh sách khách hàng & thông tin chăm sóc khách hàng CRM' })
+  async getCustomers(@Query('search') search?: string, @Query('status') status?: string) {
+    if (!this.getAdminCustomersUseCase) {
+      return [];
+    }
+    return await this.getAdminCustomersUseCase.execute({ search, status });
+  }
+
+  @Patch('customers/:id/status')
+  @ApiOperation({ summary: 'Khóa / Mở khóa tài khoản khách hàng' })
+  async updateCustomerStatus(@Param('id') id: string, @Body() body: { isActive: boolean }) {
+    if (!this.updateCustomerStatusUseCase) {
+      throw new Error('UpdateCustomerStatusUseCase chưa được cấu hình.');
+    }
+    return await this.updateCustomerStatusUseCase.execute(id, body.isActive);
+  }
 
   @Get('stats')
   @ApiOperation({ summary: 'Get Admin KPI Dashboard Stats' })

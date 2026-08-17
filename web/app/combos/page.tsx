@@ -14,7 +14,7 @@ export default function CombosPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const { data: combos, isLoading } = useCombos(selectedType === 'ALL' ? undefined : selectedType, searchQuery);
   const addItemToCart = useCartStore((s) => s.addItem);
-  const { showToast } = useToast();
+  const toast = useToast();
 
   const handleAddComboToCart = (combo: Combo, e: React.MouseEvent) => {
     e.preventDefault();
@@ -35,7 +35,7 @@ export default function CombosPage() {
       );
     });
 
-    showToast(`Đã thêm toàn bộ gói "${combo.name}" vào giỏ hàng!`, 'success');
+    toast.success(`Đã thêm toàn bộ gói "${combo.name}" vào giỏ hàng!`);
   };
 
   const getComboTypeBadge = (type: string) => {
